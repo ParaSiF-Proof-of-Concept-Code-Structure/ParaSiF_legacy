@@ -41,7 +41,7 @@ cd $BUILD_DIR
 #export PYTHONPATH=$PYTHONPATH:$BUILD_DIR/lib/python3.8/site-packages
 #export LD_LIBRARY_PATH=$BUILD_DIR/lib:$LD_LIBRARY_PATH
 export CC=mpicc
-export CXX=mpi++
+export CXX=mpic++
 export F77=mpif77
 export FC=mpifort 
 export ftn=mpifort
