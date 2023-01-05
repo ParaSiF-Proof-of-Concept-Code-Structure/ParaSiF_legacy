@@ -1,5 +1,8 @@
 # TEST ParaSiF - Parallel Partitioned Multi-physics Simulation Framework
 
+Notes:
+1) couplingFSILab is moved inside /ThirdPart/sources/MUI/MUI_utelites
+
 Parallel Partitioned Multi-physics Simulation Framework is developed based on the MUI library. It offers a platform where users can carry out multi-physics (mainly fluid-structure interaction) studies using supercomputers.
 
 The framework uses a partitioned approach to couple two or more physics domains together for multi-physics simulations. It takes several advantages of the MUI library:
