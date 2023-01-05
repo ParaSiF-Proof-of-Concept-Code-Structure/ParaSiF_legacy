@@ -26,7 +26,7 @@ writeInterval     1;
 purgeWrite        0; 	
 writeFormat       binary;
 writePrecision    18;
-writeCompression  compressed;
+writeCompression  uncompressed;
 timeFormat        general;
 timePrecision     18;
 graphFormat 	  gnuplot;
@@ -47,7 +47,7 @@ functions
 	beamForces
 	{
 	    type                forces;
-	    functionObjectLibs  ("libforces.so");
+	    libs  ("libforces.so");
 	    enabled             true;
 	    writeControl       timeStep;
 	    writeInterval      1;
@@ -69,7 +69,7 @@ functions
 	beamForceCoeffs
 	{	
 	    type                forceCoeffs;
-	    functionObjectLibs  ( "libforces.so" );
+	    libs  ( "libforces.so" );
 	    enabled             true;
 	    writeControl       timeStep;
 	    writeInterval      1;

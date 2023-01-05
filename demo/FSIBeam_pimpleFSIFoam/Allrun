@@ -7,7 +7,7 @@ domainFluid=${PWD}/runData/fluidDomain
 domainStructure=${PWD}/runData/structureDomain
 
 # Ranks set to each domain
-numProcsFluid=6
+numProcsFluid=4
 numProcsStructure=1
 
 # Source OpenFOAM run functions
@@ -30,10 +30,16 @@ cd ../../
 
 echo -n "ParaSiF running..."
 
+# mpirun -np ${numProcsFluid} --output-filename Logs/coupledOutput ${solver1} -case ${domain1} -parallel : \
+#       -np ${numProcs} ${solver2} -case ${domain2} -parallel
+
 # ParaSiF case with OpenFOAM_MUI(C++)_MUI(python)_FEniCS parallel run
-mpirun -np ${numProcsFluid} -wdir ${domainFluid} ${solverFluid} -parallel -coupled :\
-       -np ${numProcsStructure} -wdir ${domainStructure} python3 -m mpi4py ${solverStructure}\
-        > runData/logFiles/log.foamRun 2>&1 | tail -f runData/logFiles/log.foamRun
+mpirun -np ${numProcsFluid}  ${solverFluid} -case ${domainFluid} -parallel -coupled : \
+      -np ${numProcsStructure} -wdir ${domainStructure} python3 -m mpi4py ${solverStructure} \
+      > runData/logFiles/log.foamRun 2>&1 | tail -f runData/logFiles/log.foamRun
+# :\
+#        -np ${numProcsStructure} -wdir ${domainStructure} python3 -m mpi4py ${solverStructure}\
+#         > runData/logFiles/log.foamRun 2>&1 | tail -f runData/logFiles/log.foamRun
 
 echo "Done"
 

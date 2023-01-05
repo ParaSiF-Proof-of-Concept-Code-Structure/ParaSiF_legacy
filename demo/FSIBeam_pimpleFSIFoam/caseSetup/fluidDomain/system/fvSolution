@@ -104,11 +104,6 @@ PIMPLE
     moveMeshOuterCorrectors     true;
     checkMeshCourantNo          true;
 
-    residualControl
-    {
-        U                     1.0e-05;      
-        p                     5.0e-04;      
-    }
 }
 
 relaxationFactors
