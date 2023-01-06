@@ -1,0 +1,23 @@
+#!/bin/bash
+
+CXX = mpicc
+
+CCFLAGS = -Wall -Wextra
+CICODEPATH = -I../../
+CIEIGENPATH = -I/home/omar/OpenFOAM/ParaSiF/FEniCS/V2019.1.0/eigen-3.3.9
+CIMUIPATH = -I../../../wrappers/C -I../../../
+CLPATH = -L../../ -L../../../wrappers/C
+CLNAME = -lmui_c_wrapper 
+LDFLAGS = -lstdc++
+
+
+default: fixedRelaxation_CAPI.o aitken_CAPI.o iqnils_CAPI.o
+	ar rcs libmuiCouplingMethodsCAPI.a fixedRelaxation_CAPI.o aitken_CAPI.o iqnils_CAPI.o
+
+%.o : %.cpp
+	${CXX} ${CCFLAGS} -c $^ -o $@ ${CICODEPATH} ${CIEIGENPATH} ${CIMUIPATH} ${CLPATH} ${CLNAME} ${LDFLAGS}
+
+.PHONY : clean
+
+clean :
+	${RM} -rf *.o *.a
