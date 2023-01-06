@@ -1,4 +1,4 @@
-# TEST ParaSiF - Parallel Partitioned Multi-physics Simulation Framework
+# ParaSiF - Parallel Partitioned Multi-physics Simulation Framework
 
 Notes:
 1) couplingFSILab is moved inside /ThirdPart/sources/MUI/MUI_utelites
