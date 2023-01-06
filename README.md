@@ -1,6 +1,7 @@
 # ParaSiF - Parallel Partitioned Multi-physics Simulation Framework
 
 Notes:
+1) The coupling between the CFD and CSM solvers are achieved by the MUI library https://github.com/MxUI, which is under constant development and improvements. This version of ParaSIF is using MUI 1.2.4, and a copy of the library is also located in ParaSiF/src/CFD/OpenFOAM/ThirdParty-v2206/sources/. 
 1) couplingFSILab is moved inside /ThirdPart/sources/MUI/MUI_utelites
 
 Parallel Partitioned Multi-physics Simulation Framework is developed based on the MUI library. It offers a platform where users can carry out multi-physics (mainly fluid-structure interaction) studies using supercomputers.
