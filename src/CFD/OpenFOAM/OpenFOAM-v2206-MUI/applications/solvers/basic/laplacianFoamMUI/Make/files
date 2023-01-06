@@ -1,0 +1,3 @@
+laplacianFoamMUI.C
+
+EXE = $(FOAM_APPBIN)/laplacianFoamMUI

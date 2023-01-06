@@ -1,0 +1,13 @@
+include $(GENERAL_RULES)/mpi-MUI-rules
+
+EXE_INC = \
+    $(PFLAGS) \
+    $(PINC) \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude
+
+EXE_LIBS = \
+    $(PLIBS) \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lmeshTools

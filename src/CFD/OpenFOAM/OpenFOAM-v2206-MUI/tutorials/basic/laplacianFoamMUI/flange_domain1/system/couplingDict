@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      couplingDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+couplingName	domain1;	//Coupling domain name
+refLength	1;		//Length reference value for anything used in the coupling interfaces (default=1)
+refTime		1;		//Time reference value for anything used in the coupling interfaces (default=1)
+
+couplingConfigurations
+(
+    TwoDInterfaces //2D coupling interfaces
+    {
+        interface_twoD_1
+        {
+            iterationCoupling		no; //If yes then integer time-stamps are used in MUI commits
+	    smartSend			yes; //If yes then SmartSend MPI optimisation enabled for sending and receiving (if set)
+	    smartSendSynchronise	yes; //If yes then SmartSend announcements are synchronised, blocking, both sides of the interface MUST do this
+            sending			yes; //If yes then the interface will be set to send
+            receiving			yes; //If yes then the interface will be set to receive
+            //domainSendStart		(0 0 0); //Specifies exact SmartSend domain values for sending announcement - optional
+            //domainSendEnd		(1 1 0); //Specifies exact SmartSend domain values for sending announcement - optional
+            //domainReceiveStart	(0 0 0); //Specifies exact SmartSend domain values for receiving announcement - optional
+            //domainReceiveEnd		(1 1 0); //Specifies exact SmartSend domain values for receiving announcement - optional
+        }
+    }
+
+    ThreeDInterfaces //3D coupling interfaces
+    {
+        interface_threeD_1
+        {
+            iterationCoupling		no;
+	    smartSend			yes;
+	    smartSendSynchronise	yes;
+            sending			yes;
+            receiving			yes;
+            //domainSendStart		(0 0 0);
+            //domainSendEnd		(1 1 1);
+            //domainReceiveStart	(0 0 0);
+            //domainReceiveEnd		(1 1 1);
+        }
+    }
+
+    TemplatedInterfaces //Templated coupling interfaces
+    {
+        interface_T_1
+        {
+            iterationCoupling		no;
+	    smartSend			yes;
+	    smartSendSynchronise	yes;
+            sending			yes;
+            receiving			yes;
+            //domainSendStart		(0 0 0);
+            //domainSendEnd		(1 1 1);
+            //domainReceiveStart	(0 0 0);
+            //domainReceiveEnd		(1 1 1);
+        }
+    }
+);
+
+// ************************************************************************* //

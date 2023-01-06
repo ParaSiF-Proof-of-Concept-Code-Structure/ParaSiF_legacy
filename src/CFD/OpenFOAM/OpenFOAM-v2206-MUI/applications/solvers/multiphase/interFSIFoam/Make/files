@@ -1,0 +1,3 @@
+interFSIFoam.C
+
+EXE = $(FOAM_APPBIN)/interFSIFoam
