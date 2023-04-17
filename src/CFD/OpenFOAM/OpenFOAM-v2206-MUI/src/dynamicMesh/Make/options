@@ -1,4 +1,12 @@
+include $(GENERAL_RULES)/mpi-MUI-rules
+
 EXE_INC = \
+    -DUSE_MUI \
+    $(PFLAGS) \
+    $(PINC) \
+    -I/home/omar/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/MUI/MUI_Utility/couplingFSILab \
+    -I/home/omar/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/MUI \
+    -I/home/omar/OpenFOAM/ParaSiF/FEniCS/V2019.1.0/eigen-3.3.9 \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/fileFormats/lnInclude \
     -I$(LIB_SRC)/surfMesh/lnInclude \
@@ -6,6 +14,7 @@ EXE_INC = \
     -I$(LIB_SRC)/mesh/extrudeModel/lnInclude
 
 LIB_LIBS = \
+    $(PLIBS) \
     -lfiniteVolume \
     -lfileFormats \
     -lsurfMesh \

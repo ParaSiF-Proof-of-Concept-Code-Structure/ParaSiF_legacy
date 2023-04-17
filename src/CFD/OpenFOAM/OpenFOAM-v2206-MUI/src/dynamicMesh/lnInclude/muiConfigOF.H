@@ -1,0 +1,1 @@
+../motionSolvers/displacement/solidBody/solidBodyMotionFunctions/coupled6DoFMotion/muiConfigOF.H
