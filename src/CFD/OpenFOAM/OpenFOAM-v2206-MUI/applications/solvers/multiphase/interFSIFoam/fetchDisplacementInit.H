@@ -191,24 +191,22 @@
     mui::sampler_pseudo_n2_linear<mui::config_of> spatial_sampler(rSampler);
     mui::temporal_sampler_exact<mui::config_of> chrono_sampler;
 
-    std::vector<muiCoupling::muiCouplingAitken> AK;
-    AK.reserve(interfaceNames.size());
-    std::vector<muiCoupling::muiCouplingFixedRelaxation> FR;
-    FR.reserve(interfaceNames.size());
+		mui::algo_aitken<mui::config_of> aitken(static_cast<double>(initUndRelxCpl));
+		mui::algo_fixed_relaxation<mui::config_of> fr(static_cast<double>(initUndRelxCpl));
     std::vector<muiCoupling::muiCouplingIQNILS> IQNILS;
     IQNILS.reserve(interfaceNames.size());
 
     // Construct an application of muiCouplingAitken
-    muiCoupling::muiCouplingAitken AKLocal((double)(initUndRelxCpl));
+    // muiCoupling::muiCouplingAitken AKLocal(static_cast<double>(initUndRelxCpl));
     // Construct an application of muiCouplingFixedRelaxation
-    muiCoupling::muiCouplingFixedRelaxation FRLocal((double)(initUndRelxCpl));
+    // muiCoupling::muiCouplingFixedRelaxation FRLocal(static_cast<double>(initUndRelxCpl));
     // Construct an application of muiCouplingIQNILS
-    muiCoupling::muiCouplingIQNILS IQNILSLocal((double)(initUndRelxCpl));
+    muiCoupling::muiCouplingIQNILS IQNILSLocal(static_cast<double>(initUndRelxCpl));
 
     forAll(interfaceNames, iN)
     {
-        AK.emplace_back(AKLocal);
-        FR.emplace_back(FRLocal);
+        // AK.emplace_back(AKLocal);
+        // FR.emplace_back(FRLocal);
         IQNILS.emplace_back(IQNILSLocal);
     }
 
@@ -228,7 +226,7 @@
 
             if (cplMethod == "Aitken")
             {
-                AK[iN].initialize((int)(totPointSize));
+                // AK[iN].initialize(static_cast<int>(totPointSize));
                 Info << "{OpenFOAM} interface " << interfaceNames[iN] << " Aitken coupling method selected!" << endl;
 
                 muiResidual << "MUI CouplingLib Utility" << "\t" << "Aitken method" << endl;
@@ -240,7 +238,7 @@
 
             } else if (cplMethod == "FixedRelaxation")
             {
-                FR[iN].initialize((int)(totPointSize));
+                // FR[iN].initialize(static_cast<int>(totPointSize));
                 Info << "{OpenFOAM} interface " << interfaceNames[iN] << " Fixed Relaxation coupling method selected!" << endl;
 
                 muiResidual << "MUI CouplingLib Utility" << "\t" << "FixedRelaxation method" << endl;
@@ -252,9 +250,9 @@
 
             } else if (cplMethod == "IQN_ILS")
             {
-                IQNILS[iN].initialize((int)(totPointSize),
-                                      (double)(maxUndRelxCpl),
-                                      (int)(numAitkenIterations));
+                IQNILS[iN].initialize(static_cast<int>(totPointSize),
+                                      static_cast<double>(maxUndRelxCpl),
+                                      static_cast<int>(numAitkenIterations));
                 Info << "{OpenFOAM} interface " << interfaceNames[iN] << " IQN-ILS coupling method selected!" << endl;
 
                 muiResidual << "MUI CouplingLib Utility" << "\t" << "IQN-ILS method" << endl;

@@ -54,7 +54,6 @@
     {
         forAll(interfaceNames, iN)
         {
-            int pointCounter = 0;
 
 			bool patchIDToFetch = false;
 
@@ -74,7 +73,6 @@
 				{
 					forAll(dispVectorValsList[iN][pI], pointI)
 					{
-						pointCounter++;
 
 						rcv_point[0] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X);
 						rcv_point[1] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Y);
@@ -82,13 +80,35 @@
 
 						if (rankHasPatchPointsForfetch)
 						{
-
-							double fetchTempX =
-								ifs[iN]->fetch(fetchNameX, rcv_point, (double)(totalCurrentIter-0), spatial_sampler, chrono_sampler);
-							double fetchTempY =
-								ifs[iN]->fetch(fetchNameY, rcv_point, (double)(totalCurrentIter-0), spatial_sampler, chrono_sampler);
-							double fetchTempZ =
-								ifs[iN]->fetch(fetchNameZ, rcv_point, (double)(totalCurrentIter-0), spatial_sampler, chrono_sampler);
+											double fetchTempX, fetchTempY, fetchTempZ;
+											if (cplMethod == "Aitken")
+											{
+													fetchTempX =
+															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
+													fetchTempY =
+															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
+													fetchTempZ =
+															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
+											} else if (cplMethod == "FixedRelaxation")
+											{
+													fetchTempX =
+															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
+													fetchTempY =
+															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
+													fetchTempZ =
+															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
+											}  else if (cplMethod == "Loose")
+											{
+												 fetchTempX =
+														 ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
+												 fetchTempY =
+														 ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
+												 fetchTempZ =
+														 ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
+											} else
+											{
+													FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict is not recognized!" << exit(FatalError);
+											}
 
 
 							double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*t);
@@ -112,58 +132,10 @@
 							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Z): " << dispVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
 						}
 
-						if (cplMethod == "Aitken")
-						{
-							AK[iN].collectResidual( dispVectorValsList[iN][pI][pointI].component(vector::X),
-													dispVectorValsList[iN][pI][pointI].component(vector::Y),
-													dispVectorValsList[iN][pI][pointI].component(vector::Z),
-													dispVectorOldValsList[iN][pI][pointI].component(vector::X),
-													dispVectorOldValsList[iN][pI][pointI].component(vector::Y),
-													dispVectorOldValsList[iN][pI][pointI].component(vector::Z),
-													pointCounter);
-						} else if (cplMethod == "FixedRelaxation")
-						{
-							FR[iN].collectResidual( dispVectorValsList[iN][pI][pointI].component(vector::X),
-													dispVectorValsList[iN][pI][pointI].component(vector::Y),
-													dispVectorValsList[iN][pI][pointI].component(vector::Z),
-													dispVectorOldValsList[iN][pI][pointI].component(vector::X),
-													dispVectorOldValsList[iN][pI][pointI].component(vector::Y),
-													dispVectorOldValsList[iN][pI][pointI].component(vector::Z),
-													pointCounter);
-						} else if (cplMethod == "IQN_ILS")
-						{
-							IQNILS[iN].collectResidual( dispVectorValsList[iN][pI][pointI].component(vector::X),
-														dispVectorValsList[iN][pI][pointI].component(vector::Y),
-														dispVectorValsList[iN][pI][pointI].component(vector::Z),
-														dispVectorOldValsList[iN][pI][pointI].component(vector::X),
-														dispVectorOldValsList[iN][pI][pointI].component(vector::Y),
-														dispVectorOldValsList[iN][pI][pointI].component(vector::Z),
-														pointCounter);
-						} else if (cplMethod == "Loose")
-						{
-							// Do nothing for Loose coupling method
-						} else
-						{
-							FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict does not recognized!" << exit(FatalError);
-						}
+
 					}
 
-					if (cplMethod == "Aitken")
-					{
-						AK[iN].process(totalCurrentIter,subIter);
-					} else if (cplMethod == "FixedRelaxation")
-					{
-						FR[iN].process();
-					} else if (cplMethod == "IQN_ILS")
-					{
-						IQNILS[iN].process(totalCurrentIter);
-					} else if (cplMethod == "Loose")
-					{
-						// Do nothing for Loose coupling method
-					} else
-					{
-						FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict does not recognized!" << exit(FatalError);
-					}
+
 				}
 				patchIDToFetch = false;
             }
@@ -185,23 +157,9 @@
                     rcv_point[2] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z);
 
                     dispVectorValsList[iN][pI][pointI].component(vector::X) = 0.0;
-
                     dispVectorValsList[iN][pI][pointI].component(vector::Y) = 0.0;
-
                     dispVectorValsList[iN][pI][pointI].component(vector::Z) = 0.0;
 
-                    if((dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
-                    {
-                        Pout << "dispVectorValsList[iN][pI][pointI].component(vector::X): " << dispVectorValsList[iN][pI][pointI].component(vector::X) << nl << endl;
-                    }
-                    if((dispVectorValsList[iN][pI][pointI].component(vector::Y) != 0.0) && (debugFetchDisplacement == true))
-                    {
-                        Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Y): " << dispVectorValsList[iN][pI][pointI].component(vector::Y) << nl << endl;
-                    }
-                    if((dispVectorValsList[iN][pI][pointI].component(vector::Z) != 0.0) && (debugFetchDisplacement == true))
-                    {
-                        Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Z): " << dispVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
-                    }
                 }
             }
         }
@@ -209,7 +167,6 @@
 
     forAll(interfaceNames, iN)
     {
-        int pointCounter = 0;
 
 		bool patchIDToFetch = false;
 
@@ -254,72 +211,31 @@
 
 				if(patchIDToFetch == true)
 				{
-					pointCounter++;
-
-					if (cplMethod == "Aitken")
-					{
-						if (applyFetchX)
-						{
-							PointPointerLocal[pointI].component(vector::X) += dispVectorOldValsList[iN][pI][pointI].component(vector::X) + AK[iN].getXDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::X) += AK[iN].getXDeltaDisp(pointCounter);
-						}
-						if (applyFetchY)
-						{
-							PointPointerLocal[pointI].component(vector::Y) += dispVectorOldValsList[iN][pI][pointI].component(vector::Y) + AK[iN].getYDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::Y) += AK[iN].getYDeltaDisp(pointCounter);
-						}
-						if (applyFetchZ)
-						{
-							PointPointerLocal[pointI].component(vector::Z) += dispVectorOldValsList[iN][pI][pointI].component(vector::Z) + AK[iN].getZDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::Z) += AK[iN].getZDeltaDisp(pointCounter);
-						}
-
-					} else if (cplMethod == "FixedRelaxation")
-					{
-						if (applyFetchX)
-						{
-							PointPointerLocal[pointI].component(vector::X) += dispVectorOldValsList[iN][pI][pointI].component(vector::X) + FR[iN].getXDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::X) += FR[iN].getXDeltaDisp(pointCounter);
-						}
-						if (applyFetchY)
-						{
-							PointPointerLocal[pointI].component(vector::Y) += dispVectorOldValsList[iN][pI][pointI].component(vector::Y) + FR[iN].getYDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::Y) += FR[iN].getYDeltaDisp(pointCounter);
-						}
-						if (applyFetchZ)
-						{
-							PointPointerLocal[pointI].component(vector::Z) += dispVectorOldValsList[iN][pI][pointI].component(vector::Z) + FR[iN].getZDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::Z) += FR[iN].getZDeltaDisp(pointCounter);
-						}
-					} else if (cplMethod == "IQN_ILS")
-					{
 
 						if (applyFetchX)
 						{
-							PointPointerLocal[pointI].component(vector::X) += dispVectorOldValsList[iN][pI][pointI].component(vector::X) + IQNILS[iN].getXDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::X) += IQNILS[iN].getXDeltaDisp(pointCounter);
+							PointPointerLocal[pointI].component(vector::X) += dispVectorValsList[iN][pI][pointI].component(vector::X);
 						}
 						if (applyFetchY)
 						{
-							PointPointerLocal[pointI].component(vector::Y) += dispVectorOldValsList[iN][pI][pointI].component(vector::Y) + IQNILS[iN].getYDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::Y) += IQNILS[iN].getYDeltaDisp(pointCounter);
+							PointPointerLocal[pointI].component(vector::Y) += dispVectorValsList[iN][pI][pointI].component(vector::Y);
 						}
 						if (applyFetchZ)
 						{
-							PointPointerLocal[pointI].component(vector::Z) += dispVectorOldValsList[iN][pI][pointI].component(vector::Z) + IQNILS[iN].getZDeltaDisp(pointCounter);
-							dispVectorOldValsList[iN][pI][pointI].component(vector::Z) += IQNILS[iN].getZDeltaDisp(pointCounter);
+							PointPointerLocal[pointI].component(vector::Z) += dispVectorValsList[iN][pI][pointI].component(vector::Z);
 						}
 
-					} else if (cplMethod == "Loose")
+					if((dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
 					{
-
-						PointPointerLocal[pointI].component(vector::X) += dispVectorValsList[iN][pI][pointI].component(vector::X);
-						PointPointerLocal[pointI].component(vector::Y) += dispVectorValsList[iN][pI][pointI].component(vector::Y);
-						PointPointerLocal[pointI].component(vector::Z) += dispVectorValsList[iN][pI][pointI].component(vector::Z);
-
-					} else
-					{
-						FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict does not recognized!" << exit(FatalError);
+							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::X): " << dispVectorValsList[iN][pI][pointI].component(vector::X) << nl << endl;
+						}
+					if((dispVectorValsList[iN][pI][pointI].component(vector::Y) != 0.0) && (debugFetchDisplacement == true))
+						{
+							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Y): " << dispVectorValsList[iN][pI][pointI].component(vector::Y) << nl << endl;
+						}
+					if((dispVectorValsList[iN][pI][pointI].component(vector::Z) != 0.0) && (debugFetchDisplacement == true))
+						{
+							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Z): " << dispVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
 					}
 
 					if((PointPointerLocal[pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
@@ -343,20 +259,20 @@
 							if (cplMethod == "Aitken")
 							{
 								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t"
-									<< AK[iN].undRelxCpl() << "\t" << AK[iN].pointSize() << "\t" << AK[iN].residualMagSqSum() << "\t"
-									<< AK[iN].residualL2NormMax() << "\t" << AK[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
+									// << AK[iN].undRelxCpl() << "\t" << AK[iN].pointSize() << "\t" << AK[iN].residualMagSqSum() << "\t"
+									// << AK[iN].residualL2NormMax() << "\t" << AK[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z) << endl;
 							} else if (cplMethod == "FixedRelaxation")
 							{
 								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t"
-									<< FR[iN].undRelxCpl() << "\t" << FR[iN].pointSize() << "\t" << FR[iN].residualMagSqSum() << "\t"
-									<< FR[iN].residualL2NormMax() << "\t" << FR[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
+									// << FR[iN].undRelxCpl() << "\t" << FR[iN].pointSize() << "\t" << FR[iN].residualMagSqSum() << "\t"
+									// << FR[iN].residualL2NormMax() << "\t" << FR[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z) << endl;
 							} else if (cplMethod == "IQN_ILS")
 							{
 								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t"
-									<< IQNILS[iN].undRelxCpl() << "\t" << IQNILS[iN].pointSize() << "\t" << IQNILS[iN].residualMagSqSum() << "\t"
-									<< IQNILS[iN].residualL2NormMax() << "\t" << IQNILS[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
+									// << IQNILS[iN].undRelxCpl() << "\t" << IQNILS[iN].pointSize() << "\t" << IQNILS[iN].residualMagSqSum() << "\t"
+									// << IQNILS[iN].residualL2NormMax() << "\t" << IQNILS[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z)<< endl;
 							} else if (cplMethod == "Loose")
 							{

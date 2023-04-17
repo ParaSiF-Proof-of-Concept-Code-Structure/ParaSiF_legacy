@@ -92,10 +92,8 @@ Note
 // The main MUI header
 // This will only work if the mpi-MUI wmake rule is included in the application Make options file
 #include "mui.h"
-// This is only needed if creating templated MUI interfaces
+#include <algorithm>
 #include "muiConfigOF.H"
-#include "aitken_inl.H"
-#include "fixedRelaxation_inl.H"
 #include "iqnils_inl.H"
 #endif
 // Create DynamicLists (mui2dInterfaces / mui3dInterfaces / muiTemplatedInterfaces),
@@ -184,8 +182,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        for(int subIter = 1; subIter <= subIterationNum; ++subIter)
-        {
+        // for(int subIter = 1; subIter <= subIterationNum; ++subIter)
+        // {
+        subIter =0;
+        endSubIter =0;
+        while (subIter <=subIterationNum && int(endSubIter)==0 )
+        {   ++subIter;
 
             Info<< "sub-Iteration = " << subIter << nl << endl;
 

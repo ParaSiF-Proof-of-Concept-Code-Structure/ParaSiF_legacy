@@ -57,6 +57,7 @@ Description
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 #include "mui.h"
+#include <algorithm>
 // This is only needed if creating templated MUI interfaces
 #include "muiConfigOF.H"
 #include "aitken_inl.H"
@@ -130,7 +131,6 @@ int main(int argc, char *argv[])
 
         ++runTime;
 
-        Info<< "Time = " << runTime.timeName() << nl << endl;
         #ifdef USE_MUI
         timeSteps++;
 

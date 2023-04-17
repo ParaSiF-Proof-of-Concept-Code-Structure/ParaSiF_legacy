@@ -76,7 +76,8 @@ struct config_of {
                                                                  int64_t,
                                                                  double,
                                                                  float,
-                                                                 std::string
+                                                                 std::string,
+																																 bool
                                                                 >;
 };
 

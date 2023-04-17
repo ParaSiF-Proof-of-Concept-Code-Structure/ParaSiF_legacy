@@ -163,9 +163,9 @@
 
                 //- Create 3D sending point at current face center
                 // ToDo: change it to map
-                send_point[0] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::X)));
-                send_point[1] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Y)));
-                send_point[2] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Z)));
+                send_point[0] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::X)));
+                send_point[1] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Y)));
+                send_point[2] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Z)));
 
                 if (rankHasPatchPointsForPush)
                 {

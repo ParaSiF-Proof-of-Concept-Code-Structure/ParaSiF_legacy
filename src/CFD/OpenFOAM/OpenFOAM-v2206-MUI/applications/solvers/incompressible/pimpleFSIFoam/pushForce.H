@@ -141,9 +141,9 @@
 
                 //- Create 3D sending point at current face center
                 // ToDo: change it to map  solution
-                send_point[0] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::X)));
-                send_point[1] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Y)));
-                send_point[2] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Z)));
+                send_point[0] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::X)));
+                send_point[1] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Y)));
+                send_point[2] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Z)));
 
                 if (rankHasPatchPointsForPush)
                 {
@@ -215,7 +215,18 @@
                 }
             }
         }
-
+        reduce(cplAlgo_res, maxOp<double>());
+        if (cplAlgo_res <=cplAlgo_res_tolerance && subIter > 1){
+          endSubIter = 1;
+        } else
+        {endSubIter = 0;}
+        mui::point3d	tempPoint = {0,0,0};
+       ifs[iN]->push("cplAlgo_res", tempPoint , cplAlgo_res);
+       ifs[iN]->push("endSubIter", tempPoint , endSubIter);
+       if (Pstream::master())
+       {
+         printf( "Coupling Algo residual is %f, current time is %f, subIter is %d, total iter number is %d \n",cplAlgo_res, runTime.value(),subIter,totalCurrentIter);
+       }
         //- Commit the pushed values to the interface at current time step
         ifs[iN]->commit(static_cast<scalar>(totalCurrentIter));
 

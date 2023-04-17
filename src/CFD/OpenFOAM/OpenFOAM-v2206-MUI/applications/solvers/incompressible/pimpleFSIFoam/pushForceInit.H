@@ -47,6 +47,10 @@
 
     // Total iteration counter
     int totalCurrentIter = 0;
+    int subIter =0;
+    double cplAlgo_res = 0.0;
+    double cplAlgo_res_tolerance = 0.0;
+    double endSubIter = 0;  // 1: True. 0: False
 
     // Define the name of MUI domain
     word domainName;
@@ -171,6 +175,12 @@
                            << "Missing cplFSIMethod entry" << exit(FatalIOError);
         }
         cplMethod = cplFSIMethod;
+
+        if (!(fsiDict.readIfPresent("cplAlgo_res_tolerance", cplAlgo_res_tolerance)))
+        {
+            FatalIOErrorIn("", fsiDict)
+                           << "Missing cplAlgo_res_tolerance entry" << exit(FatalIOError);
+        }
 
         int subIterationNumber;
         if (!(fsiDict.readIfPresent("subIterationNumber", subIterationNumber)))
