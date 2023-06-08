@@ -36,21 +36,13 @@ License
 #include <algorithm>
 #include "muiConfigOF.H"
 #include "DynamicList.H"
-// typedef std::unique_ptr<mui::uniface1d> MuiUnifacePtr1d;
-// MuiUnifacePtr1d interface;
-// mui::sampler_exact1d<double> spatial_sampler;
-// mui::temporal_sampler_exact1d chrono_sampler;
-// DynamicList<mui::uniface<mui::config_1d>*> mui1dInterfaces;
-// DynamicList<mui::uniface<mui::config_2d>*> mui2dInterfaces;
-// DynamicList<mui::uniface<mui::config_3d>*> mui3dInterfaces;
-// DynamicList<mui::uniface<mui::config_of>*> muiTemplatedInterfaces;
 
-// mui::uniface1d interface( "mpi://pong/ifs" );
 typedef std::unique_ptr<mui::uniface1d> MuiUnifacePtr1d;
 MuiUnifacePtr1d interface;
 mui::sampler_exact1d<double> spatial_sampler;
 mui::temporal_sampler_exact1d chrono_sampler;
-
+bool ifsInit;
+double oldTime;
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -89,75 +81,33 @@ Foam::solidBodyMotionFunctions::coupled6DoFMotion::coupled6DoFMotion
 Foam::septernion
 Foam::solidBodyMotionFunctions::coupled6DoFMotion::transformation() const
 {
-  // Info << "Open Foam XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 1" <<endl ;
-  // typedef std::unique_ptr<mui::uniface1d> MuiUnifacePtr1d;
-  // Info << "Open Foam XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 2" <<endl ;
-  // MuiUnifacePtr1d interface;
-  // mui::sampler_exact1d<double> spatial_sampler;
-  // mui::temporal_sampler_exact1d chrono_sampler;
+
+  string interfaceName="mpi://OpenFoam_6DoF/ifs";
+  if (! ifsInit){
+    interface.reset(new mui::uniface1d(interfaceName));
+    ifsInit = true;
+    oldTime=0;
+  }
 
     scalar t = time_.value();
 
-    if (t < times_[0])
-    {
-        FatalErrorInFunction
-            << "current time (" << t
-            << ") is less than the minimum in the data table ("
-            << times_[0] << ')'
-            << exit(FatalError);
+    if (t != oldTime)  {   // To be corrected and send the time value independant of the time and space
+      interface->push( "crrntTime", 0, t );
+      interface->commit( oldTime );
     }
 
-    if (t > times_.last())
-    {
-        FatalErrorInFunction
-            << "current time (" << t
-            << ") is greater than the maximum in the data table ("
-            << times_.last() << ')'
-            << exit(FatalError);
-    }
-Info << "Open Foam XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 3" <<endl ;
-std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 99);
-    int random_number = dis(gen);
-    mui::point1d push_point;
-    mui::point1d fetch_point;
-    Info << "Open Foam XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 4" <<endl ;
-    double disp_x, disp_y,disp_z;
-    double angle_x, angle_y,angle_z;
-    Info << "Open Foam XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 5" <<endl ;
-    double crrntTime= 0.00055;
-    fetch_point[0] = 0;
-    Info << "Open Foam XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 6" <<endl ;
-    string interfaceName="mpi://p"+std::to_string(random_number)+"/ifs";
-    interface.reset(new mui::uniface1d(interfaceName));
-
     //
-    // disp_x = interface->fetch( "disp_x", fetch_point, crrntTime, spatial_sampler, chrono_sampler );
-    // disp_y = interface->fetch( "disp_y", fetch_point, crrntTime, spatial_sampler, chrono_sampler );
-    // disp_z = interface->fetch( "disp_z", fetch_point, crrntTime, spatial_sampler, chrono_sampler );
-    //
-    // angle_x = interface->fetch( "angle_x", fetch_point, crrntTime, spatial_sampler, chrono_sampler );
-    // angle_y = interface->fetch( "angle_y", fetch_point, crrntTime, spatial_sampler, chrono_sampler );
-    // angle_z = interface->fetch( "angle_z", fetch_point, crrntTime, spatial_sampler, chrono_sampler );
+    Info << "OpenFoam: 6DoF is fetching discplacement values at time " << t << endl;
+    translationRotationVectors TRV;
+    TRV[0][0] = interface->fetch( "disp_x", 0, t, spatial_sampler, chrono_sampler );
+    TRV[0][1] = interface->fetch( "disp_y", 0, t, spatial_sampler, chrono_sampler );
+    TRV[0][2] = interface->fetch( "disp_z", 0, t, spatial_sampler, chrono_sampler );
 
-
-    cout << "Pong disp_x = " << disp_x << endl;
-    cout << "Pong disp_y = " << disp_y << endl;
-    cout << "Pong disp_z = " << disp_z << endl;
-
-    cout << "Pong angle_x = " << angle_x << endl;
-    cout << "Pong angle_y = " << angle_y << endl;
-    cout << "Pong angle_z = " << angle_z << endl;
-
-
-    translationRotationVectors TRV = interpolateSplineXY
-    (
-        t,
-        times_,
-        values_
-    );
-    Info << "++++++++++++++++ Current time = " << t<< " , Interpolated values = " << TRV << endl;
+    TRV[1][0] = interface->fetch( "angle_x", 0, t, spatial_sampler, chrono_sampler );
+    TRV[1][1] = interface->fetch( "angle_y", 0, t, spatial_sampler, chrono_sampler );
+    TRV[1][2] = interface->fetch( "angle_z", 0, t, spatial_sampler, chrono_sampler );
+    oldTime = t; // To be corrected and send the time value independant of the time and space
+    Info << "OpenFoam: 6DoF is fetched discplacement values are " << TRV << endl;
     // Convert the rotational motion from deg to rad
     TRV[1] *= degToRad();
 
@@ -183,46 +133,6 @@ bool Foam::solidBodyMotionFunctions::coupled6DoFMotion::read
     (
         SBMFCoeffs_.get<fileName>("timeDataFileName").expand()
     );
-
-
-
-    // mui::uniface1d interface( "mpi://foam/ifs" );
-    // mui::sampler_exact1d<double> spatial_sampler;
-    // interface.reset(new mui::uniface1d("mpi://foam/ifs"));
-
-
-
-
-    if (newTimeDataFileName != timeDataFileName_)
-    {
-        timeDataFileName_ = newTimeDataFileName;
-
-        IFstream dataStream(timeDataFileName_);
-
-        if (dataStream.good())
-        {
-            List<Tuple2<scalar, translationRotationVectors>> timeValues
-            (
-                dataStream
-            );
-
-            times_.setSize(timeValues.size());
-            values_.setSize(timeValues.size());
-
-            forAll(timeValues, i)
-            {
-                times_[i] = timeValues[i].first();
-                values_[i] = timeValues[i].second();
-                // Info << "Read from the table Time = " << times_[i] << "and values "<< values_[i]<<endl;
-            }
-        }
-        else
-        {
-            FatalErrorInFunction
-                << "Cannot open time data file " << timeDataFileName_
-                << exit(FatalError);
-        }
-    }
 
     SBMFCoeffs_.readEntry("CofG", CofG_);
 

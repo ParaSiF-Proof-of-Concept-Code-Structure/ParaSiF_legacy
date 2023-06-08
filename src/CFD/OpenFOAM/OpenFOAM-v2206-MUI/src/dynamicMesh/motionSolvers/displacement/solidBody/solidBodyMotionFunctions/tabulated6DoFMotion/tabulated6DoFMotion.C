@@ -31,6 +31,9 @@ License
 #include "Tuple2.H"
 #include "IFstream.H"
 #include "interpolateSplineXY.H"
+#include "interpolateCubicSplineXY.H"
+#include "interpolateXY.H"
+
 #include "unitConversion.H"
 
 
@@ -90,7 +93,7 @@ Foam::solidBodyMotionFunctions::tabulated6DoFMotion::transformation() const
             << exit(FatalError);
     }
 
-    translationRotationVectors TRV = interpolateSplineXY
+    translationRotationVectors TRV = interpolateCubicSplineXY
     (
         t,
         times_,
