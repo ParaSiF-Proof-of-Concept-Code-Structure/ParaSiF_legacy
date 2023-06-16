@@ -107,15 +107,9 @@ class checkpointLogCtrl:
             print ("\n")
 
     def print_Disp (self, displacement_function):
-        # Compute and print the displacement of monitored point
-        d_DispSum = np.zeros(3)
-        d_tempDenominator  = np.array([ self.size,
-                                        self.size,
-                                        self.size])
-        self.LOCAL_COMM_WORLD.Reduce((displacement_function(
-                                    Point(self.pointMoniX(),self.pointMoniY(),self.pointMoniZ()))),
-                                    d_DispSum,op=MPI.SUM,root=0)
-        d_Disp = np.divide(d_DispSum,d_tempDenominator)
+
+        d_Disp = self.point_disp(displacement_function,self.pointMoniX(),self.pointMoniY(),self.pointMoniZ())
+
         if self.rank == 0:
             print ("{FENICS} Monitored point deflection [m]: ", d_Disp)
 

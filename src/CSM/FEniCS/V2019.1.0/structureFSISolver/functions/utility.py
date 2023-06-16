@@ -40,8 +40,25 @@
 #%% Import packages
 #_________________________________________________________________________________________
 from dolfin import *
+import numpy as np
+from mpi4py import MPI
 
 class utility:
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #%% Obtain specific values
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def point_disp(self, displacement_function, pointX, pointY, pointZ):
+        # Compute the displacement of given point
+        d_DispSum = np.zeros(3)
+        d_tempDenominator  = np.array([ self.size,
+                                        self.size,
+                                        self.size])
+        self.LOCAL_COMM_WORLD.Reduce((displacement_function(
+                                    Point(pointX,pointY,pointZ))),
+                                    d_DispSum,op=MPI.SUM,root=0)
+        return np.divide(d_DispSum,d_tempDenominator)
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #%% Define directional vectors
