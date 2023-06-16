@@ -80,6 +80,42 @@ class readData:
     def iMUIPushMode (self):
         # Select of push mode of MUI (integer)
         return int(self.cfg['MUI']['iMUIPushMode'])
+    def pointSDOFaX (self):
+        # X-axis coordinate of the six DOF a point [m]
+        return float(self.cfg['MUI']['pointSDOFaX'])
+    def pointSDOFaY (self):
+        # Y-axis coordinate of the six DOF a point [m]
+        return float(self.cfg['MUI']['pointSDOFaY'])
+    def pointSDOFaZ (self):
+        # Z-axis coordinate of the six DOF a point [m]
+        return float(self.cfg['MUI']['pointSDOFaZ'])
+    def pointSDOFbX (self):
+        # X-axis coordinate of the six DOF b point [m]
+        return float(self.cfg['MUI']['pointSDOFbX'])
+    def pointSDOFbY (self):
+        # Y-axis coordinate of the six DOF b point [m]
+        return float(self.cfg['MUI']['pointSDOFbY'])
+    def pointSDOFbZ (self):
+        # Z-axis coordinate of the six DOF b point [m]
+        return float(self.cfg['MUI']['pointSDOFbZ'])
+    def pointSDOFcX (self):
+        # X-axis coordinate of the six DOF c point [m]
+        return float(self.cfg['MUI']['pointSDOFcX'])
+    def pointSDOFcY (self):
+        # Y-axis coordinate of the six DOF c point [m]
+        return float(self.cfg['MUI']['pointSDOFcY'])
+    def pointSDOFcZ (self):
+        # Z-axis coordinate of the six DOF c point [m]
+        return float(self.cfg['MUI']['pointSDOFcZ'])
+    def pointSDOFdX (self):
+        # X-axis coordinate of the six DOF d point [m]
+        return float(self.cfg['MUI']['pointSDOFdX'])
+    def pointSDOFdY (self):
+        # Y-axis coordinate of the six DOF d point [m]
+        return float(self.cfg['MUI']['pointSDOFdY'])
+    def pointSDOFdZ (self):
+        # Z-axis coordinate of the six DOF d point [m]
+        return float(self.cfg['MUI']['pointSDOFdZ'])
     def iPushX (self):
         # F-Not push X; T-Push X.
         return self.cfg['MUI'].getboolean('iPushX')
