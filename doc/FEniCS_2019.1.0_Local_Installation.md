@@ -6,7 +6,7 @@ sudo apt update
 sudo apt install build-essential
 sudo apt install cmake
 ```
-Download and build OpenMPI  as per https://www.open-mpi.org/software/ompi. After installation, it is also necessary to add the following line to the .bashrc file and source it :
+Download and build OpenMPI  as per https://www.open-mpi.org/software/ompi and https://docs.open-mpi.org/en/v5.0.x/installing-open-mpi/quickstart.html. After installation, it is also necessary to add the following line to the .bashrc file and source it :
 ```bash
 export LD_LIBRARY_PATH=/usr/local/lib/
 ```
