@@ -1486,7 +1486,6 @@ class StructureFSISolver:
 
                     for i, p in enumerate(dofs_fetch_list):
                         if self.iMultidomain:
-                            print ("{** OMAR **} I am here : ")
                             #MUI_Interfaces["threeDInterface0"].barrier(float(total_Sub_Iteration-1))
                             temp_vec_function[0::3][p] = MUI_Interfaces["threeDInterface0"].fetch("forceX",
                                                         dofs_to_xyz[i],
