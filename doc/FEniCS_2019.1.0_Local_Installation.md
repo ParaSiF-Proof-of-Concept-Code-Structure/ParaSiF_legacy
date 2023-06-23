@@ -125,7 +125,7 @@ sudo python3 setup.py install
 Download, configure and install prerequisites for PETSc
 ---------------------------------------------------------
 
-The "sundials" library is not required by the coupling, and is therefore not installed. As it is accounted for by default, Line 21 (L21) of tpsl.sh, to be found as `${BUILD_DIR}/boost/sh/tpsl.sh` has to be changed from
+The "sundials" library is not required by the coupling and is therefore not installed. As it is accounted for by default, Line 21 (L21) of tpsl.sh, to be found as `${BUILD_DIR}/boost/sh/tpsl.sh` has to be changed from
 
 printf "%s\n" glm hypre matio metis scotch parmetis mumps sundials superlu superlu-dist \
 to
@@ -200,7 +200,7 @@ pip3 install petsc4py
 ```
 Test PETSC and PETSc4py
 ---------------------------------------
-Check that petsc4py is installed correctly and the right path and environmental variable are set. Hopefully you get no error.
+Check that petsc4py is installed correctly and the right path and environmental variable are set. Hopefully, you get no error.
 ```bash
 make PETSC_DIR=${BUILD_DIR}/boost/petsc-$PETSC_VERSION PETSC_ARCH=arch-linux-c-opt check
 python3 -c "import petsc4py; print(petsc4py.get_include())"
@@ -272,7 +272,7 @@ make -j 8 install
 source ${BUILD_DIR}/dolfin/build/share/dolfin/dolfin.conf
 ```
 
-Build python build. If you need to installing it on a specific location, $(DOLFIN4PY_LOCATION), beacuse the sudo privileges, then used the option ***--prefix***.
+Build python build. If you need to install it on a specific location, $(DOLFIN4PY_LOCATION), because the sudo privileges, then used the option ***--prefix***.
 
 ```bash
 cd ../python
@@ -285,21 +285,21 @@ If the python build was made at the location ***DOLFIN4PY_LOCATION***, then ***P
 ```bash
 export PYTHONPATH=$PYTHONPATH:$DOLFIN4PY_LOCATION/lib/python3.8/site-packages/fenics_dolfin-2019.1.0-py3.8-linux-x86_64.egg
 ```
-Now, test Dolfin is bulid with the following command, and hopefully you get no error.
+Now, test Dolfin is bulid with the following command, and hopefully, you get no error.
 ```bash
 python3 -c "from dolfin import *"
 ```
 
 Use DOLFIN on new session
 ---------------------------------------
-After starting starting a new session, some of the environmental varaibles defined during the installation need to be redefined 
+After starting a new session, some of the environmental variables defined during the installation need to be redefined. Note: depending on the python version the path and the name of ***fenics_dolfin-2019.1.0-py3*** can differ, so make sure you add the right path to PYTHONPATH
 
 ```bash
 export BUILD_DIR=XXXXXXXX/FEniCS/V2019.1.0
 export DOLFIN4PY_LOCATION=$BUILD_DIR/dolfin/python/install
 
 source ${BUILD_DIR}/dolfin/build/share/dolfin/dolfin.conf
-export PYTHONPATH=$PYTHONPATH:$DOLFIN4PY_LOCATION/lib/python3.8/site-packages/fenics_dolfin-2019.1.0-py3.8-linux-x86_64.egg
+export PYTHONPATH=$PYTHONPATH:$DOLFIN4PY_LOCATION/lib/python3.*/site-packages/fenics_dolfin-2019.1.0-py3.*-linux-x86_64.egg
 
 ```
 
