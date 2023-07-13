@@ -162,7 +162,7 @@ export PETSC_ARCH=arch-linux-c-opt
 
 export ROOT_SHARED_DIR=${BUILD_DIR}/boost
 
-./configure --with-petsc4py=1 --force --download-superlu=yes --download-metis=yes   --download-parmetis=yes --download-ptscotch=yes   --download-scalapack   --download-mumps --download-cmake --download-superlu_dist=yes
+./configure --with-petsc4py=1 --force --download-superlu=yes --download-metis=yes   --download-parmetis=yes --download-ptscotch=yes   --download-scalapack   --download-mumps --download-cmake --download-superlu_dist=yes --download-fblaslapack=1
 
 #./configure  --download-cmake --prefix=$ROOT_SHARED_DIR/petsc-$PETSC_VERSION/install \
 #--with-mpi=1  --enable-shared=1   --with-precision=double  --download-superlu=yes \
