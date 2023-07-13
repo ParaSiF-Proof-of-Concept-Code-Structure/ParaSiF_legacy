@@ -155,7 +155,7 @@ Download, configure and install FEniCS python components
   wget https://bitbucket.org/fenics-project/ffc/downloads/ffc-2019.1.0.post0.tar.gz
   tar zxvf ffc-2019.1.0.post0.tar.gz
   cd ffc-2019.1.0.post0/
-  python3 setup.py install
+  python3 setup.py install #(if does not work try "pip3 install .")
 ```
 
 
