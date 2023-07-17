@@ -1,1 +1,0 @@
-../snappyHexMeshDriver/snapParameters/snapParameters.C

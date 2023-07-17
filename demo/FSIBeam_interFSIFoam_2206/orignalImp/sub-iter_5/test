@@ -1,0 +1,49 @@
+#!/bin/bash
+# Basic range with steps for loop
+./Allclean
+cd ${0%/*} || exit 1
+
+domainFluid=${PWD}/runData/fluidDomain
+domainStructure=${PWD}/runData/structureDomain
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+# Create and copy data to run folder
+
+# Get application name for structure domain
+solverStructure=structureDomainRun.py
+
+
+totalNumProcs=8
+START=2
+STEP=2
+END=$(($totalNumProcs-$STEP))
+echo "Countdown"
+
+for (( numProcsStructure=$START; numProcsStructure<=$END \
+     ; numProcsStructure=numProcsStructure+$STEP ))
+do
+  numProcsFluid=$(($totalNumProcs-$numProcsStructure))
+	echo "numProcsFluid = $numProcsFluid  , numProcsStructure=$numProcsStructure   "
+./runCtrl/runDataFolderCreation
+cd runData/fluidDomain
+solverFluid=$(getApplication)
+echo application is ${solverFluid}
+#Com="%s/\<numberOfSubdomains\>\zs.*//|%s/^numberOfSubdomains*/numberOfSubdomains           $numProcsFluid;/g|wq"
+vi -c "%s/\<numberOfSubdomains\>\zs.*//|%s/^numberOfSubdomains*/numberOfSubdomains  \
+         	$numProcsFluid;/g|wq" ./system/decomposeParDict
+cd ../../
+
+# Pre-processing
+./runCtrl/preProcess
+
+echo -n "parMupSiF running..."
+
+# parMupSiF case with OpenFOAM_MUI(C++)_MUI(python)_FEniCS parallel run
+mpirun -np ${numProcsFluid} -wdir ${domainFluid} ${solverFluid} -parallel -coupled :\
+       -np ${numProcsStructure} -wdir ${domainStructure} python3 -m mpi4py ${solverStructure}\
+        2>&1 | tee runData/logFiles/log.foamRun
+        # 2>&1 | tail -f runData/logFiles/log.foamRun
+# mkdir "CFD-$numProcsFluid,CSD-$numProcsStructure"
+
+mv runData "CFD-$numProcsFluid,CSD-$numProcsStructure"
+# mv   runData CFD-$numProcsFluid_CSD-$domainStructure
+done

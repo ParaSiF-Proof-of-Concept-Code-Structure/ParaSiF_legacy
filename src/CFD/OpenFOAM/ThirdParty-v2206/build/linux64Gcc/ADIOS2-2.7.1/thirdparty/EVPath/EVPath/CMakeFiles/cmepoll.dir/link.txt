@@ -1,0 +1,1 @@
+/usr/local/bin/mpicc -fPIC -m64 -fPIC -w -Wall  -O3 -DNDEBUG -m64 -shared  -o lib/libadios2_cmepoll.so CMakeFiles/cmepoll.dir/cmepoll.c.o  -Wl,-rpath,/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/lib: ../../../lib/libadios2_atl.so.2.2.1 

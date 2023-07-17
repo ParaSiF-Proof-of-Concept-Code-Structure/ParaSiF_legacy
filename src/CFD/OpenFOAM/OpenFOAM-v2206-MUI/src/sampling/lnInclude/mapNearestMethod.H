@@ -1,1 +1,0 @@
-../meshToMesh/calcMethod/mapNearest/mapNearestMethod.H

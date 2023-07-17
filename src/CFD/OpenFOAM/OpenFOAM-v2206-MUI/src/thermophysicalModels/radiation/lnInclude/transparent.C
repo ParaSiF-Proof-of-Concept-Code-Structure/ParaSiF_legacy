@@ -1,1 +1,0 @@
-../submodels/boundaryRadiationProperties/transparent/transparent.C

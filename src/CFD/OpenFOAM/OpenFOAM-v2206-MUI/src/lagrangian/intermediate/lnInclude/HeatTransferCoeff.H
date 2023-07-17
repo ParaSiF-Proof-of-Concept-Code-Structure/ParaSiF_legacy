@@ -1,1 +1,0 @@
-../submodels/CloudFunctionObjects/HeatTransferCoeff/HeatTransferCoeff.H

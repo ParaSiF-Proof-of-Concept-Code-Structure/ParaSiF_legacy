@@ -1,1 +1,0 @@
-../submodels/absorptionEmissionModel/multiBandZoneAbsorptionEmission/multiBandZoneAbsorptionEmission.C

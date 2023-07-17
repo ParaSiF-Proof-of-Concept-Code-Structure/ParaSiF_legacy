@@ -1,1 +1,0 @@
-../vtk/format/foamVtkLegacyRawFormatter.C

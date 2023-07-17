@@ -1,1 +1,0 @@
-../submodels/wallAbsorptionEmissionModel/constantAbsorption/constantAbsorption.H

@@ -1,1 +1,0 @@
-../diameterModels/linearTsubDiameter/linearTsubDiameter.H

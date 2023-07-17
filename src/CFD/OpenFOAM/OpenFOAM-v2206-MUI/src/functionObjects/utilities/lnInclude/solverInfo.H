@@ -1,1 +1,0 @@
-../solverInfo/solverInfo.H

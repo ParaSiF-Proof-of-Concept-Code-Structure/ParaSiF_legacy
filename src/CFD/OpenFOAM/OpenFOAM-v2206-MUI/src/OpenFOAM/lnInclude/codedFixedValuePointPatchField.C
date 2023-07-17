@@ -1,1 +1,0 @@
-../fields/pointPatchFields/derived/codedFixedValue/codedFixedValuePointPatchField.C

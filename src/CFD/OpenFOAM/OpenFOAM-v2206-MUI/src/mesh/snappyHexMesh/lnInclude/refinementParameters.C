@@ -1,1 +1,0 @@
-../snappyHexMeshDriver/refinementParameters/refinementParameters.C

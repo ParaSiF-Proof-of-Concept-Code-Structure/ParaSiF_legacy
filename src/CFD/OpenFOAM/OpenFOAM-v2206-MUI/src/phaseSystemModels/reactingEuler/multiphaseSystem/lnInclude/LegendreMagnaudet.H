@@ -1,1 +1,0 @@
-../interfacialModels/liftModels/LegendreMagnaudet/LegendreMagnaudet.H

@@ -1,1 +1,0 @@
-../derivedFvPatchFields/waveAlpha/waveAlphaFvPatchScalarField.H

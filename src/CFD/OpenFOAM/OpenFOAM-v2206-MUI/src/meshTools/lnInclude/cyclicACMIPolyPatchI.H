@@ -1,1 +1,0 @@
-../AMIInterpolation/patches/cyclicACMI/cyclicACMIPolyPatch/cyclicACMIPolyPatchI.H

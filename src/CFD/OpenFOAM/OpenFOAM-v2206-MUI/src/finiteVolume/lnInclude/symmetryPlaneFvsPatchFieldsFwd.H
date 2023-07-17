@@ -1,1 +1,0 @@
-../fields/fvsPatchFields/constraint/symmetryPlane/symmetryPlaneFvsPatchFieldsFwd.H

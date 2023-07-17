@@ -1,1 +1,0 @@
-../submodels/boundaryRadiationProperties/boundaryRadiationProperties.C

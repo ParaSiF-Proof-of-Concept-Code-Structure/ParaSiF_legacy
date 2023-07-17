@@ -1,1 +1,0 @@
-../mappedPatches/mappedPointPatch/mappedPointPatch.C

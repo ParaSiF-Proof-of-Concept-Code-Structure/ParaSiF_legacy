@@ -1,1 +1,0 @@
-../parallel/globalIndex/globalIndex.C

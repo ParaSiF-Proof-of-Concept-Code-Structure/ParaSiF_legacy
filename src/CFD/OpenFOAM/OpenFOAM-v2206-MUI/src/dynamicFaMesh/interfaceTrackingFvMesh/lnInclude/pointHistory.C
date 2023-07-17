@@ -1,1 +1,0 @@
-../functionObjects/pointHistory/pointHistory.C

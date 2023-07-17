@@ -1,1 +1,0 @@
-../solvers/adjointSolvers/incompressible/adjointSimple/adjointSimple.C

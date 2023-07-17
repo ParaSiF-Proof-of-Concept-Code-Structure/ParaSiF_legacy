@@ -1,1 +1,0 @@
-../radiationModels/solarLoad/faceReflecting/faceReflecting.C

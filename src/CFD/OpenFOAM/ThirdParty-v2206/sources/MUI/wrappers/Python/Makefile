@@ -4,8 +4,8 @@ CXXFLAGS = -Wall -std=c++11 -O3 -Wno-unused-local-typedefs -Wno-comment -Wno-reo
 LDFLAGS = -shared
 USE_RBF = 1
 include $(COMPILER).make
-INC_EIGEN = /home/omar/OpenFOAM/ParaSiF/FEniCS/V2019.1.0/eigen-3.3.9
-INC_MPI4PY = -I$(shell python3 -c "import mpi4py;print(mpi4py.get_include())")
+INC_EIGEN = /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/eigen-3.3.9
+INC_MPI4PY = -I$(shell python3 -c "import mpi4py;print(mpi4py.get_include())") -I/usr/include/python3.10/
 INC_PYBIND = $(shell python3 -m pybind11 --includes)
 CXX_VERSION_STR = '"$(shell $(CXX) --version | head -n 1)"'
 MPI_VERSION_STR = '"$(shell bash mpi_version.sh)"'

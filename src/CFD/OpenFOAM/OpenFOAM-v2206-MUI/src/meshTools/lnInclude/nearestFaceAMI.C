@@ -1,1 +1,0 @@
-../AMIInterpolation/AMIInterpolation/nearestFaceAMI/nearestFaceAMI.C

@@ -1,1 +1,0 @@
-../objectives/incompressible/objectiveNutSqr/objectiveNutSqr.C

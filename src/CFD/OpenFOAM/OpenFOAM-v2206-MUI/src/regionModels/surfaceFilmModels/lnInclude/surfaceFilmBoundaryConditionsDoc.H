@@ -1,1 +1,0 @@
-../derivedFvPatchFields/doc/surfaceFilmBoundaryConditionsDoc.H

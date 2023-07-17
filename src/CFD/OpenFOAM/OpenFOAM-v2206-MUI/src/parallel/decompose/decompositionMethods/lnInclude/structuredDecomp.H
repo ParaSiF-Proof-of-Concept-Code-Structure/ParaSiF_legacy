@@ -1,1 +1,0 @@
-../structuredDecomp/structuredDecomp.H

@@ -6,7 +6,7 @@ include $(COMPILER).make
 INC_MPI4PY = -I$(shell python3 -c "import mpi4py;print(mpi4py.get_include())")
 INC_PYBIND = $(shell python3 -m pybind11 --includes)
 INC_MUI = -I../../../
-INC_TPARTY = -I/home/omar/OpenFOAM/ParaSiF/FEniCS/V2019.1.0/eigen-3.3.9
+INC_TPARTY = -I/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/eigen-3.3.9
 CC_VERSION_STR = '"$(shell $(CC) --version | head -n 1)"'
 MPI_VERSION_STR = '"$(shell bash mpi_version.sh)"'
 CC_CONFIG_STR = '"$(shell $(CC) -show) $(CFLAGS) $(INC_MPI4PY) $(INC_PYBIND)"'

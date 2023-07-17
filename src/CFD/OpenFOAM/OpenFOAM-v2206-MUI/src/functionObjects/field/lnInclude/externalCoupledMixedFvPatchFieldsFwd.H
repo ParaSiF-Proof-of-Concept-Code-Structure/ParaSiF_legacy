@@ -1,1 +1,0 @@
-../externalCoupled/externalCoupledMixed/externalCoupledMixedFvPatchFieldsFwd.H

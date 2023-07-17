@@ -1,1 +1,0 @@
-../movement/lumpedPointMovementWriter.C

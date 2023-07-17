@@ -1,1 +1,0 @@
-../vtkWrite/vtkWrite.C

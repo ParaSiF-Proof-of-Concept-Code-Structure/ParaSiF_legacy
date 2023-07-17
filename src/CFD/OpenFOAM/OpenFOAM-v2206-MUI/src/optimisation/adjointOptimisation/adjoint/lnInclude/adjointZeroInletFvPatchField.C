@@ -1,1 +1,0 @@
-../adjointBoundaryConditions/adjointZeroInlet/adjointZeroInletFvPatchField.C

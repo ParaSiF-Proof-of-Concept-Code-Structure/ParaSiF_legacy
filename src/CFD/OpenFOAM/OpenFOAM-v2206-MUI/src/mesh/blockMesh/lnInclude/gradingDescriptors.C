@@ -1,1 +1,0 @@
-../gradingDescriptor/gradingDescriptors.C

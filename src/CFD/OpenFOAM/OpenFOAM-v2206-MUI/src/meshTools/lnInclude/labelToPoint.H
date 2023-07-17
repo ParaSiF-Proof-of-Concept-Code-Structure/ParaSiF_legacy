@@ -1,1 +1,0 @@
-../topoSet/pointSources/labelToPoint/labelToPoint.H

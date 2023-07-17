@@ -1,1 +1,0 @@
-../mappedPatches/mappedPolyPatch/mappedVariableThicknessWallPolyPatch.C

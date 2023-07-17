@@ -1,1 +1,0 @@
-../fvMatrices/solvers/multiDimPolyFitter/multiDimPolyFunctions/polyDegree1.H

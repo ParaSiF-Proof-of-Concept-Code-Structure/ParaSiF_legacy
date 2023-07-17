@@ -1,1 +1,0 @@
-../fields/faPatchFields/derived/clampedPlate/clampedPlateFaPatchField.C

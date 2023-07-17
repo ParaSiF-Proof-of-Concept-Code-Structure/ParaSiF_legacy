@@ -1,1 +1,0 @@
-../fvMesh/fvGeometryScheme/averageNeighbour/averageNeighbourFvGeometryScheme.H

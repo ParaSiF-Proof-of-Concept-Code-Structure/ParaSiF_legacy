@@ -1,1 +1,0 @@
-../windowModels/uniform/uniform.C

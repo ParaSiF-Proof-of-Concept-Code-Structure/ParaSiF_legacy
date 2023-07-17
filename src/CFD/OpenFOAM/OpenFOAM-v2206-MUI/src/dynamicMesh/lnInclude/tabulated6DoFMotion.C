@@ -1,1 +1,0 @@
-../motionSolvers/displacement/solidBody/solidBodyMotionFunctions/tabulated6DoFMotion/tabulated6DoFMotion.C

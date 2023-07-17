@@ -1,1 +1,0 @@
-../motionSolvers/displacement/solidBody/solidBodyMotionSolver.H

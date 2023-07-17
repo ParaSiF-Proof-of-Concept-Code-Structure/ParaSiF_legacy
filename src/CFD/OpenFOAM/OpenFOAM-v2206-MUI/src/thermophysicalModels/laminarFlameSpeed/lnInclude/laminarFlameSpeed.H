@@ -1,1 +1,0 @@
-../laminarFlameSpeed/laminarFlameSpeed.H

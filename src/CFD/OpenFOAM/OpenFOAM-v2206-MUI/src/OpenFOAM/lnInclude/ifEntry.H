@@ -1,1 +1,0 @@
-../db/dictionary/functionEntries/ifEntry/ifEntry.H

@@ -1,1 +1,0 @@
-../interpolations/interpolationTable/tableReaders/openFoam/openFoamTableReaders.C

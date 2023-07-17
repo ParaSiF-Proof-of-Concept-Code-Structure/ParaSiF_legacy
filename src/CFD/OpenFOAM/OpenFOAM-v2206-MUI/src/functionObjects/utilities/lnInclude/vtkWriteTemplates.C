@@ -1,1 +1,0 @@
-../vtkWrite/vtkWriteTemplates.C

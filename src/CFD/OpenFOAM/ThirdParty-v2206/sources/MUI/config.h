@@ -57,22 +57,20 @@ namespace mui {
 template<typename... TYPES> struct type_list {};
 
 struct one_dim {
-	using EXCEPTION = exception_segv;			//- Exception handling type
+	using EXCEPTION = exception_segv;		//- Exception handling type
 
-	static const bool DEBUG = false;			//- Enable extra debugging output
-	static const int D = 1;						//- Dimensionality of the domain
-	static const bool FIXEDPOINTS = false;		//- Optimise for fixed structures - points, and order in which parameters sent must be unchanging between time frames
-	static const bool QUIET = false;			//- If the library is quiet then it will only issue critical warning messages
+	static const bool DEBUG = false;		//- Enable extra debugging output
+	static const int D = 1;					//- Dimensionality of the domain
+	static const bool FIXEDPOINTS = false;	//- Optimise for fixed structures - points, and order in which parameters sent must be unchanging between time frames
+	static const bool QUIET = false;		//- If the library is quiet then it will only issue critical warning messages
 
-	using REAL = double;						//- REAL data type
-	using INT = int64_t;							//- INT data type
+	using REAL = double;					//- REAL data type
+	using INT  = int;						//- INT data type
 
 	using time_type = REAL;						//- INT for iteration coupling, REAL for time-based coupling
 	using iterator_type = INT;					//- Typically INT for sub-iteration count
 	using point_type = point<REAL, D>;			//- "point" data type and dimensionality
-	using data_types = type_list<uint32_t,		//- Data types that can be used in the interface
-								 uint64_t,
-								 int32_t,
+	using data_types = type_list<int32_t,		//- Data types that can be used in the interface
 								 int64_t,
 								 double,
 								 float,
@@ -89,14 +87,12 @@ struct two_dim {
 	static const bool QUIET = false;
 
 	using REAL = double;
-	using INT  = int64_t;
+	using INT  = int;
 
 	using time_type = REAL;
 	using iterator_type = INT;
 	using point_type = point<REAL, D>;
-	using data_types = type_list<uint32_t,
-								 uint64_t,
-								 int32_t,
+	using data_types = type_list<int32_t,
 								 int64_t,
 								 double,
 								 float,
@@ -113,14 +109,12 @@ struct three_dim {
 	static const bool QUIET = false;
 
 	using REAL = double;
-	using INT  = int64_t;
+	using INT  = int;
 
 	using time_type = REAL;
 	using iterator_type = INT;
 	using point_type = point<REAL, D>;
-	using data_types = type_list<uint32_t,
-								 uint64_t,
-								 int32_t,
+	using data_types = type_list<int32_t,
 								 int64_t,
 								 double,
 								 float,

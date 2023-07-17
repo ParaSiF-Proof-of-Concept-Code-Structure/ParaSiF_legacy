@@ -1,1 +1,0 @@
-../adjointBoundaryConditions/adjointOutletVelocity/adjointOutletVelocityFvPatchVectorField.H

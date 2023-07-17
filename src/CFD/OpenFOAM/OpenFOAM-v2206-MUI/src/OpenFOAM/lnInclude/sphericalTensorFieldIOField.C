@@ -1,1 +1,0 @@
-../fields/Fields/sphericalTensorField/sphericalTensorFieldIOField.C

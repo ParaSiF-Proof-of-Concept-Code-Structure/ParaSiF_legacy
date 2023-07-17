@@ -1,1 +1,0 @@
-../interpolations/interpolationWeights/splineInterpolationWeights/splineInterpolationWeights.C

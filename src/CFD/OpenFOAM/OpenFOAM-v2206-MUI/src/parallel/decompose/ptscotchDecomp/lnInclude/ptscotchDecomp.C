@@ -1,1 +1,0 @@
-../ptscotchDecomp.C

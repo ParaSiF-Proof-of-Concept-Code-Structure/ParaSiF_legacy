@@ -1,1 +1,0 @@
-../primitives/spatialVectorAlgebra/SpatialTensor/spatialTensor/spatialTensor.C

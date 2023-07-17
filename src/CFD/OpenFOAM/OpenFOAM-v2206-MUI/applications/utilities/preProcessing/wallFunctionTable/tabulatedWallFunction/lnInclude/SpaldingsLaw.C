@@ -1,1 +1,0 @@
-../SpaldingsLaw/SpaldingsLaw.C

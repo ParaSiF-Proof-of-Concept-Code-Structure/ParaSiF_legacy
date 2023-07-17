@@ -1,1 +1,0 @@
-../sampledSurface/sampledNone/sampledNone.C

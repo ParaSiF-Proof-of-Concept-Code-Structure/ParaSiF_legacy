@@ -1,1 +1,0 @@
-../snappyHexMeshDriver/layerParameters/layerParameters.C

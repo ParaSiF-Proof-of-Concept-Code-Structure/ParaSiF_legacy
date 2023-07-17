@@ -1,1 +1,0 @@
-../interfacialModels/liftModels/noLift/noLift.H

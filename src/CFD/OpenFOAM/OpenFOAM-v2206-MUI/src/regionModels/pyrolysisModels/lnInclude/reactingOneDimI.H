@@ -1,1 +1,0 @@
-../reactingOneDim/reactingOneDimI.H

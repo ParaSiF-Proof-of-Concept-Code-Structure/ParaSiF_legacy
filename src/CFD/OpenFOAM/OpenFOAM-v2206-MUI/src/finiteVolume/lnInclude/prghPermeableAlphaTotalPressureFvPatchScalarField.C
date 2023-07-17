@@ -1,1 +1,0 @@
-../fields/fvPatchFields/derived/prghPermeableAlphaTotalPressure/prghPermeableAlphaTotalPressureFvPatchScalarField.C

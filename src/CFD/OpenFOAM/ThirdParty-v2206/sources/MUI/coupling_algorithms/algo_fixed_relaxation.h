@@ -67,20 +67,34 @@ public:
         std::vector<std::pair<point_type, REAL>>() ):
        init_under_relaxation_factor_(under_relaxation_factor) {
 
+        initialise(under_relaxation_factor, pts_value_init);
+        
+    }
+
+    void initialise(REAL under_relaxation_factor = 1.0,
+       std::vector<std::pair<point_type, REAL>> pts_value_init =
+        std::vector<std::pair<point_type, REAL>>())
+    {
         minimum_iterator_ = 1;
-		under_relaxation_factor_ = init_under_relaxation_factor_;
+        under_relaxation_factor_ = init_under_relaxation_factor_;
 
         if (!pts_value_init.empty()) {
             pts_time_value_.insert(pts_time_value_.begin(),
                 std::make_pair(
                     std::make_pair(
                         std::numeric_limits<time_type>::lowest(),
-						(minimum_iterator_ -1)
+                        (minimum_iterator_ -1)
                     ),pts_value_init
                 )
             );
         }
     }
+
+    void setUnderRelaxationFactor(REAL under_relaxation_factor = 1.0) {
+        printf("Fixed relaxation coupling algo: Update the Under Relaxation Factor to %f \n ", under_relaxation_factor );
+        under_relaxation_factor_ = under_relaxation_factor;
+    }
+
 
     //- relaxation based on single time value
     template<typename OTYPE>
@@ -108,8 +122,9 @@ public:
                             (t.second == b.first.second));
                 });
 
+            auto mi=minimum_iterator_;
             auto previous_iter = std::find_if(pts_time_value_.begin(), pts_time_value_.end(),
-                [t, &mi=minimum_iterator_](std::pair<std::pair<time_type,iterator_type>,std::vector<std::pair<point_type, REAL>>> b) {
+                [t, &mi](std::pair<std::pair<time_type,iterator_type>,std::vector<std::pair<point_type, REAL>>> b) {
                     return ((t.second == mi) ?
 							(b.first.first < t.first) ||
 							 (((t.first - b.first.first) < std::numeric_limits<time_type>::epsilon()) &&
@@ -276,7 +291,7 @@ public:
 
 private:
     template<typename OTYPE>
-    OTYPE calculate_relaxed_value(OTYPE filtered_value, OTYPE filtered_old_value) {
+    OTYPE calculate_relaxed_value(OTYPE filtered_value, OTYPE filtered_old_value) const {
 
         return (under_relaxation_factor_ * filtered_value) + ((1 - under_relaxation_factor_) * filtered_old_value);
 

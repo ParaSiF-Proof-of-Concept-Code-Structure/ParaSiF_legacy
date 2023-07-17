@@ -1,1 +1,0 @@
-../ensight/output/ensightOutputAreaFieldTemplates.C

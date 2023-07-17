@@ -1,1 +1,0 @@
-../fields/fvPatchFields/derived/fixedJump/fixedJumpFvPatchFields.C

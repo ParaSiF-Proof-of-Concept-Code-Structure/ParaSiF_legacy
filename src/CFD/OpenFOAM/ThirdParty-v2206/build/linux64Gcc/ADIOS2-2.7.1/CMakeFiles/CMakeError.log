@@ -1,0 +1,205 @@
+Checking whether CXX compiler has environ in stdlib.h failed to compile with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_57f3a/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_57f3a.dir/build.make CMakeFiles/cmTC_57f3a.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_57f3a.dir/kwsysPlatformTestsCXX.cxx.o
+/usr/local/bin/mpicxx -DTEST_KWSYS_CXX_HAS_ENVIRON_IN_STDLIB_H  -std=c++11 -m64 -pthread -fPIC -w  -std=c++11 -o CMakeFiles/cmTC_57f3a.dir/kwsysPlatformTestsCXX.cxx.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/adios/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/kwsysPlatformTestsCXX.cxx
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/adios/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/kwsysPlatformTestsCXX.cxx: In function ‘int main()’:
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/adios/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/kwsysPlatformTestsCXX.cxx:53:13: error: ‘environ’ was not declared in this scope; did you mean ‘union’?
+   53 |   char* e = environ[0];
+      |             ^~~~~~~
+      |             union
+gmake[1]: *** [CMakeFiles/cmTC_57f3a.dir/build.make:78: CMakeFiles/cmTC_57f3a.dir/kwsysPlatformTestsCXX.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_57f3a/fast] Error 2
+
+
+
+Checking whether CXX compiler struct stat has st_mtimespec member failed to compile with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_43c93/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_43c93.dir/build.make CMakeFiles/cmTC_43c93.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_43c93.dir/kwsysPlatformTestsCXX.cxx.o
+/usr/local/bin/mpicxx -DTEST_KWSYS_CXX_STAT_HAS_ST_MTIMESPEC  -std=c++11 -m64 -pthread -fPIC -w  -std=c++11 -o CMakeFiles/cmTC_43c93.dir/kwsysPlatformTestsCXX.cxx.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/adios/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/kwsysPlatformTestsCXX.cxx
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/adios/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/kwsysPlatformTestsCXX.cxx: In function ‘int main()’:
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/adios/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/kwsysPlatformTestsCXX.cxx:26:15: error: ‘struct stat’ has no member named ‘st_mtimespec’
+   26 |   (void)stat1.st_mtimespec.tv_sec;
+      |               ^~~~~~~~~~~~
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/adios/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/kwsysPlatformTestsCXX.cxx:27:15: error: ‘struct stat’ has no member named ‘st_mtimespec’
+   27 |   (void)stat1.st_mtimespec.tv_nsec;
+      |               ^~~~~~~~~~~~
+gmake[1]: *** [CMakeFiles/cmTC_43c93.dir/build.make:78: CMakeFiles/cmTC_43c93.dir/kwsysPlatformTestsCXX.cxx.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/thirdparty/KWSys/adios2sys/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_43c93/fast] Error 2
+
+
+
+Determining if files windows.h exist failed with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_e63aa/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_e63aa.dir/build.make CMakeFiles/cmTC_e63aa.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e63aa.dir/HAVE_WINDOWS_H.c.o
+/usr/local/bin/mpicc   -m64 -fPIC -w  -o CMakeFiles/cmTC_e63aa.dir/HAVE_WINDOWS_H.c.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CheckIncludeFiles/HAVE_WINDOWS_H.c
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CheckIncludeFiles/HAVE_WINDOWS_H.c:2:10: fatal error: windows.h: No such file or directory
+    2 | #include <windows.h>
+      |          ^~~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_e63aa.dir/build.make:78: CMakeFiles/cmTC_e63aa.dir/HAVE_WINDOWS_H.c.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_e63aa/fast] Error 2
+
+
+Source:
+/* */
+#include <windows.h>
+
+
+int main(void){return 0;}
+
+Determining if the __clear_cache exist failed with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_a192c/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_a192c.dir/build.make CMakeFiles/cmTC_a192c.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a192c.dir/CheckSymbolExists.c.o
+/usr/local/bin/mpicc   -m64 -fPIC -w  -std=gnu99 -o CMakeFiles/cmTC_a192c.dir/CheckSymbolExists.c.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckSymbolExists.c: In function ‘main’:
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckSymbolExists.c:7:3: error: built-in function ‘__clear_cache’ must be directly called
+    7 |   return ((int*)(&__clear_cache))[argc];
+      |   ^~~~~~
+gmake[1]: *** [CMakeFiles/cmTC_a192c.dir/build.make:78: CMakeFiles/cmTC_a192c.dir/CheckSymbolExists.c.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_a192c/fast] Error 2
+
+
+File /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef __clear_cache
+  return ((int*)(&__clear_cache))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the include file sockLib.h exists failed with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_cb539/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_cb539.dir/build.make CMakeFiles/cmTC_cb539.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_cb539.dir/CheckIncludeFile.c.o
+/usr/local/bin/mpicc   -m64 -fPIC -w  -std=gnu99 -o CMakeFiles/cmTC_cb539.dir/CheckIncludeFile.c.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckIncludeFile.c:1:10: fatal error: sockLib.h: No such file or directory
+    1 | #include <sockLib.h>
+      |          ^~~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_cb539.dir/build.make:78: CMakeFiles/cmTC_cb539.dir/CheckIncludeFile.c.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_cb539/fast] Error 2
+
+
+
+Determining if the include file winsock.h exists failed with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_20a4f/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_20a4f.dir/build.make CMakeFiles/cmTC_20a4f.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_20a4f.dir/CheckIncludeFile.c.o
+/usr/local/bin/mpicc   -m64 -fPIC -w  -std=gnu99 -o CMakeFiles/cmTC_20a4f.dir/CheckIncludeFile.c.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckIncludeFile.c:1:10: fatal error: winsock.h: No such file or directory
+    1 | #include <winsock.h>
+      |          ^~~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_20a4f.dir/build.make:78: CMakeFiles/cmTC_20a4f.dir/CheckIncludeFile.c.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_20a4f/fast] Error 2
+
+
+
+Performing C SOURCE FILE Test HAVE_MATH failed with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_9eefe/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_9eefe.dir/build.make CMakeFiles/cmTC_9eefe.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_9eefe.dir/src.c.o
+/usr/local/bin/mpicc -DHAVE_MATH  -m64 -fPIC -w -Wall   -std=gnu99 -o CMakeFiles/cmTC_9eefe.dir/src.c.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_9eefe
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9eefe.dir/link.txt --verbose=1
+/usr/local/bin/mpicc -m64 -fPIC -w -Wall   -m64  CMakeFiles/cmTC_9eefe.dir/src.c.o -o cmTC_9eefe 
+/usr/bin/ld: CMakeFiles/cmTC_9eefe.dir/src.c.o: in function `main':
+src.c:(.text+0x26): undefined reference to `sqrt'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_9eefe.dir/build.make:99: cmTC_9eefe] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_9eefe/fast] Error 2
+
+
+Source file was:
+#include<math.h>
+float f; int main(){sqrt(f);return 0;}
+Determining if the include file hostlib.h exists failed with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_946d8/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_946d8.dir/build.make CMakeFiles/cmTC_946d8.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_946d8.dir/CheckIncludeFile.c.o
+/usr/local/bin/mpicc   -m64 -fPIC -w -Wall   -std=gnu99 -o CMakeFiles/cmTC_946d8.dir/CheckIncludeFile.c.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckIncludeFile.c:1:10: fatal error: hostlib.h: No such file or directory
+    1 | #include <hostlib.h>
+      |          ^~~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_946d8.dir/build.make:78: CMakeFiles/cmTC_946d8.dir/CheckIncludeFile.c.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_946d8/fast] Error 2
+
+
+
+Determining if the include file sys/sockio.h exists failed with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_22497/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_22497.dir/build.make CMakeFiles/cmTC_22497.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_22497.dir/CheckIncludeFile.c.o
+/usr/local/bin/mpicc   -m64 -fPIC -w -Wall   -std=gnu99 -o CMakeFiles/cmTC_22497.dir/CheckIncludeFile.c.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/CheckIncludeFile.c:1:10: fatal error: sys/sockio.h: No such file or directory
+    1 | #include <sys/sockio.h>
+      |          ^~~~~~~~~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_22497.dir/build.make:78: CMakeFiles/cmTC_22497.dir/CheckIncludeFile.c.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_22497/fast] Error 2
+
+
+
+Performing C SOURCE FILE Test HAVE_FDS_BITS failed with the following output:
+Change Dir: /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_818d8/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_818d8.dir/build.make CMakeFiles/cmTC_818d8.dir/build
+gmake[1]: Entering directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_818d8.dir/src.c.o
+/usr/local/bin/mpicc -DHAVE_FDS_BITS  -m64 -fPIC -w -Wall   -std=gnu99 -o CMakeFiles/cmTC_818d8.dir/src.c.o -c /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/src.c
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/src.c: In function ‘main’:
+/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp/src.c:6:36: error: invalid use of undefined type ‘struct fd_set’
+    6 |   (void)sizeof(((struct fd_set *)0)->fds_bits);
+      |                                    ^~
+gmake[1]: *** [CMakeFiles/cmTC_818d8.dir/build.make:78: CMakeFiles/cmTC_818d8.dir/src.c.o] Error 1
+gmake[1]: Leaving directory '/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/build/linux64Gcc/ADIOS2-2.7.1/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_818d8/fast] Error 2
+
+
+Source file was:
+
+#include <sys/select.h>
+
+int main()
+{
+  (void)sizeof(((struct fd_set *)0)->fds_bits);
+  return 0;
+}
+

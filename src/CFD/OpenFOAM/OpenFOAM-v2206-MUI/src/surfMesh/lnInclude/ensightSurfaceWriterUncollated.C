@@ -1,1 +1,0 @@
-../writers/ensight/ensightSurfaceWriterUncollated.C

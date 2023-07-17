@@ -263,6 +263,7 @@ class Uniface(CppClass):
         return fetch(tag, points, time1, time2, ss.raw, cs.raw)
 
     def fetch(self, *args, **kwargs):
+
         tag = args[0]
         data_type = map_type[self._get_tag_type(tag)]
         if len(args) == 1:
@@ -273,6 +274,7 @@ class Uniface(CppClass):
             time = args[2]
             spatial_sampler = args[3]
             temporal_sampler = args[4]
+            # print("spatial_sampler   :  ", spatial_sampler)
             fetch_fname, ss, cs = self._get_fetch_5args("fetch", tag, data_type, spatial_sampler, temporal_sampler)
             barrier_enabled = True
             if type(time).__name__ == 'float':
@@ -300,6 +302,11 @@ class Uniface(CppClass):
                 raise Exception("time1 type '{}'. doesn't same as time2 type".format(type(time1).__name__))
             fargs = (tag, loc, time1, time2, ss.raw, cs.raw, barrier_enabled)
         fetch = getattr(self.raw, fetch_fname)
+        # print("fetch", fetch)
+        # print("------------------------------------------------")
+        # print("*fargs = ", *fargs)
+        # print("================================================")
+        # print("self._get_tag_type(tag) ", self._get_tag_type(tag))
         return safe_cast(self._get_tag_type(tag), fetch(*fargs))
 
     def Point (self, points):

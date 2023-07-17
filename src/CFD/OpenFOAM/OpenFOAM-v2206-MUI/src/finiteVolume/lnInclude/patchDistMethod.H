@@ -1,1 +1,0 @@
-../fvMesh/wallDist/patchDistMethods/patchDistMethod/patchDistMethod.H

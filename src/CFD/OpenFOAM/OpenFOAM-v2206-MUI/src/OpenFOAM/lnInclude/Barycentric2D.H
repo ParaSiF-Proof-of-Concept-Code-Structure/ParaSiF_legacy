@@ -1,1 +1,0 @@
-../primitives/Barycentric2D/Barycentric2D.H

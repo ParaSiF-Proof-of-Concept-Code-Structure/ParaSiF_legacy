@@ -1,1 +1,0 @@
-../ensightWrite/ensightWriteTemplates.C

@@ -1,1 +1,0 @@
-../fields/fvPatchFields/constraint/jumpCyclicAMI/jumpCyclicAMIFvPatchFieldsFwd.H

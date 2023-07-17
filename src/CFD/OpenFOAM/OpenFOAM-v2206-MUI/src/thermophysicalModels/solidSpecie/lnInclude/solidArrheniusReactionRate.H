@@ -1,1 +1,0 @@
-../reaction/reactionRate/solidArrheniusReactionRate/solidArrheniusReactionRate.H

@@ -1,1 +1,0 @@
-../primitives/globalIndexAndTransform/globalIndexAndTransformI.H

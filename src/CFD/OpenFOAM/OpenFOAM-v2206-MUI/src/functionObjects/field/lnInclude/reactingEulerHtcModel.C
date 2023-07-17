@@ -1,1 +1,0 @@
-../heatTransferCoeff/reactingEulerHtcModel/reactingEulerHtcModel.C

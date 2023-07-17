@@ -1,1 +1,0 @@
-../primitives/spatialVectorAlgebra/CompactSpatialTensorT/CompactSpatialTensorT.H

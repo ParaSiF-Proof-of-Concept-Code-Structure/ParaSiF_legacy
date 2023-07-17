@@ -1,1 +1,0 @@
-../pointPatchFields/lumpedPointDisplacementPointPatchVectorField.C

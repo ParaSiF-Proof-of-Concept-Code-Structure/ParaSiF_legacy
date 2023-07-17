@@ -1,1 +1,0 @@
-../submodels/HeterogeneousReactingModel/MUCSheterogeneousRate/MUCSheterogeneousRate.H

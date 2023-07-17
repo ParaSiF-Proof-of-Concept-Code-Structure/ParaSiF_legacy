@@ -1,1 +1,0 @@
-../basicSolidChemistryModel/basicSolidChemistryModel.C

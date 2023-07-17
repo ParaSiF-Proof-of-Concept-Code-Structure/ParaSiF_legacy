@@ -1,1 +1,0 @@
-../fvMesh/fvGeometryScheme/solidBody/solidBodyFvGeometryScheme.H

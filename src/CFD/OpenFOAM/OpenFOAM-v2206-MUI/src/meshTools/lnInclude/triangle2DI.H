@@ -1,1 +1,0 @@
-../AMIInterpolation/triangle2D/triangle2DI.H

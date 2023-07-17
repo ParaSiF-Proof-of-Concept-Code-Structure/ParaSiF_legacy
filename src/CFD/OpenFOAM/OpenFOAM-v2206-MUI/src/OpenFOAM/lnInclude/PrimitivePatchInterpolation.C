@@ -1,1 +1,0 @@
-../interpolations/primitivePatchInterpolation/PrimitivePatchInterpolation.C

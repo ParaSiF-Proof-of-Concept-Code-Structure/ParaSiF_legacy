@@ -1,1 +1,0 @@
-../topoSet/pointZoneSources/setToPointZone/setToPointZone.H

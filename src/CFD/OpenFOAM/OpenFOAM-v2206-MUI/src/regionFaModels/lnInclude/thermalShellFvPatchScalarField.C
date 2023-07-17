@@ -1,1 +1,0 @@
-../derivedFvPatchFields/thermalShell/thermalShellFvPatchScalarField.C

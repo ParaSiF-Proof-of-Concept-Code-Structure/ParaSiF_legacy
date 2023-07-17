@@ -1,1 +1,0 @@
-../derivedFvPatchFields/vibrationShell/vibrationShellFvPatchScalarField.H

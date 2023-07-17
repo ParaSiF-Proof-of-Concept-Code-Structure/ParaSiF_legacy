@@ -1,1 +1,0 @@
-../zeroGradient/zeroGradientTemplates.C

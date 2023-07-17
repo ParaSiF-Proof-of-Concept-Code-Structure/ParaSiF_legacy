@@ -1,1 +1,0 @@
-../topoSet/pointSources/searchableSurfaceToPoint/searchableSurfaceToPoint.H

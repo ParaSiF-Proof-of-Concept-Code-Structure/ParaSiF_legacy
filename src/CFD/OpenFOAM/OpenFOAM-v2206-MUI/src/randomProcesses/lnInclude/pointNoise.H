@@ -1,1 +1,0 @@
-../noise/noiseModels/pointNoise/pointNoise.H

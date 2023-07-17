@@ -1,1 +1,0 @@
-../blockVertices/namedVertex/namedVertex.C

@@ -1,1 +1,0 @@
-../primitives/ints/uint16/uint16.H

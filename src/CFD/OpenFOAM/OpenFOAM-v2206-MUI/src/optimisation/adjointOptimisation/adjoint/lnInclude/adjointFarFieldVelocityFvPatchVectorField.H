@@ -1,1 +1,0 @@
-../adjointBoundaryConditions/adjointFarFieldVelocity/adjointFarFieldVelocityFvPatchVectorField.H

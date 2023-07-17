@@ -1,1 +1,0 @@
-../sampledSurface/sampledMeshedSurface/sampledMeshedSurfaceNormal.H
