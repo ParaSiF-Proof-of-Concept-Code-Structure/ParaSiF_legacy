@@ -432,12 +432,6 @@ class couplingMUIFn:
                                   self.s_sampler,
                                   self.t_sampler)
                 CofR =self.getCofR(forceRecv, momentRecv,CofR)
-                if (fetch_iteration*0.0001 <=0.038*self.num_sub_iteration()):
-                    CofR=np.array([0.68867117, -1.54766274,  0.13689708])
-                    forceRecv[0]=0.0
-                    forceRecv[1]=0.0
-                    forceRecv[2]=-500.0
-                    print("{Fenics::} force fetch is supressed and replaced with ", forceRecv, "and CoFR with ", CofR )
 
                 F_out = self.ForceInterp(forceRecv, CofR, dofs_to_xyz) # are dofs_to_xyz the point to transfer the force to?
                 
