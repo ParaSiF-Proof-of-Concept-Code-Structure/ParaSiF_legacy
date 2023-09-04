@@ -1,1 +1,0 @@
-../topoSet/pointSources/surfaceToPoint/surfaceToPoint.C

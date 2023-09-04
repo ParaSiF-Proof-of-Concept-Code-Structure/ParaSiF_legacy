@@ -1,1 +1,0 @@
-../diffusionMulticomponent/diffusionMulticomponent.C

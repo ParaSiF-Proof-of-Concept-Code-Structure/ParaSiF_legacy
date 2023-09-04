@@ -1,1 +1,0 @@
-../surfaceFormats/stl/triSurfaceSTLformat.C

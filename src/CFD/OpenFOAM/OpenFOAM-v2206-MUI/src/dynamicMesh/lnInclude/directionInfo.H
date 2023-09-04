@@ -1,1 +1,0 @@
-../meshCut/directions/directionInfo/directionInfo.H

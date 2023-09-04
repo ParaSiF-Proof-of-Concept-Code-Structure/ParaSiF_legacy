@@ -1,1 +1,0 @@
-../expressions/exprResult/exprResultStoredStack.C

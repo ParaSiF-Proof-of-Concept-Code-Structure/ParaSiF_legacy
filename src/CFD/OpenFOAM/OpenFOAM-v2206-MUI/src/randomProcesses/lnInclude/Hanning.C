@@ -1,1 +1,0 @@
-../windowModels/Hanning/Hanning.C

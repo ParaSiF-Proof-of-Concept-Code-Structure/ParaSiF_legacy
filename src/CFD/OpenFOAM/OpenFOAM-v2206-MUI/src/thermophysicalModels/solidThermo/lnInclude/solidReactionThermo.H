@@ -1,1 +1,0 @@
-../solidReactionThermo/solidReactionThermo.H

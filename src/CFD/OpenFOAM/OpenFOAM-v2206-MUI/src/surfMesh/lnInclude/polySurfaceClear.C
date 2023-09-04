@@ -1,1 +1,0 @@
-../polySurface/polySurfaceClear.C

@@ -1,1 +1,0 @@
-../externalDisplacementMeshMover/zeroFixedValue/zeroFixedValuePointPatchFields.C

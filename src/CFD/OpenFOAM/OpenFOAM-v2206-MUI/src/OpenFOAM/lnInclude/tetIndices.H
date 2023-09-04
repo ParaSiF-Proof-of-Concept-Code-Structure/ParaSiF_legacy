@@ -1,1 +1,0 @@
-../meshes/polyMesh/polyMeshTetDecomposition/tetIndices.H

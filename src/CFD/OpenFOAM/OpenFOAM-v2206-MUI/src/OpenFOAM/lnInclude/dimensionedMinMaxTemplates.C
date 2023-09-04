@@ -1,1 +1,0 @@
-../dimensionedTypes/dimensionedMinMax/dimensionedMinMaxTemplates.C

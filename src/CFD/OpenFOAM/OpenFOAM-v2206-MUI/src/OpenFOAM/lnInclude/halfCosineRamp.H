@@ -1,1 +1,0 @@
-../primitives/functions/Function1/halfCosineRamp/halfCosineRamp.H

@@ -1,1 +1,0 @@
-../searchableSurfaces/closedTriSurfaceMesh/closedTriSurfaceMesh.H

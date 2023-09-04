@@ -1,1 +1,0 @@
-../coordSet/writers/null/nullCoordSetWriter.H

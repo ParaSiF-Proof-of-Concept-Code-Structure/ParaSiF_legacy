@@ -1,1 +1,0 @@
-../AMIInterpolation/GAMG/interfaces/cyclicACMIGAMGInterface/cyclicACMIGAMGInterface.C

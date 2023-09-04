@@ -1,1 +1,0 @@
-../meshes/primitiveMesh/PrimitivePatch/PrimitivePatchCheck.C

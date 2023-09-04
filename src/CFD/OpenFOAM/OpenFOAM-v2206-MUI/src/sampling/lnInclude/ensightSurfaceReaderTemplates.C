@@ -1,1 +1,0 @@
-../sampledSurface/readers/ensight/ensightSurfaceReaderTemplates.C

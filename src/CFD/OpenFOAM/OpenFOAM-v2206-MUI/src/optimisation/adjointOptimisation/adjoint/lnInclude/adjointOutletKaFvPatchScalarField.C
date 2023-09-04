@@ -1,1 +1,0 @@
-../turbulenceModels/incompressibleAdjoint/adjointRAS/derivedFvPatchFields/adjointOutletKa/adjointOutletKaFvPatchScalarField.C

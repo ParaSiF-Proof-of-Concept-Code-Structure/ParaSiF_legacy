@@ -1,1 +1,0 @@
-../coordSet/writers/ensight/ensightCoordSetWriterUncollated.C

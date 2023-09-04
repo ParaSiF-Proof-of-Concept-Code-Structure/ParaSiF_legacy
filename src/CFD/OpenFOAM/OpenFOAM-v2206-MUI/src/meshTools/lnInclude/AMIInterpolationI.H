@@ -1,1 +1,0 @@
-../AMIInterpolation/AMIInterpolation/AMIInterpolationI.H

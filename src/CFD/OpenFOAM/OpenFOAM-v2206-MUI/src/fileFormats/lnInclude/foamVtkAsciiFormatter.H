@@ -1,1 +1,0 @@
-../vtk/format/foamVtkAsciiFormatter.H

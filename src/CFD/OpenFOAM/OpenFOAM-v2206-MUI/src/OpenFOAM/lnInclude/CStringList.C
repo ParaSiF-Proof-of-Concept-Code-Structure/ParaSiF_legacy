@@ -1,1 +1,0 @@
-../primitives/strings/lists/CStringList.C

@@ -1,1 +1,0 @@
-../cyclicSector/cyclicSector.H

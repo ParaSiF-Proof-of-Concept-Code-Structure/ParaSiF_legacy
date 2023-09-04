@@ -1,1 +1,0 @@
-../adjointBoundaryConditions/adjointFarFieldPressure/adjointFarFieldPressureFvPatchScalarField.H

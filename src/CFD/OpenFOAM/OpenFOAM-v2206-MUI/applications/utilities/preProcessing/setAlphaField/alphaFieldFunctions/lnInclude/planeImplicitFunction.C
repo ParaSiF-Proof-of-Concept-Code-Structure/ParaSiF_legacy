@@ -1,1 +1,0 @@
-../implicitFunctions/plane/planeImplicitFunction.C

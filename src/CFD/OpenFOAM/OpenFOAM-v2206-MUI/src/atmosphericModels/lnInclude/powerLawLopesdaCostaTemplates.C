@@ -1,1 +1,0 @@
-../porosityModels/powerLawLopesdaCosta/powerLawLopesdaCostaTemplates.C

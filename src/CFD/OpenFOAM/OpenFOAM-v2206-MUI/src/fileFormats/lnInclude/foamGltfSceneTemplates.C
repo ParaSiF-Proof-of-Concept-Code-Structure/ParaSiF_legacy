@@ -1,1 +1,0 @@
-../gltf/foamGltfSceneTemplates.C

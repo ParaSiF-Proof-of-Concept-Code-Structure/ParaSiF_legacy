@@ -1,1 +1,0 @@
-../reaction/Reactions/solidReaction/solidReaction.H

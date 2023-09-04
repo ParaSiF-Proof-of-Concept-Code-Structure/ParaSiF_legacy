@@ -1,1 +1,0 @@
-../sampledSet/array/arraySet.C

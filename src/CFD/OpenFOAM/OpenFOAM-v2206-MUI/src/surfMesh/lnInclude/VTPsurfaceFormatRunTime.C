@@ -1,1 +1,0 @@
-../surfaceFormats/vtp/VTPsurfaceFormatRunTime.C

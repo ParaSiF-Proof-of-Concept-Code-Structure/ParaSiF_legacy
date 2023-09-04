@@ -1,1 +1,0 @@
-../massTransferModels/interfaceHeatResistance/interfaceHeatResistance.C

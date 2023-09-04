@@ -1,1 +1,0 @@
-../writers/null/nullSurfaceWriter.C

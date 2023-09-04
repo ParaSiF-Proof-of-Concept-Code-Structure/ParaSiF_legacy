@@ -1,1 +1,0 @@
-../derivedFvPatchFields/wallBoilingSubModels/departureDiameterModels/KocamustafaogullariIshii/KocamustafaogullariIshii.C

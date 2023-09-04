@@ -1,1 +1,0 @@
-../submodels/wallTransmissivityModel/constantTransmissivity/constantTransmissivity.C

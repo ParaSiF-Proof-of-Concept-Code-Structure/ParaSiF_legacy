@@ -1,1 +1,0 @@
-../fvMesh/extendedStencil/cellToFace/globalIndexStencils/FECCellToFaceStencil.C

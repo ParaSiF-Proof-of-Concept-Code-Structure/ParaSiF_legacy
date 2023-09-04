@@ -61,6 +61,9 @@ class couplingMUIFn:
             data_types = {"dispX": mui4py.FLOAT64,
                           "dispY": mui4py.FLOAT64,
                           "dispZ": mui4py.FLOAT64,
+                          "angleX": mui4py.FLOAT64,
+                          "angleY": mui4py.FLOAT64,
+                          "angleZ": mui4py.FLOAT64,
                           "surge": mui4py.FLOAT64,
                           "sway": mui4py.FLOAT64,
                           "heave": mui4py.FLOAT64,
@@ -72,12 +75,15 @@ class couplingMUIFn:
                           "momentZ": mui4py.FLOAT64,
                           "forceX": mui4py.FLOAT64,
                           "forceY": mui4py.FLOAT64,
-                          "forceZ": mui4py.FLOAT64}
+                          "forceZ": mui4py.FLOAT64,
+                          "CofRX": mui4py.FLOAT64,
+                          "CofRY": mui4py.FLOAT64,
+                          "CofRZ": mui4py.FLOAT64}
             # MUI interface creation
             domain = "structureDomain"
             config3d = mui4py.Config(dimensionMUI, mui4py.FLOAT64)
 
-            iface = ["threeDInterface0"]
+            iface = ["threeDInterface0", "threeDInterface1"]
             self.ifaces3d = mui4py.create_unifaces(domain, iface, config3d)
             self.ifaces3d["threeDInterface0"].set_data_types(data_types)
 
@@ -332,7 +338,10 @@ class couplingMUIFn:
             else:
                 self.s_sampler = mui4py.SamplerPseudoNearestNeighbor(self.rMUIFetcher())
 
-            self.t_sampler = mui4py.TemporalSamplerExact()
+            try:
+                self.t_sampler = mui4py.ChronoSamplerExact()
+            except:
+                self.t_sampler = mui4py.TemporalSamplerExact()
 
             # Commit ZERO step
             # self.MUI_Push(xyz_push, dofs_push_list, dmck, 0)
@@ -349,6 +358,10 @@ class couplingMUIFn:
         totForceX = 0.0
         totForceY = 0.0
         totForceZ = 0.0
+
+        CofR = np.array([0.0,0.0,0.0])
+        forceRecv = np.array([0.0,0.0,0.0])
+        momentRecv = np.array([0.0,0.0,0.0])
         temp_vec_function_temp = self.tF_apply_vec
 
         if self.iparallelFSICoupling():
@@ -358,62 +371,92 @@ class couplingMUIFn:
 
         if (fetch_iteration >= 0):
             
+            
             if self.iMUIFetchMode() == 1:
-                forceXRecv = self.ifaces3d["threeDInterface0"].\
+                # CofR = np.array([0.50,0.50,0.50])
+                CofR[0] = self.ifaces3d["threeDInterface0"].\
+                            fetch("CofRX",
+                                  np.array([0.0,0.0,0.0]),
+                                  fetch_iteration,
+                                  self.s_sampler,
+                                  self.t_sampler)
+                CofR[1] = self.ifaces3d["threeDInterface0"].\
+                            fetch("CofRY",
+                                  np.array([0.0,0.0,0.0]),
+                                  fetch_iteration,
+                                  self.s_sampler,
+                                  self.t_sampler)
+                CofR[2] = self.ifaces3d["threeDInterface0"].\
+                            fetch("CofRZ",
+                                  np.array([0.0,0.0,0.0]),
+                                  fetch_iteration,
+                                  self.s_sampler,
+                                  self.t_sampler)
+                print("{Fenics} recieving at iteration ",fetch_iteration )
+                forceRecv[0] = self.ifaces3d["threeDInterface0"].\
                             fetch("forceX",
                                   np.array([0.0,0.0,0.0]),
                                   fetch_iteration,
                                   self.s_sampler,
                                   self.t_sampler)
 
-                forceYRecv = self.ifaces3d["threeDInterface0"].\
+                forceRecv[1] = self.ifaces3d["threeDInterface0"].\
                             fetch("forceY",
                                   np.array([0.0,0.0,0.0]),
                                   fetch_iteration,
                                   self.s_sampler,
                                   self.t_sampler)
 
-                forceZRecv = self.ifaces3d["threeDInterface0"].\
+                forceRecv[2] = self.ifaces3d["threeDInterface0"].\
                             fetch("forceZ",
                                   np.array([0.0,0.0,0.0]),
                                   fetch_iteration,
                                   self.s_sampler,
                                   self.t_sampler)
-                momentXRecv = self.ifaces3d["threeDInterface0"].\
+                momentRecv[0] = self.ifaces3d["threeDInterface0"].\
                             fetch("momentX",
                                   np.array([0.0,0.0,0.0]),
                                   fetch_iteration,
                                   self.s_sampler,
                                   self.t_sampler)
 
-                momentYRecv = self.ifaces3d["threeDInterface0"].\
+                momentRecv[1] = self.ifaces3d["threeDInterface0"].\
                             fetch("momentY",
                                   np.array([0.0,0.0,0.0]),
                                   fetch_iteration,
                                   self.s_sampler,
                                   self.t_sampler)
 
-                momentZRecv = self.ifaces3d["threeDInterface0"].\
+                momentRecv[2] = self.ifaces3d["threeDInterface0"].\
                             fetch("momentZ",
                                   np.array([0.0,0.0,0.0]),
                                   fetch_iteration,
                                   self.s_sampler,
                                   self.t_sampler)
+                CofR =self.getCofR(forceRecv, momentRecv,CofR)
 
+                F_out = self.ForceInterp(forceRecv, CofR, dofs_to_xyz) # are dofs_to_xyz the point to transfer the force to?
+                
                 if self.iDebug():
-                    print ("{FENICS**} single point force received: ", forceXRecv, "; ",forceYRecv, "; ",forceZRecv,
-                           "; moment received: ", momentXRecv, "; ",momentYRecv, "; ",momentZRecv,
+                    print ("{FENICS**} single point force received: ", forceRecv[0], "; ",forceRecv[1], "; ",forceRecv[2],
+                           "; moment received: ", momentRecv[0], "; ",momentRecv[1], "; ",momentRecv[2],
                             "; at iteration: ", fetch_iteration, " at rank: ", self.rank)
+                    print("{FENICS**} CofR where moments are zero is at ", CofR )
+
 
                 for i, p in enumerate(dofs_fetch_list):
-                    self.tF_apply_vec[0::3][p] = forceXRecv/len(dofs_fetch_list)
-                    self.tF_apply_vec[1::3][p] = forceYRecv/len(dofs_fetch_list)
-                    self.tF_apply_vec[2::3][p] = forceZRecv/len(dofs_fetch_list)
+                    # self.tF_apply_vec[0::3][p] = forceXRecv/len(dofs_fetch_list)
+                    # self.tF_apply_vec[1::3][p] = forceYRecv/len(dofs_fetch_list)
+                    # self.tF_apply_vec[2::3][p] = forceZRecv/len(dofs_fetch_list)
+                    self.tF_apply_vec[0::3][p] = F_out[i][0]
+                    self.tF_apply_vec[1::3][p] = F_out[i][1]
+                    self.tF_apply_vec[2::3][p] = F_out[i][2]
+
+
 
                     totForceX += self.tF_apply_vec[0::3][p]
                     totForceY += self.tF_apply_vec[1::3][p]
                     totForceZ += self.tF_apply_vec[2::3][p]
-
                     if (self.areaf_vec[p] == 0):
                         self.tF_apply_vec[0::3][p] = 0.
                         self.tF_apply_vec[1::3][p] = 0.
@@ -426,6 +469,8 @@ class couplingMUIFn:
                 if self.iDebug():
                     print ("{FENICS**} totForce Apply: ", totForceX, "; ",totForceY, "; ",totForceZ,
                             "; at iteration: ", fetch_iteration, " at rank: ", self.rank)
+                    print ("{FENICS**} CofR (", CofR ,")" )
+
 
             else:
                 if self.iMUIFetchMany():
@@ -521,9 +566,38 @@ class couplingMUIFn:
                         if self.iDebug():
                             print ("{FENICS**} totForce Apply: ", totForceX, "; ",totForceY, "; ",totForceZ,
                                     "; at iteration: ", fetch_iteration, " at rank: ", self.rank)
+    def getCofR(self,F, M, CofR_old):
+        smallVal = 1e-32  # very small value
+        A = np.array([[F[1], -F[0], smallVal], [-F[2], smallVal, F[0]], [smallVal , F[2], -F[1]]])
+        B = np.array([[M[2]], [M[1]], [M[0]]])
 
+        L, _, _, _ = np.linalg.lstsq(A, B, rcond=None) # Matrix A is ill-conditioned
+        CofR = CofR_old + L.T
+
+        return CofR
+    def ForceInterp(self,F_in, CofR, SpprtLoc):
+            smallVal = 1e-32
+            # Compute the number of support points
+            N = len(SpprtLoc)
+            PWR=1
+            # Initialize the output force vector
+            F_out = np.zeros((N, 3))
+            F_out_2 = np.zeros((N, 3))
+            Loc = SpprtLoc - CofR # location of the support points relative to the CofR of the forces where the moments are zero
+            distance = np.maximum(np.sqrt(np.sum(np.power(Loc,2),axis=1)),smallVal) # distace of the support points from the CG    
+            W=np.sum(distance**(-1))*distance
+            # dist_total= np.sum(distance**PWR)
+            # W = (dist_total-np.power(distance,PWR))/((N-1)*dist_total) # the interpolation weight at each support
+            # print(distance, W )
+            # Iterate over each support point
+            for i in range(N):
+                # Interpolate the force based on the distance
+                F_out[i] = F_in * W[i]**(-1)
+            return F_out
+
+    
     def MUI_Push(self, dofs_to_xyz, dofs_push, displacement_function, total_Sub_Iteration):
-
+        
         if self.iMUIPushMode() == 0:
     
             d_vec_x = displacement_function.vector().get_local()[0::3]
@@ -531,6 +605,7 @@ class couplingMUIFn:
             d_vec_z = displacement_function.vector().get_local()[2::3]
     
             if self.iMUIPushMany():
+                
                 if self.iPushX():
                     self.ifaces3d["threeDInterface0"].\
                                 push_many("dispX", dofs_to_xyz, (d_vec_x[dofs_push]))
@@ -584,25 +659,26 @@ class couplingMUIFn:
             roll =  -euler_angles[0]
             pitch = -euler_angles[1]
             yaw = -euler_angles[2]
-
-            self.ifaces3d["threeDInterface0"].push("surge", np.array([0.0,0.0,0.0]), surge)
-            self.ifaces3d["threeDInterface0"].push("sway", np.array([0.0,0.0,0.0]), sway)
-            self.ifaces3d["threeDInterface0"].push("heave", np.array([0.0,0.0,0.0]), heave)
-            self.ifaces3d["threeDInterface0"].push("roll", np.array([0.0,0.0,0.0]), roll)
-            self.ifaces3d["threeDInterface0"].push("pitch", np.array([0.0,0.0,0.0]), pitch)
-            self.ifaces3d["threeDInterface0"].push("yaw", np.array([0.0,0.0,0.0]), yaw)
+            
+            self.ifaces3d["threeDInterface0"].push("dispX", np.array([0.0,0.0,0.0]), surge)
+            self.ifaces3d["threeDInterface0"].push("dispY", np.array([0.0,0.0,0.0]), sway)
+            self.ifaces3d["threeDInterface0"].push("dispZ", np.array([0.0,0.0,0.0]), heave)
+            self.ifaces3d["threeDInterface0"].push("angleX", np.array([0.0,0.0,0.0]), roll)
+            self.ifaces3d["threeDInterface0"].push("angleY", np.array([0.0,0.0,0.0]), pitch)
+            self.ifaces3d["threeDInterface0"].push("angleZ", np.array([0.0,0.0,0.0]), yaw)
 
             if self.rank == 0:
-                print ("{FENICS} Push point a deflection [m]: ", d_DispA)
-                print ("{FENICS} Push point b deflection [m]: ", d_DispB)
-                print ("{FENICS} Push point c deflection [m]: ", d_DispC)
-                print ("{FENICS} Push point d deflection [m]: ", d_DispD)
-                print ("{FENICS} surge: ", surge)
-                print ("{FENICS} sway: ", sway)
-                print ("{FENICS} heave: ", heave)
-                print ("{FENICS} roll: ", roll)
-                print ("{FENICS} pitch: ", pitch)
-                print ("{FENICS} yaw: ", yaw)
+                print("{FENICS} ************Push at total_Sub_Iteration = ", total_Sub_Iteration, "disp = ", Trans)
+                # print ("{FENICS} Push point a deflection [m]: ", d_DispA)
+                # print ("{FENICS} Push point b deflection [m]: ", d_DispB)
+                # print ("{FENICS} Push point c deflection [m]: ", d_DispC)
+                # print ("{FENICS} Push point d deflection [m]: ", d_DispD)
+                # print ("{FENICS} surge: ", surge)
+                # print ("{FENICS} sway: ", sway)
+                # print ("{FENICS} heave: ", heave)
+                # print ("{FENICS} roll: ", roll)
+                # print ("{FENICS} pitch: ", pitch)
+                # print ("{FENICS} yaw: ", yaw)
 
             a = self.ifaces3d["threeDInterface0"].\
                             commit(total_Sub_Iteration)

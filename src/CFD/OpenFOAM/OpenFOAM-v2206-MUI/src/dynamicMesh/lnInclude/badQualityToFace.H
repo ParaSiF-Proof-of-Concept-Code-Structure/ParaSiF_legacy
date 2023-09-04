@@ -1,1 +1,0 @@
-../motionSmoother/badQualityToFace/badQualityToFace.H

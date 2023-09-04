@@ -1,1 +1,0 @@
-../primitives/functions/Function1/quarterSineRamp/quarterSineRamp.C

@@ -1,1 +1,0 @@
-../adjointBoundaryConditions/adjointRotatingWallVelocity/adjointRotatingWallVelocityFvPatchVectorField.H

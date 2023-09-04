@@ -1,1 +1,0 @@
-../submodels/wallTransmissivityModel/multiBandTransmissivity/multiBandTransmissivity.C

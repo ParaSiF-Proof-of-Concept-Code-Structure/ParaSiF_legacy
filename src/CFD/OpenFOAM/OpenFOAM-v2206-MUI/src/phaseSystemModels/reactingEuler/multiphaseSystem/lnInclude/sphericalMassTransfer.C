@@ -1,1 +1,0 @@
-../interfacialCompositionModels/massTransferModels/sphericalMassTransfer/sphericalMassTransfer.C

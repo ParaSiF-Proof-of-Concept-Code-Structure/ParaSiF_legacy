@@ -1,1 +1,0 @@
-../topoSet/pointSources/cellToPoint/cellToPoint.H

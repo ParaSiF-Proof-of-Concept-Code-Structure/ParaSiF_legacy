@@ -191,8 +191,8 @@
     mui::sampler_pseudo_n2_linear<mui::config_of> spatial_sampler(rSampler);
     mui::temporal_sampler_exact<mui::config_of> chrono_sampler;
 
-		mui::algo_aitken<mui::config_of> aitken(static_cast<double>(initUndRelxCpl));
-		mui::algo_fixed_relaxation<mui::config_of> fr(static_cast<double>(initUndRelxCpl));
+	mui::algo_aitken<mui::config_of> aitken(static_cast<double>(initUndRelxCpl));
+	mui::algo_fixed_relaxation<mui::config_of> fr(static_cast<double>(initUndRelxCpl));
     std::vector<muiCoupling::muiCouplingIQNILS> IQNILS;
     IQNILS.reserve(interfaceNames.size());
 

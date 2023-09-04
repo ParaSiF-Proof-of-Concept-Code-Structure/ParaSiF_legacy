@@ -1,1 +1,0 @@
-../topoSet/pointSources/pointToPoint/pointToPoint.C

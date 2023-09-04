@@ -1,1 +1,0 @@
-../turbulenceModels/turbulenceModelVariables/RAS/kOmegaSST/kOmegaSST.C

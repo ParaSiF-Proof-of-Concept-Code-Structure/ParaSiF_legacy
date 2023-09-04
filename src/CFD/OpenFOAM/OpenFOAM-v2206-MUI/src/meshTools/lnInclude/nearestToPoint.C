@@ -1,1 +1,0 @@
-../topoSet/pointSources/nearestToPoint/nearestToPoint.C

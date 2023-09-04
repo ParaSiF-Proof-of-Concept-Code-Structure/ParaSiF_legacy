@@ -1,1 +1,0 @@
-../sampledSet/patchSeed/patchSeedSet.C

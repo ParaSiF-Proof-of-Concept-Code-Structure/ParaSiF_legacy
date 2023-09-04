@@ -1,1 +1,0 @@
-../finiteVolume/fvc/fvcSmooth/smoothData.H

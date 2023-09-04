@@ -1,1 +1,0 @@
-../surfaceFormats/tri/TRIReader.C

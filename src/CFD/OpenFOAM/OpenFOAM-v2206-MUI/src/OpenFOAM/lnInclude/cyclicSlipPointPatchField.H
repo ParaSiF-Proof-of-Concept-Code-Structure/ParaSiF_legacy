@@ -1,1 +1,0 @@
-../fields/pointPatchFields/constraint/cyclicSlip/cyclicSlipPointPatchField.H

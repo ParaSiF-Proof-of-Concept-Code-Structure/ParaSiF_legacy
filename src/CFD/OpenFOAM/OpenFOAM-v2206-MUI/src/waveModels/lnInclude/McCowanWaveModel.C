@@ -1,1 +1,0 @@
-../waveGenerationModels/derived/McCowan/McCowanWaveModel.C

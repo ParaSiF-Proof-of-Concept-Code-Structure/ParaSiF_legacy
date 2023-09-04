@@ -1,1 +1,0 @@
-../binField/binModels/singleDirectionUniformBin/singleDirectionUniformBin.C

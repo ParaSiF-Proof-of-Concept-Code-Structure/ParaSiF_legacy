@@ -1,1 +1,0 @@
-../primitives/globalIndexAndTransform/vectorTensorTransform/vectorTensorTransform.C

@@ -1,1 +1,0 @@
-../AMIInterpolation/AMIInterpolation/AMIInterpolationNew.C

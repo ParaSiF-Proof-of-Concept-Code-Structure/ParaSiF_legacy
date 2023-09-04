@@ -1,1 +1,0 @@
-../thermalShellModel/thermalShellModelNew.C

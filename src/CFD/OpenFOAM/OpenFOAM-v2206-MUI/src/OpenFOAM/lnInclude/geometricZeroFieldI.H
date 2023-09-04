@@ -1,1 +1,0 @@
-../fields/GeometricFields/geometricZeroField/geometricZeroFieldI.H

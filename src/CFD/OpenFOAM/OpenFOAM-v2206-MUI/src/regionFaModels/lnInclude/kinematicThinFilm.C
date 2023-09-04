@@ -1,1 +1,0 @@
-../liquidFilm/kinematicThinFilm/kinematicThinFilm.C

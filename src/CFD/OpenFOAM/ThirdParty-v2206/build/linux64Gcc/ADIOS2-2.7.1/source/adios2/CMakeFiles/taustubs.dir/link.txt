@@ -1,0 +1,1 @@
+/usr/local/bin/mpicxx -fPIC -std=c++11 -m64 -pthread -fPIC -O3 -DNDEBUG -m64 -shared -Wl,-soname,libadios2_taustubs.so -o ../../lib/libadios2_taustubs.so CMakeFiles/taustubs.dir/toolkit/profiling/taustubs/tautimer.cpp.o  -Wl,-rpath,:::::::::::::: -ldl 

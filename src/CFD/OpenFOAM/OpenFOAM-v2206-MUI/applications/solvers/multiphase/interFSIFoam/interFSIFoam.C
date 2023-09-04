@@ -60,8 +60,8 @@ Description
 #include <algorithm>
 // This is only needed if creating templated MUI interfaces
 #include "muiConfigOF.H"
-#include "aitken_inl.H"
-#include "fixedRelaxation_inl.H"
+//#include "aitken_inl.H"
+//#include "fixedRelaxation_inl.H"
 #include "iqnils_inl.H"
 #endif
 

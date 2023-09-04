@@ -1,1 +1,0 @@
-../primitives/enums/NamedEnum.C

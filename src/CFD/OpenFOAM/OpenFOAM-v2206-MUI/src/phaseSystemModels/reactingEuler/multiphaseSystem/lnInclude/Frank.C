@@ -1,1 +1,0 @@
-../interfacialModels/wallLubricationModels/Frank/Frank.C

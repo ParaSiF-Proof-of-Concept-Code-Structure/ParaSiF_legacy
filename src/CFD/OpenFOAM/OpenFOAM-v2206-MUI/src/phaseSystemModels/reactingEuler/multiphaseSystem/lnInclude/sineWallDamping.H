@@ -1,1 +1,0 @@
-../interfacialModels/wallDampingModels/sine/sineWallDamping.H

@@ -1,1 +1,0 @@
-../derivedFvPatchFields/fixedIncidentRadiation/fixedIncidentRadiationFvPatchScalarField.H

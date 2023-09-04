@@ -1,1 +1,0 @@
-../topoSet/pointSources/cylinderToPoint/cylinderToPoint.H

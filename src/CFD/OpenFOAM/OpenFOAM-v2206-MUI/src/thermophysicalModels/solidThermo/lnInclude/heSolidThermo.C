@@ -1,1 +1,0 @@
-../solidThermo/heSolidThermo.C

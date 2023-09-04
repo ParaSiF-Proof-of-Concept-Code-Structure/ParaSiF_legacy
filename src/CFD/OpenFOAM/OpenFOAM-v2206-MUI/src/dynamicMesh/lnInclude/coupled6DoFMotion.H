@@ -1,1 +1,0 @@
-../motionSolvers/displacement/solidBody/solidBodyMotionFunctions/coupled6DoFMotion/coupled6DoFMotion.H

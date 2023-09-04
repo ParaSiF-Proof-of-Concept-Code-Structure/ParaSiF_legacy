@@ -1,1 +1,0 @@
-../meshCut/wallLayerCells/wallNormalInfo/wallNormalInfo.H

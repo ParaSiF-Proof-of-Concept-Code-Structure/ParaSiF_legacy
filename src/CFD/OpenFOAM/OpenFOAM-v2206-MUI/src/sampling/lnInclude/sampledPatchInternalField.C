@@ -1,1 +1,0 @@
-../sampledSurface/sampledPatchInternalField/sampledPatchInternalField.C

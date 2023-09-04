@@ -4,7 +4,7 @@ CXX = mpicc
 
 CCFLAGS = -Wall -Wextra
 CICODEPATH = -I../../
-CIEIGENPATH = -I/home/omar/OpenFOAM/ParaSiF/FEniCS/V2019.1.0/eigen-3.3.9
+CIEIGENPATH = -I/home/omar/WORK/OpenFOAM/OpenFOAM-v2206/ThirdParty-v2206/sources/eigen-3.3.9
 CIMUIPATH = -I../../../wrappers/C -I../../../
 CLPATH = -L../../ -L../../../wrappers/C
 CLNAME = -lmui_c_wrapper 

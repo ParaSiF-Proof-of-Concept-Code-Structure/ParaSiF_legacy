@@ -1,1 +1,0 @@
-../slidingInterface/slidingInterfaceClearCouple.C

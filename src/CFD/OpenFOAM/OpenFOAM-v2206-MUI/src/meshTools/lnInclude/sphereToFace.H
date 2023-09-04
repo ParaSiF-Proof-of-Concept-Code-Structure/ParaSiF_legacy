@@ -1,1 +1,0 @@
-../topoSet/faceSources/sphereToFace/sphereToFace.H

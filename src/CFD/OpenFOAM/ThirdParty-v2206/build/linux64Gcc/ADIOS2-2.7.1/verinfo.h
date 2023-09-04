@@ -1,0 +1,6 @@
+#define ADIOS_INFO_VER_GIT       ""
+#define ADIOS_INFO_COMPILER_ID   "GNU"
+#define ADIOS_INFO_COMPILER_VER  "11.3.0"
+#define ADIOS_INFO_COMPILER_WRAP ""
+#define ADIOS_INFO_SYSTEM        "Linux-5.19.0-45-generic"
+#define ADIOS_INFO_ARCH          "x86_64"

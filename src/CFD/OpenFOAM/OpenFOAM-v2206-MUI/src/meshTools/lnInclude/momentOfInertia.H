@@ -1,1 +1,0 @@
-../momentOfInertia/momentOfInertia.H

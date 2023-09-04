@@ -1,1 +1,0 @@
-../derivedFvPatchFields/wallFunctions/atmNutWallFunction/atmNutWallFunctionFvPatchScalarField.C

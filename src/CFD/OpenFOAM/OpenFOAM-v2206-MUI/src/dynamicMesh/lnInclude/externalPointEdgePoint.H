@@ -1,1 +1,0 @@
-../pointPatchDist/externalPointEdgePoint.H

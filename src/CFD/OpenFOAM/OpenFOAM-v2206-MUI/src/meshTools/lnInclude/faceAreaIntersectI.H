@@ -1,1 +1,0 @@
-../AMIInterpolation/faceAreaIntersect/faceAreaIntersectI.H

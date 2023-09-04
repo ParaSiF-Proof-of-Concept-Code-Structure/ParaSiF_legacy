@@ -316,7 +316,7 @@ class hyperElastic:
                 if self.rank == 0: 
                     print ("\n")
                     print ("{FENICS} Sub-iteration Number: ", i_sub_it, " Total sub-iterations to now: ", t_sub_it)
-
+                
                 # Fetch and assign traction forces at present time step
                 self.Traction_Assign(xyz_fetch, dofs_fetch_list, t_sub_it, n_steps, t)
 

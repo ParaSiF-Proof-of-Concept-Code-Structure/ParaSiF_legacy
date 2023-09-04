@@ -1,1 +1,0 @@
-../mappedPatches/mappedPointPatch/mappedWallPointPatch.H

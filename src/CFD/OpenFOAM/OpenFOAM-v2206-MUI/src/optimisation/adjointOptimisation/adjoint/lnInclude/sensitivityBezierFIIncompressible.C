@@ -1,1 +1,0 @@
-../optimisation/adjointSensitivity/incompressible/sensitivityBezierFI/sensitivityBezierFIIncompressible.C

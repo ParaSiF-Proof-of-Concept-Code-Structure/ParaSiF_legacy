@@ -1,1 +1,0 @@
-../fields/fvPatchFields/derived/uniformJumpAMI/uniformJumpAMIFvPatchFieldsFwd.H

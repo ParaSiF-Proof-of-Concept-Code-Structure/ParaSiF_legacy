@@ -1,1 +1,0 @@
-../turbulenceModels/incompressibleAdjoint/adjointRAS/adjointkOmegaSST/adjointkOmegaSST.C

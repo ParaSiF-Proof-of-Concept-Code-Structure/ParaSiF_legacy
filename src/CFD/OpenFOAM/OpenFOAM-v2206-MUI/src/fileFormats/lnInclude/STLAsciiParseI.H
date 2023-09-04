@@ -1,1 +1,0 @@
-../stl/STLAsciiParseI.H

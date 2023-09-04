@@ -1,1 +1,0 @@
-../algorithms/PointEdgeWave/pointEdgePoint.C

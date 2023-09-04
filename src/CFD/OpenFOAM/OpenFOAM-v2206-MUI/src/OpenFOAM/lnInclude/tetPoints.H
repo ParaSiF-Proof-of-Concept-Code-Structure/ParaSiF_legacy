@@ -1,1 +1,0 @@
-../meshes/primitiveShapes/tetrahedron/tetPoints.H

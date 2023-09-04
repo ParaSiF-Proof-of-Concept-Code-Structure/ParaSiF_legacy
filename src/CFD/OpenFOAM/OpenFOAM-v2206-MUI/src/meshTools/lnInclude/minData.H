@@ -1,1 +1,0 @@
-../regionSplit/minData.H

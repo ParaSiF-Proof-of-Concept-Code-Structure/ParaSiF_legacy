@@ -1,1 +1,0 @@
-../cellDist/directionalWallPoint/directionalWallPointData.H

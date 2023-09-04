@@ -1,1 +1,0 @@
-../interfacialModels/aspectRatioModels/VakhrushevEfremov/VakhrushevEfremov.C
