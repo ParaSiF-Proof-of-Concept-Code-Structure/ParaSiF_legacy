@@ -320,7 +320,7 @@ class linearElastic:
                 i_sub_it += 1
 
             # Mesh motion
-            self.Move_Mesh(V, dmck, d0mck, mesh)
+            #self.Move_Mesh(V, dmck, d0mck, mesh)
 
             # Data output
             if (not (self.iQuiet())):

@@ -337,10 +337,12 @@ class couplingMUIFn:
                 self.s_sampler = mui4py.SamplerExact()
             else:
                 self.s_sampler = mui4py.SamplerPseudoNearestNeighbor(self.rMUIFetcher())
+
             try:
                 self.t_sampler = mui4py.ChronoSamplerExact()
             except:
                 self.t_sampler = mui4py.TemporalSamplerExact()
+
             # Commit ZERO step
             # self.MUI_Push(xyz_push, dofs_push_list, dmck, 0)
             a = self.ifaces3d["threeDInterface0"].commit(0)
