@@ -332,7 +332,7 @@ class couplingMUIFn:
             else:
                 self.s_sampler = mui4py.SamplerPseudoNearestNeighbor(self.rMUIFetcher())
 
-            self.t_sampler = mui4py.ChronoSamplerExact()
+            self.t_sampler = mui4py.TemporalSamplerExact()
 
             # Commit ZERO step
             # self.MUI_Push(xyz_push, dofs_push_list, dmck, 0)
