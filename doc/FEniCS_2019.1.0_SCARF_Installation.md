@@ -2,9 +2,12 @@ Install dependancies
 --------------------------------------------- 
 Run the following to install **GNU compiler** and **make** if you do not have them.
 ```bash
-sudo apt update
-sudo apt install build-essential
-sudo apt install cmake
+module load GCC/11.3.0
+module load OpenMPI/4.1.4-GCC-11.3.0
+module load Python/3.10.4-GCCcore-11.3.0
+module load CMake/3.23.1-GCCcore-11.3.0
+module load OpenBLAS/0.3.20-GCC-11.3.0
+
 ```
 Download and build OpenMPI  as per https://www.open-mpi.org/software/ompi and https://docs.open-mpi.org/en/v5.0.x/installing-open-mpi/quickstart.html. After installation, it is also necessary to add the following line to the .bashrc file and source it :
 ```bash
