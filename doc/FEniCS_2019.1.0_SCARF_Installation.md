@@ -101,7 +101,7 @@ wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.7/src/hd
 tar zxvf hdf5-1.10.7.tar.gz
 cd hdf5-1.10.7  
 ######### Note that this is one command split in several lines
-./configure   --prefix=$BUILD_DIR/boost/hdf5-1.10.7_install \
+./configure   --prefix=$BUILD_DIR/hdf5-1.10.7_install \
 CC=mpicc CFLAGS=-O3 CXX=mpiCC CXXFLAGS=-O3 --enable-cxx \
 --enable-parallel --enable-unsupported
   
@@ -125,26 +125,26 @@ sudo python3 setup.py install
 Download, configure and install prerequisites for PETSc
 ---------------------------------------------------------
 
-The "sundials" library is not required by the coupling, and is therefore not installed. As it is accounted for by default, Line 21 (L21) of tpsl.sh, to be found as `${BUILD_DIR}/boost/sh/tpsl.sh` has to be changed from
+The "sundials" library is not required by the coupling, and is therefore not installed. As it is accounted for by default, Line 21 (L21) of tpsl.sh, to be found as `${BUILD_DIR}/sh/tpsl.sh` has to be changed from
 
 printf "%s\n" glm hypre matio metis scotch parmetis mumps sundials superlu superlu-dist \
 to
 printf "%s\n" glm hypre matio metis scotch parmetis mumps superlu superlu-dist \
 
 ```bash
- cd $BUILD_DIR/boost
- ./sh/tpsl.sh --prefix=$(pwd)/boost
- export PATH=$PATH:${BUILD_DIR}/boost/metis-5.1.0/include
- export PATH=$PATH:${BUILD_DIR}/boost/parmetis-4.0.3/include
- export PATH=$PATH:${BUILD_DIR}/boost/superlu/SRC
- export PATH=$PATH:${BUILD_DIR}/boost/superlu_dist-6.4.0/SRC
- export PATH=$PATH:${BUILD_DIR}/boost/scotch_6.1.0/include
- export PATH=$PATH:${BUILD_DIR}/boost/MUMPS_5.3.5/include
- export PATH=$PATH:${BUILD_DIR}/boost/hdf5-1.10.7_install/include
- export PATH=$PATH:${BUILD_DIR}/boost/boost/include
- export LD_LIBRARY_PATH=${BUILD_DIR}/boost/hdf5-1.10.7_install/lib:$LD_LIBRARY_PATH
- export LD_RUN_PATH=${BUILD_DIR}/boost/hdf5-1.10.7_install/lib:$LD_RUN_PATH
- export HDF5_INCLUDE_DIR=${BUILD_DIR}/boost/hdf5-1.10.7_install/include
+ cd $BUILD_DIR
+ ./sh/tpsl.sh --prefix=$(pwd)
+ export PATH=$PATH:${BUILD_DIR}/metis-5.1.0/include
+ export PATH=$PATH:${BUILD_DIR}/parmetis-4.0.3/include
+ export PATH=$PATH:${BUILD_DIR}/superlu/SRC
+ export PATH=$PATH:${BUILD_DIR}/superlu_dist-6.4.0/SRC
+ export PATH=$PATH:${BUILD_DIR}/scotch_6.1.0/include
+ export PATH=$PATH:${BUILD_DIR}/MUMPS_5.3.5/include
+ export PATH=$PATH:${BUILD_DIR}/hdf5-1.10.7_install/include
+ export PATH=$PATH:${BUILD_DIR}/boost/include
+ export LD_LIBRARY_PATH=${BUILD_DIR}/hdf5-1.10.7_install/lib:$LD_LIBRARY_PATH
+ export LD_RUN_PATH=${BUILD_DIR}/hdf5-1.10.7_install/lib:$LD_RUN_PATH
+ export HDF5_INCLUDE_DIR=${BUILD_DIR}/hdf5-1.10.7_install/include
 ```
 
 Download, configure and install PETSc
@@ -152,15 +152,15 @@ Download, configure and install PETSc
 
 ```bash
 export PETSC_VERSION="3.16.3"
-cd $BUILD_DIR/boost
+cd $BUILD_DIR
 wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-$PETSC_VERSION.tar.gz
 tar zxvf petsc-$PETSC_VERSION.tar.gz
 cd petsc-$PETSC_VERSION
  
-export PETSC_DIR=${BUILD_DIR}/boost/petsc-$PETSC_VERSION
+export PETSC_DIR=${BUILD_DIR}/petsc-$PETSC_VERSION
 export PETSC_ARCH=arch-linux-c-opt
 
-export ROOT_SHARED_DIR=${BUILD_DIR}/boost
+export ROOT_SHARED_DIR=${BUILD_DIR}
 
 ./configure --with-petsc4py=1 --force --download-superlu=yes --download-metis=yes   --download-parmetis=yes --download-ptscotch=yes   --download-scalapack   --download-mumps --download-cmake --download-superlu_dist=yes
 
@@ -175,7 +175,7 @@ make PETSC_DIR=`pwd` PETSC_ARCH=arch-linux-c-opt install
 ```
 Add the lines below to ***.bashrc*** file. 
 ```bash
-export PETSC_DIR=${BUILD_DIR}/boost/petsc-$PETSC_VERSION
+export PETSC_DIR=${BUILD_DIR}/petsc-$PETSC_VERSION
 export PETSC_ARCH=arch-linux-c-opt
 ```
 To use petsc4py, add PYTHONPATH, and add the line to ***.bashrc*** file
@@ -193,7 +193,7 @@ An easy way to install petsc4py after building the dependencies and setting the 
 
 ```bash
 
-export PETSC_DIR=${BUILD_DIR}/boost/petsc-$PETSC_VERSION
+export PETSC_DIR=${BUILD_DIR}/petsc-$PETSC_VERSION
 export PETSC_ARCH=arch-linux-c-opt
 pip3 install petsc4py
  
@@ -202,7 +202,7 @@ Test PETSC and PETSc4py
 ---------------------------------------
 Check that petsc4py is installed correctly and the right path and environmental variable are set. Hopefully you get no error.
 ```bash
-make PETSC_DIR=${BUILD_DIR}/boost/petsc-$PETSC_VERSION PETSC_ARCH=arch-linux-c-opt check
+make PETSC_DIR=${BUILD_DIR}/petsc-$PETSC_VERSION PETSC_ARCH=arch-linux-c-opt check
 python3 -c "import petsc4py; print(petsc4py.get_include())"
 
 python3 -c "from petsc4py import PETSc"
