@@ -101,12 +101,12 @@ wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.7/src/hd
 tar zxvf hdf5-1.10.7.tar.gz
 cd hdf5-1.10.7  
 ######### Note that this is one command split in several lines
-./configure   --prefix=$BUILD_DIR/hdf5-1.10.7 CC=mpicc CFLAGS=-O3 CXX=mpiCC CXXFLAGS=-O3 --enable-cxx --enable-parallel --enable-unsupported
+./configure   --prefix=$BUILD_DIR/hdf5-1.10.7/install CC=mpicc CFLAGS=-O3 CXX=mpiCC CXXFLAGS=-O3 --enable-cxx --enable-parallel --enable-unsupported
   
 make -j 8
 make install
-export LD_LIBRARY_PATH=${BUILD_DIR}/hdf5-1.10.7/lib:$LD_LIBRARY_PATH
-export LD_RUN_PATH=${BUILD_DIR}/hdf5-1.10.7/lib:$LD_RUN_PATH
+export LD_LIBRARY_PATH=${BUILD_DIR}/hdf5-1.10.7/install/lib:$LD_LIBRARY_PATH
+export LD_RUN_PATH=${BUILD_DIR}/hdf5-1.10.7/install/lib:$LD_RUN_PATH
 ```
 Download, configure and install FEniCS python components
 ---------------------------------------------------------
@@ -138,11 +138,11 @@ printf "%s\n" glm hypre matio metis scotch parmetis mumps superlu superlu-dist \
  export PATH=$PATH:${BUILD_DIR}/superlu_dist-6.4.0/SRC
  export PATH=$PATH:${BUILD_DIR}/scotch_6.1.0/include
  export PATH=$PATH:${BUILD_DIR}/MUMPS_5.3.5/include
- export PATH=$PATH:${BUILD_DIR}/hdf5-1.10.7_install/include
+ export PATH=$PATH:${BUILD_DIR}/hdf5-1.10.7/install/include
  export PATH=$PATH:${BUILD_DIR}/boost/include
- export LD_LIBRARY_PATH=${BUILD_DIR}/hdf5-1.10.7_install/lib:$LD_LIBRARY_PATH
- export LD_RUN_PATH=${BUILD_DIR}/hdf5-1.10.7_install/lib:$LD_RUN_PATH
- export HDF5_INCLUDE_DIR=${BUILD_DIR}/hdf5-1.10.7_install/include
+ export LD_LIBRARY_PATH=${BUILD_DIR}/hdf5-1.10.7/install/lib:$LD_LIBRARY_PATH
+ export LD_RUN_PATH=${BUILD_DIR}/hdf5-1.10.7/install/lib:$LD_RUN_PATH
+ export HDF5_INCLUDE_DIR=${BUILD_DIR}/hdf5-1.10.7/install/include
 ```
 
 Download, configure and install PETSc
@@ -221,9 +221,9 @@ export BOOST_ROOT=$BUILD_DIR/boost
 export EIGEN3_INCLUDE_DIR=$BUILD_DIR/eigen-3.3.9/build/build/include/eigen3
 export SCOTCH_DIR=$BUILD_DIR/boost/boost
  
-export LD_LIBRARY_PATH=${BUILD_DIR}/boost/hdf5-1.10.7_install/lib:$LD_LIBRARY_PATH
-export LD_RUN_PATH=${BUILD_DIR}/boost/hdf5-1.10.7_install/lib:$LD_RUN_PATH
-export HDF5_INCLUDE_DIR=${BUILD_DIR}/boost/hdf5-1.10.7_install/include
+export LD_LIBRARY_PATH=${BUILD_DIR}/boost/hdf5-1.10.7/install/lib:$LD_LIBRARY_PATH
+export LD_RUN_PATH=${BUILD_DIR}/boost/hdf5-1.10.7/install/lib:$LD_RUN_PATH
+export HDF5_INCLUDE_DIR=${BUILD_DIR}/boost/hdf5-1.10.7/install/include
 export PETSC_DIR=${BUILD_DIR}/boost/petsc-$PETSC_VERSION
 export PETSC_ARCH=arch-linux-c-opt
 ```
@@ -261,8 +261,8 @@ cmake -DCMAKE_INSTALL_PREFIX=$(pwd)   \
 -DDOLFIN_SKIP_BUILD_TESTS=true \
 -DCMAKE_REQUIRED_LIBRARIES="-lmpifort" \
 -DCMAKE_CXX_FLAGS_RELEASE="-Wno-literal-suffix -O3 -DNDEBUG" \
--DHDF5_ROOT="${BUILD_DIR}/hdf5-1.10.7" \
--DHDF5_INCLUDE_DIRS="${BUILD_DIR}/hdf5-1.10.7/include" \
+-DHDF5_ROOT="${BUILD_DIR}/hdf5-1.10.7/install" \
+-DHDF5_INCLUDE_DIRS="${BUILD_DIR}/hdf5-1.10.7/install/include" \
 -DPTESMUMPS_LIBRARY="${BUILD_DIR}/petsc-$PETSC_VERSION/$PETSC_ARCH/lib/libptesmumps.a" \
 ..
 
