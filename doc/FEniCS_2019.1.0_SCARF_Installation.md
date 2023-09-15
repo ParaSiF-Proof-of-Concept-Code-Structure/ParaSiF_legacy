@@ -258,14 +258,14 @@ cmake -DCMAKE_INSTALL_PREFIX=$(pwd)   \
 -DDOLFIN_ENABLE_PYTHON=true \
 -DDOLFIN_USE_PYTHON3=true \
 -DDOLFIN_ENABLE_PETSC=true \
--DPETSC_DIR="${BUILD_DIR}/boost/petsc-$PETSC_VERSION" \
--DPETSC_LIBRARY="${BUILD_DIR}/boost/petsc-$PETSC_VERSION/arch-linux-c-opt/lib/libpetsc.so" \
+-DPETSC_DIR="${BUILD_DIR}/petsc-$PETSC_VERSION" \
+-DPETSC_LIBRARY="${BUILD_DIR}/petsc-$PETSC_VERSION/arch-linux-c-opt/lib/libpetsc.so" \
 -DDOLFIN_SKIP_BUILD_TESTS=true \
 -DCMAKE_REQUIRED_LIBRARIES="-lmpifort" \
 -DCMAKE_CXX_FLAGS_RELEASE="-Wno-literal-suffix -O3 -DNDEBUG" \
--DHDF5_ROOT="${BUILD_DIR}/boost/hdf5-1.10.7_install" \
--DHDF5_INCLUDE_DIRS="${BUILD_DIR}/boost/hdf5-1.10.7_install/include" \
--DPTESMUMPS_LIBRARY="${BUILD_DIR}/boost/petsc-$PETSC_VERSION/$PETSC_ARCH/lib/libptesmumps.a" \
+-DHDF5_ROOT="${BUILD_DIR}/hdf5-1.10.7" \
+-DHDF5_INCLUDE_DIRS="${BUILD_DIR}/hdf5-1.10.7/include" \
+-DPTESMUMPS_LIBRARY="${BUILD_DIR}/petsc-$PETSC_VERSION/$PETSC_ARCH/lib/libptesmumps.a" \
 ..
 
 make -j 8 install
