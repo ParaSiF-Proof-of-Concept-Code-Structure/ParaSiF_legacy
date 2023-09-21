@@ -116,7 +116,7 @@ cd $BUILD_DIR
 wget https://bitbucket.org/fenics-project/ffc/downloads/ffc-2019.1.0.post0.tar.gz
 tar zxvf ffc-2019.1.0.post0.tar.gz
 cd ffc-2019.1.0.post0/
-sudo python3 setup.py install
+python3 setup.py install
 ```
 
 
@@ -160,7 +160,7 @@ export PETSC_ARCH=arch-linux-c-opt
 
 export ROOT_SHARED_DIR=${BUILD_DIR}
 
-./configure --with-petsc4py=1 --force --download-superlu=yes --download-metis=yes   --download-parmetis=yes --download-ptscotch=yes   --download-scalapack   --download-mumps --download-cmake --download-superlu_dist=yes
+./configure --with-petsc4py=1 --force --download-superlu=yes --download-metis=yes   --download-parmetis=yes --download-ptscotch=yes   --download-scalapack   --download-mumps --download-cmake --download-superlu_dist=yes --download-fblaslapack=1
 
 #./configure  --download-cmake --prefix=$ROOT_SHARED_DIR/petsc-$PETSC_VERSION/install \
 #--with-mpi=1  --enable-shared=1   --with-precision=double  --download-superlu=yes \
