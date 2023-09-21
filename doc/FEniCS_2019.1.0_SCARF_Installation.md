@@ -149,7 +149,7 @@ Download, configure and install PETSc
 ---------------------------------------
 
 ```bash
-export PETSC_VERSION="3.16.3"
+export PETSC_VERSION="3.19.5"
 cd $BUILD_DIR
 wget https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-$PETSC_VERSION.tar.gz
 tar zxvf petsc-$PETSC_VERSION.tar.gz
@@ -221,10 +221,10 @@ export BOOST_ROOT=$BUILD_DIR/boost
 export EIGEN3_INCLUDE_DIR=$BUILD_DIR/eigen-3.3.9/build/build/include/eigen3
 export SCOTCH_DIR=$BUILD_DIR/boost/boost
  
-export LD_LIBRARY_PATH=${BUILD_DIR}/boost/hdf5-1.10.7/install/lib:$LD_LIBRARY_PATH
-export LD_RUN_PATH=${BUILD_DIR}/boost/hdf5-1.10.7/install/lib:$LD_RUN_PATH
-export HDF5_INCLUDE_DIR=${BUILD_DIR}/boost/hdf5-1.10.7/install/include
-export PETSC_DIR=${BUILD_DIR}/boost/petsc-$PETSC_VERSION
+export LD_LIBRARY_PATH=${BUILD_DIR}/hdf5-1.10.7/install/lib:$LD_LIBRARY_PATH
+export LD_RUN_PATH=${BUILD_DIR}/hdf5-1.10.7/install/lib:$LD_RUN_PATH
+export HDF5_INCLUDE_DIR=${BUILD_DIR}/hdf5-1.10.7/install/include
+export PETSC_DIR=${BUILD_DIR}/petsc-$PETSC_VERSION
 export PETSC_ARCH=arch-linux-c-opt
 ```
 
