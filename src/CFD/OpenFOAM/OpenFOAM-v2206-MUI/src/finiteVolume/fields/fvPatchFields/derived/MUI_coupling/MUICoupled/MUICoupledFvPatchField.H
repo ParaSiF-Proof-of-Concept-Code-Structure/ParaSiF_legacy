@@ -26,67 +26,6 @@ License
 Class
     Foam::MUICoupledFvPatchField
 
-Group
-    grpGenericBoundaryConditions
-
-Description
-    This boundary condition provides a fixed value profile condition.
-
-Usage
-    \table
-        Property     | Description              | Required | Default value
-        profile      | Profile Function1        | yes |
-        direction    | Profile direction        | yes |
-        origin       | Profile origin           | yes |
-    \endtable
-
-    Example of the boundary condition specification:
-    \verbatim
-    <patchName>
-    {
-        type       MUICoupled;
-        profile    csvFile;
-
-        profileCoeffs
-        {
-            nHeaderLine         0;          // Number of header lines
-            refColumn           0;          // Reference column index
-            componentColumns    (1 2 3);    // Component column indices
-            separator           ",";        // Optional (defaults to ",")
-            mergeSeparators     no;         // Merge multiple separators
-            file                "Uprofile.csv";  // name of csv data file
-            outOfBounds         clamp;      // Optional out-of-bounds handling
-            interpolationScheme linear;     // Optional interpolation scheme
-        }
-        direction        (0 1 0);
-        origin           0;
-    }
-    \endverbatim
-
-    Example setting a parabolic inlet profile for the PitzDaily case:
-    \verbatim
-    inlet
-    {
-        type            MUICoupled;
-
-        profile         polynomial
-        (
-            ((1 0 0)        (0 0 0))
-            ((-6200 0 0)    (2 0 0))
-        );
-        direction       (0 1 0);
-        origin          0.0127;
-    }
-    \endverbatim
-
-Note
-    The profile entry is a Function1 type.  The example above gives the
-    usage for supplying csv file.
-
-See also
-    Foam::fixedValueFvPatchField
-    Foam::Function1Types
-    Foam::timeVaryingMappedFixedValueFvPatchField
 
 SourceFiles
     MUICoupledFvPatchField.C
