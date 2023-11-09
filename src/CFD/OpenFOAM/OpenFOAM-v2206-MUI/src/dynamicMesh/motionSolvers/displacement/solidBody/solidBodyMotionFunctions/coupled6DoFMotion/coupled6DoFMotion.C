@@ -36,7 +36,7 @@ License
 #include <algorithm>
 #include "coupled6DoF_config.h"
 #include "DynamicList.H"
-#include ".../OpenFOAM-v2206-MUI/applications/solvers/multiphase/interFoamCoupled/couplingVarExternal.H"
+#include "....../OpenFOAM-v2206/OpenFOAM-v2206-MUI/applications/solvers/multiphase/interFoamCoupled/couplingVarExternal.H"
 bool ifsInit, updateRF;
 double oldTime;
 

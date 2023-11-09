@@ -53,7 +53,7 @@ sampledSurface/sampledSurface/sampledSurface.C
 sampledSurface/sampledSurface/sampledSurfaceRegister.C
 sampledSurface/sampledSurfaces/sampledSurfaces.C
 sampledSurface/thresholdCellFaces/sampledThresholdCellFaces.C
-
+sampledSurface/sampledSurfacesCoupled/sampledSurfacesCoupled.C
 readers = sampledSurface/readers
 
 $(readers)/surfaceReader.C

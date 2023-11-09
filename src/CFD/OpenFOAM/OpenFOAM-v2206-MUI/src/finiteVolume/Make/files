@@ -130,12 +130,12 @@ $(basicFvPatchFields)/extrapolatedCalculated/extrapolatedCalculatedFvPatchFields
 $(basicFvPatchFields)/coupled/coupledFvPatchFields.C
 $(basicFvPatchFields)/directionMixed/directionMixedFvPatchFields.C
 $(basicFvPatchFields)/fixedGradient/fixedGradientFvPatchFields.C
-$(basicFvPatchFields)/fixedValue/fixedValueFvPatchFields.C
 $(basicFvPatchFields)/mixed/mixedFvPatchFields.C
 $(basicFvPatchFields)/sliced/slicedFvPatchFields.C
 $(basicFvPatchFields)/transform/transformFvPatchFields.C
 $(basicFvPatchFields)/transform/transformFvPatchScalarField.C
 $(basicFvPatchFields)/zeroGradient/zeroGradientFvPatchFields.C
+$(basicFvPatchFields)/fixedValue/fixedValueFvPatchFields.C
 
 constraintFvPatchFields = $(fvPatchFields)/constraint
 $(constraintFvPatchFields)/cyclic/cyclicFvPatchFields.C
@@ -156,6 +156,11 @@ $(constraintFvPatchFields)/wedge/wedgeFvPatchFields.C
 $(constraintFvPatchFields)/wedge/wedgeFvPatchScalarField.C
 
 derivedFvPatchFields = $(fvPatchFields)/derived
+
+$(derivedFvPatchFields)/MUI_coupling/coupledVelocity/coupledVelocityFvPatchVectorField.C
+$(derivedFvPatchFields)/MUI_coupling/coupledPressure/coupledPressureFvPatchScalarField.C
+$(derivedFvPatchFields)/MUI_coupling/MUICoupled/MUICoupledFvPatchFields.C
+
 $(derivedFvPatchFields)/activeBaffleVelocity/activeBaffleVelocityFvPatchVectorField.C
 $(derivedFvPatchFields)/activePressureForceBaffleVelocity/activePressureForceBaffleVelocityFvPatchVectorField.C
 $(derivedFvPatchFields)/advective/advectiveFvPatchFields.C
@@ -193,6 +198,7 @@ $(derivedFvPatchFields)/outletInlet/outletInletFvPatchFields.C
 $(derivedFvPatchFields)/outletMappedUniformInlet/outletMappedUniformInletFvPatchFields.C
 $(derivedFvPatchFields)/fixedMeanOutletInlet/fixedMeanOutletInletFvPatchFields.C
 $(derivedFvPatchFields)/partialSlip/partialSlipFvPatchFields.C
+$(derivedFvPatchFields)/parabolicVelocity/parabolicVelocityFvPatchVectorField.C
 $(derivedFvPatchFields)/phaseHydrostaticPressure/phaseHydrostaticPressureFvPatchScalarField.C
 $(derivedFvPatchFields)/pressureDirectedInletOutletVelocity/pressureDirectedInletOutletVelocityFvPatchVectorField.C
 $(derivedFvPatchFields)/pressureDirectedInletVelocity/pressureDirectedInletVelocityFvPatchVectorField.C
