@@ -57,24 +57,10 @@ Description
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 #include "mui.h"
-#include <algorithm>
-// This is only needed if creating templated MUI interfaces
-#include "muiConfigOF.H"
-//#include "aitken_inl.H"
-//#include "fixedRelaxation_inl.H"
-#include "iqnils_inl.H"
+#include "muiconfig.h"
 #endif
 
-// Create DynamicLists (mui2dInterfaces / mui3dInterfaces / muiTemplatedInterfaces),
-// these must be created after "mui.h" and before "createCouplingMUI.H", a list is only needed if
-// interfaces are defined in the corresponding "couplingDict" dictionary file
-// These should be declared as extern if the MUI interface is to be used beyond the top-level main() function call.
-//extern DynamicList<mui::uniface<mui::config_2d>*> mui2dInterfaces;
-//extern DynamicList<mui::uniface<mui::config_3d>*> mui3dInterfaces;
-//extern DynamicList<mui::uniface<mui::config_of>*> muiTemplatedInterfaces;
-DynamicList<mui::uniface<mui::config_2d>*> mui2dInterfaces;
-DynamicList<mui::uniface<mui::config_3d>*> mui3dInterfaces;
-DynamicList<mui::uniface<mui::config_of>*> muiTemplatedInterfaces;
+
 
 int main(int argc, char *argv[])
 {
@@ -85,7 +71,6 @@ int main(int argc, char *argv[])
         "With optional mesh motion and mesh topology changes including"
         " adaptive re-meshing."
     );
-
     #include "postProcess.H"
 
     #include "addCheckCaseOptions.H"
@@ -99,6 +84,9 @@ int main(int argc, char *argv[])
     #include "initCorrectPhi.H"
     #include "createUfIfPresent.H"
 
+    #include "pushForceInit.H"
+    #include "fetchDisplacementInit.H"
+
     if (!LTS)
     {
         #include "CourantNo.H"
@@ -106,14 +94,14 @@ int main(int argc, char *argv[])
     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-    Info<< "\nStarting time loop\n" << endl;
+    Info<< "\n {OpenFOMA} :Starting time loop\n" << endl;
     // #ifdef USE_MUI
     // Reads coupling dictionary and populates DynamicLists (mui2dInterfaces / mui3dInterfaces / muiTemplatedInterfaces)
     // These are created by the corresponding header file "createCouplingData.H"
-    #include "createCouplingMUI.H"
-    #include "pushForceInit.H"
-    #include "fetchDisplacementInit.H"
+    // #include "createCouplingMUI.H" 
     // #endif
+    runTime.updateCurrentIter(0);
+    runTime.updateTimeSteps(0);
     while (runTime.run())
     {
         #include "readDyMControls.H"
@@ -128,32 +116,27 @@ int main(int argc, char *argv[])
             #include "alphaCourantNo.H"
             #include "setDeltaT.H"
         }
-
         ++runTime;
 
         #ifdef USE_MUI
-        timeSteps++;
+        runTime.updateTimeSteps();
 
-        Info<< "Time = " << runTime.timeName() << nl << endl;
-        Info<< "Time Steps = " << timeSteps << nl << endl;
-
-        if (changeSubIter)
+        if (runTime.changeSubIter())
         {
             scalar tTemp=runTime.value();
-
-            if (tTemp >= changeSubIterTime)
+            if (tTemp >= runTime.changeSubIterTime())
             {
-                subIterationNum = subIterationNumNew;
+                runTime.updateSubIterNum(runTime.newSubIterationNumber());
             }
         }
-        for(int subIter = 1; subIter <= subIterationNum; ++subIter)
+
+        for(int subIter = 1; subIter <= runTime.subIterationNumber(); ++subIter)
         {
-
-            Info<< "sub-Iteration = " << subIter << nl << endl;
-
-            totalCurrentIter++;
-
-            Info << "total current iteration = " << totalCurrentIter << nl << endl;
+            runTime.updateCurrentIter();
+            Info << "{OpenFOMA} : Time = " << runTime.timeName() << ", and sub-Iteration = " 
+                 << subIter <<"/" << runTime.subIterationNumber() << nl << endl;
+            Info << "{OpenFOMA} : Time Steps = " << runTime.timeSteps() << nl << endl;        
+            Info << "{OpenFOMA} : Total current iteration = " << runTime.totalCurrentIter() << nl << endl;
 
             #include "pushForce.H"
             #include "fetchDisplacement.H"

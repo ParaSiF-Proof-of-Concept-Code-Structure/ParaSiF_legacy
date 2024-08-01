@@ -27,15 +27,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "MUICoupledFvPatchField.H"
-#include "mui.h"
-#include <algorithm>
-#include "coupled6DoF_config.h"
-#include "muiConfigOF.H"
+#include "Time.H"
 #include "DynamicList.H"
-
-typedef std::unique_ptr<mui::uniface<mui::coupled6DoF_config>> MuiUnifacePtr3d;
-std::vector<MuiUnifacePtr3d> ifs_GeneralBC;
-bool ifsInit_GeneralBC = false ; // Bool to check if MUI interface is initiated
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -47,14 +40,17 @@ Foam::MUICoupledFvPatchField<Type>::MUICoupledFvPatchField
 )
 :
     fixedValueFvPatchField<Type>(p, iF),
-    MUIDomainName_("OpenFOAM"),
-    MUIInterfaceName_("MUICouledBoundaryCondition"),
-    rSampler_(1.0),
+    ifsID(0),
+    spatialSampler_("exact"),
+    tempSampler_("exact"),
+    rSpatialSampler_(1.0),
+    rTempSampler_(1.0),
+    numFetchStepsDelay_(0),
     fieldName_(iF.name()),
     field(iF)
 {
     WarningInFunction << "MUICoupledFvPatchField uses a default parameteres that might be different from the user's intention"
-    << "MUIDomainName = " << MUIDomainName_ << ", MUIInterfaceName = " << MUIInterfaceName_ << ", and rSampler = " << rSampler_ <<endl; 
+    << "MUIInterfaceID = " << ifsID  << rSpatialSampler_ <<endl; 
 }
 
 template<class Type>
@@ -66,14 +62,17 @@ Foam::MUICoupledFvPatchField<Type>::MUICoupledFvPatchField
 )
 :
     fixedValueFvPatchField<Type>(p, iF, fld),
-    MUIDomainName_("OpenFOAM"),
-    MUIInterfaceName_("MUICouledBoundaryCondition"),
-    rSampler_(1.0),
+    ifsID(0),
+    spatialSampler_("exact"),
+    tempSampler_("exact"),
+    rSpatialSampler_(1.0),
+    rTempSampler_(1.0),
+    numFetchStepsDelay_(0),
     fieldName_(iF.name()),
     field(iF)
 {
     WarningInFunction << "MUICoupledFvPatchField uses a default parameteres that might be different from the user's intention"
-    << "MUIDomainName = " << MUIDomainName_ << ", MUIInterfaceName = " << MUIInterfaceName_ << ", and rSampler = " << rSampler_ <<endl; 
+    << "MUIInterfaceID = " << ifsID << ", and rSpatialSampler_ = " << rSpatialSampler_ <<endl; 
 }
 
 template<class Type>
@@ -85,9 +84,12 @@ Foam::MUICoupledFvPatchField<Type>::MUICoupledFvPatchField
 )
 :
     fixedValueFvPatchField<Type>(p, iF, dict, false),
-    MUIDomainName_(dict.lookup("MUIDomainName")),
-    MUIInterfaceName_(dict.lookup("MUIInterfaceName")),
-    rSampler_(readScalar(dict.lookup("rSampler"))),
+    ifsID(readScalar(dict.lookup("MUIInterfaceID"))),
+    spatialSampler_(dict.lookup("spatialSampler")),
+    tempSampler_(dict.lookup("tempSampler")),
+    rSpatialSampler_(readScalar(dict.lookup("rSpatialSampler"))),
+    rTempSampler_(readScalar(dict.lookup("rTempSampler"))),
+    numFetchStepsDelay_(readScalar(dict.lookup("numFetchStepsDelay"))),
     fieldName_(iF.name()),
     field(iF)
 {
@@ -95,19 +97,7 @@ Foam::MUICoupledFvPatchField<Type>::MUICoupledFvPatchField
     
     int isMPIInitialized;
     PMPI_Initialized(&isMPIInitialized);
-    Info << "================================== MUI Coupling ==================================="<< endl; 
-    Info << " OpenFOAM: " << "For patch " <<  this->patch().name() << " an MUI interface to be created "<< endl; 
-    Info <<  " OpenFOAM: MUI interface is " << MUIDomainName_ << "/" << MUIInterfaceName_ << endl;
-    Info <<  " OpenFOAM: MUI will couple the " <<iF.type() << " that has name " << iF.name() <<endl;
-    if (!ifsInit_GeneralBC && isMPIInitialized){
-        std::vector<std::string> ifsName;
-        ifsName.emplace_back(MUIInterfaceName_);
-        ifsInit_GeneralBC = true;
-        ifs_GeneralBC=mui::create_uniface<mui::coupled6DoF_config>( MUIDomainName_, ifsName );
-    }
-    Info << " OpenFOAM: Success.... the intrface "  << MUIDomainName_ << "/" << MUIInterfaceName_ << " has been created" <<endl;
-    Info << "================================== MUI Coupling ==================================="<< endl; 
-
+  
     // Evaluate profile
     //this->evaluate();
     if (dict.found("value"))
@@ -132,9 +122,12 @@ Foam::MUICoupledFvPatchField<Type>::MUICoupledFvPatchField
 )
 :
     fixedValueFvPatchField<Type>(p, iF),  // Don't map
-    MUIDomainName_(ptf.MUIDomainName_),
-    MUIInterfaceName_(ptf.MUIInterfaceName_),
-    rSampler_(ptf.rSampler_),
+    ifsID(ptf.ifsID),
+    spatialSampler_(ptf.spatialSampler_),
+    tempSampler_(ptf.tempSampler_),
+    rSpatialSampler_(ptf.rSpatialSampler_),
+    rTempSampler_(ptf.rTempSampler_),
+    numFetchStepsDelay_(ptf.numFetchStepsDelay_),
     fieldName_(iF.name()),
     field(iF)
 
@@ -151,9 +144,12 @@ Foam::MUICoupledFvPatchField<Type>::MUICoupledFvPatchField
 )
 :
     fixedValueFvPatchField<Type>(ptf, iF),
-    MUIDomainName_(ptf.MUIDomainName_),
-    MUIInterfaceName_(ptf.MUIInterfaceName_),
-    rSampler_(ptf.rSampler_),
+    ifsID(ptf.ifsID),
+    spatialSampler_(ptf.spatialSampler_),
+    tempSampler_(ptf.tempSampler_),
+    rSpatialSampler_(ptf.rSpatialSampler_),
+    rTempSampler_(ptf.rTempSampler_),    
+    numFetchStepsDelay_(ptf.numFetchStepsDelay_),
     fieldName_(iF.name()),
     field(iF)
 {
@@ -168,21 +164,21 @@ void Foam::MUICoupledFvPatchField<Type>::updateCoeffs()
     {
         return;
     }
-    const scalar t = this->db().time().timeOutputValue();
+    scalar t = this->db().time().timeOutputValue() 
+             - this->db().time().deltaT().value() * numFetchStepsDelay_;
     Field<Type> fethedBCValues(this->patch().Cf().size());
     int isMPIInitialized;
 
     PMPI_Initialized(&isMPIInitialized);
 
-    Info <<  " FOAM interface " << MUIDomainName_ << "/" << MUIInterfaceName_<< 
-    " fetches at time  " <<t << " Field name " << fieldName_ << endl;
-    if (ifsInit_GeneralBC && isMPIInitialized)
+    
+    if (this->db().time().isMUIIfsInit && isMPIInitialized)
     { 
-        muiFetch(fethedBCValues);
+        muiFetch(fethedBCValues, t);
         fvPatchField<Type>::operator=(fethedBCValues);
     } else{
         WarningInFunction << "MUI  not fetch the BC from the interface " 
-        << MUIDomainName_ << "/" << MUIInterfaceName_ << endl;
+        << ifsID  << endl;
     }
     // Info << fethedBCValues.size
     
@@ -191,70 +187,95 @@ void Foam::MUICoupledFvPatchField<Type>::updateCoeffs()
 
 ///////////////////////////////////////////////////////////////////
 template<class Type>
-void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::scalarField& values) 
+void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::scalarField& values, scalar& t) 
 {
-    const scalar t = this->db().time().timeOutputValue();
+    // scalar t = this->db().time().timeOutputValue();
+    // t =t - this->db().time().deltaT().value() * numFetchStepsDelay_;
     vectorField CellFaceCenter(this->patch().Cf());
+    // auto mui_ifs = this->db().time().mui_ifs;
     mui::point3d cellCenter;
-    mui::temporal_sampler_exact<mui::coupled6DoF_config> chrono_sampler;
-    mui::sampler_gauss<mui::coupled6DoF_config> spatial_sampler(rSampler_,rSampler_/2.0);
+    mui::temporal_sampler_exact<mui::mui_config> chrono_sampler;
+    mui::sampler_gauss<mui::mui_config> spatial_sampler(rSpatialSampler_,rSpatialSampler_/2.0);
+    
+    
+
     
       // Make sure the interface is created and MPI is initialised
+    if (t>=0){
     forAll(CellFaceCenter, pointI)
     {
         cellCenter[0] = CellFaceCenter[pointI].x();
         cellCenter[1] = CellFaceCenter[pointI].y();
         cellCenter[2] = CellFaceCenter[pointI].z();
 
-        values[pointI] =  ifs_GeneralBC[0]->fetch( fieldName_, cellCenter, static_cast<double>(t), spatial_sampler, chrono_sampler );
+            values[pointI] =  this->db().time().mui_ifs[ifsID]->fetch( fieldName_, cellCenter, static_cast<double>(t), spatial_sampler, chrono_sampler );
         // std::cout <<  "Foam : Right Locat "<< pointI << " Time " << t<<" ("<< cellCenter[0] << " , "<<   cellCenter[1] << " , "<<  cellCenter[2] << ") ";
         // std::cout << "Vel"<<" ("<< values[pointI].x() << " , "<<   values[pointI].y() << " , "<<  values[pointI].z() << ") "<< std::endl;
-    }    return;
+        }   
+    } 
+    return;
 }
 ///////////////////////////////////////////////////////////////////
 template<class Type>
-void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::vectorField& values) 
+void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::vectorField& values, scalar& t)
 {
-    const scalar t = this->db().time().timeOutputValue();
+    // const scalar t = this->db().time().timeOutputValue() 
+    //                - this->db().time().deltaT().value() * numFetchStepsDelay_;
     vectorField CellFaceCenter(this->patch().Cf());
     mui::point3d cellCenter;
-    mui::temporal_sampler_exact<mui::coupled6DoF_config> chrono_sampler;
-    mui::sampler_gauss<mui::coupled6DoF_config> spatial_sampler(rSampler_,rSampler_/2.0);
-    
+    mui::temporal_sampler_exact<mui::mui_config> chrono_sampler;
+    mui::sampler_gauss<mui::mui_config> spatial_sampler(rSpatialSampler_,rSpatialSampler_/2.0);   
+
+
       // Make sure the interface is created and MPI is initialised
+    Info <<  " FOAM interface " << ifsID << 
+    " fetches at time  " <<t << " Field name " << fieldName_ << endl;
+    if (t>0){
     forAll(CellFaceCenter, pointI)
     {
         cellCenter[0] = CellFaceCenter[pointI].x();
         cellCenter[1] = CellFaceCenter[pointI].y();
         cellCenter[2] = CellFaceCenter[pointI].z();
 
-        values[pointI].x() =  ifs_GeneralBC[0]->fetch( fieldName_+"_x", cellCenter, static_cast<double>(t), spatial_sampler, chrono_sampler );
-        values[pointI].y() =  ifs_GeneralBC[0]->fetch( fieldName_+"_y", cellCenter, static_cast<double>(t), spatial_sampler, chrono_sampler );
-        values[pointI].z() =  ifs_GeneralBC[0]->fetch( fieldName_+"_z", cellCenter, static_cast<double>(t), spatial_sampler, chrono_sampler );
+            values[pointI].x() =  this->db().time().mui_ifs[ifsID]->fetch( fieldName_+"_x", cellCenter, static_cast<double>(t), spatial_sampler, chrono_sampler );
+            values[pointI].y() =  this->db().time().mui_ifs[ifsID]->fetch( fieldName_+"_y", cellCenter, static_cast<double>(t), spatial_sampler, chrono_sampler );
+            values[pointI].z() =  this->db().time().mui_ifs[ifsID]->fetch( fieldName_+"_z", cellCenter, static_cast<double>(t), spatial_sampler, chrono_sampler );
+        //     values[pointI].x() = 0.10;
+        //     values[pointI].y() = 0.0;
+        //     values[pointI].z() = 0.0;
         // std::cout <<  "Foam : Right Locat "<< pointI << " Time " << t<<" ("<< cellCenter[0] << " , "<<   cellCenter[1] << " , "<<  cellCenter[2] << ") ";
         // std::cout << "Vel"<<" ("<< values[pointI].x() << " , "<<   values[pointI].y() << " , "<<  values[pointI].z() << ") "<< std::endl;
     }
-    
+    }else{
+        WarningInFunction << "MUI  not fetch the BC from the interface " 
+        << ifsID  << "  Values are set to zero " << endl;
+        forAll(CellFaceCenter, pointI)
+        {
+            values[pointI].x() =  0.0;
+            values[pointI].y() =  0.0;
+            values[pointI].z() =  0.0;
+        }
+    }
     return;
 }
 ///////////////////////////////////////////////////////////////////
 
 template<class Type>
-void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::tensorField& values) 
+void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::tensorField& values, scalar& t) 
 {
     FatalError << "FOAM: The field type '"<<  field.type() << "' is not supported for MUI boundary fetch" << endl;
     return;
 }
 
 template<class Type>
-void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::symmTensorField& values) 
+void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::symmTensorField& values, scalar& t) 
 {
     FatalError << "FOAM: The field type '"<<  field.type() << "' is not supported for MUI boundary fetch" << endl;
     return;
 }
 
 template<class Type>
-void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::sphericalTensorField& values) 
+void Foam::MUICoupledFvPatchField<Type>::muiFetch(  Foam::sphericalTensorField& values, scalar& t) 
 {
     FatalError << "FOAM: The field type '"<<  field.type() << "' is not supported for MUI boundary fetch" << endl;
     return;
@@ -265,9 +286,12 @@ void Foam::MUICoupledFvPatchField<Type>::write(Ostream& os) const
 {
     fvPatchField<Type>::write(os);
     this->writeEntry("value", os);
-    os.writeKeyword("MUIDomainName")  << MUIDomainName_ << token::END_STATEMENT << nl;
-    os.writeKeyword("MUIInterfaceName") << MUIInterfaceName_ << token::END_STATEMENT << nl;
-    os.writeKeyword("rSampler") << rSampler_ << token::END_STATEMENT << nl;
+    os.writeKeyword("MUIInterfaceID")  << ifsID << token::END_STATEMENT << nl;
+    os.writeKeyword("spatialSampler") << spatialSampler_ << token::END_STATEMENT << nl;
+    os.writeKeyword("tempSampler") << tempSampler_ << token::END_STATEMENT << nl;
+    os.writeKeyword("rSpatialSampler") << rSpatialSampler_ << token::END_STATEMENT << nl;
+    os.writeKeyword("rTempSampler") << rTempSampler_ << token::END_STATEMENT << nl;
+    os.writeKeyword("numFetchStepsDelay") << numFetchStepsDelay_ << token::END_STATEMENT << nl;
 }
 
 

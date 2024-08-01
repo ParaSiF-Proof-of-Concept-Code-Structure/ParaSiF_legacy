@@ -39,6 +39,7 @@
 #
 #%% Import packages
 #_________________________________________________________________________________________
+import json
 
 class readData:
 
@@ -146,9 +147,9 @@ class readData:
     def iSmoothFunc (self):
         # F-Switch off the RBF spatial sampler smooth function; T-Switch on the RBF spatial sampler smooth function.
         return self.cfg['MUI'].getboolean('iSmoothFunc')
-    def forgetTStepsMUI (self):
+    def forgetTime (self):
         # Numbers of time steps to forget for MUI push (integer)
-        return int(self.cfg['MUI']['forgetTStepsMUI'])
+        return float(self.cfg['MUI']['forgetTime'])
     def iparallelFSICoupling (self):
         # F-Serial FSI coupling mode; T-Parallel FSI coupling mode.
         return self.cfg['MUI'].getboolean('iparallelFSICoupling')
@@ -338,6 +339,18 @@ class readData:
         return float(self.cfg['TIMEMARCHCOEF']['alpha_rdc'])
     def beta_rdc (self):
         return float(self.cfg['TIMEMARCHCOEF']['beta_rdc'])
+        # Non linear terms Coefficients, valid only on MCK solver
+    def alpha_rdc_2 (self):
+        return float(self.cfg['TIMEMARCHCOEF']['alpha_rdc_2'])
+    
+    def alpha_rdc_3 (self):
+        return float(self.cfg['TIMEMARCHCOEF']['alpha_rdc_3'])
+    
+    def beta_rdc_2 (self):
+        return float(self.cfg['TIMEMARCHCOEF']['beta_rdc_2'])
+    def beta_rdc_3 (self):
+        return float(self.cfg['TIMEMARCHCOEF']['beta_rdc_3'])
+    
 
         # Generalized-alpha method parameters, valid only on MCK solver
         # alpha_m_gam <= alpha_f_gam <= 0.5 for a better performance
@@ -347,6 +360,9 @@ class readData:
         return float(self.cfg['TIMEMARCHCOEF']['alpha_m_gam'])
     def alpha_f_gam (self):
         return float(self.cfg['TIMEMARCHCOEF']['alpha_f_gam'])
+    
+    def gravity_acc (self):
+        return json.loads((self.cfg['Gravity']['gravity_acc']))
 
         #===========================================
         #%% Post-processing parameter input
@@ -454,3 +470,21 @@ class readData:
     def ZMesh (self):
         # cell numbers along the thick of the beam, valid when iMeshLoad=False (integer) [-]
         return int(self.cfg['MESH']['ZMesh'])
+    
+        #===========================================
+        #%% Initail Force application
+        #===========================================
+
+    def MaxInitialForce (self):
+        # cell numbers along the length of the beam, valid when iMeshLoad=False (integer) [-]
+        return json.loads(self.cfg['InitialForce']['MaxInitialForce'])
+    def TransitionTime (self):
+        # cell numbers along the width of the beam, valid when iMeshLoad=False (integer) [-]
+        return float(self.cfg['InitialForce']['TransitionTime'])
+    def RelaxTime (self):
+        # cell numbers along the thick of the beam, valid when iMeshLoad=False (integer) [-]
+        return float(self.cfg['InitialForce']['RelaxTime'])
+
+    
+    
+

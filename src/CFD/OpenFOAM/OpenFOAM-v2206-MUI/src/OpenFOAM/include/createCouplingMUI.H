@@ -1106,7 +1106,6 @@ Outputs
             }
         }
     }
-
     // If there was at least one 3D interface in the dictionary then proceed to creation and set up
     if(interfaceNames3d.size() > 0)
     {
@@ -1115,7 +1114,6 @@ Outputs
         // Create MUI interface(s) using API helper function - interfaces returned in order stored in "interfaceNames3d"
         std::vector<std::unique_ptr<mui::uniface<mui::config_3d>>> returnInterfaces3d =
             mui::create_uniface<mui::config_3d>(static_cast<std::string>(domainName), interfaceNames3d);
-
         // Release raw pointer into main DynamicList and perform SmartSend announcements
         for(size_t i = 0; i < returnInterfaces3d.size(); i++)
         {

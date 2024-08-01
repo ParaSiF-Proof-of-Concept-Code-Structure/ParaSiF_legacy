@@ -35,6 +35,11 @@ License
 #include "registerSwitch.H"
 #include <sstream>
 
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
+#include "mui.h"
+#include "muiconfig.h"
+#endif
+
 // * * * * * * * * * * * * * Static Member Data  * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -138,7 +143,46 @@ void Foam::Time::adjustDeltaT()
 
     functionObjects_.adjustTimeStep();
 }
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
+void Foam::Time::initiatMUI()
+{
+    controlDict_.readEntry("MUIDomainName", MUIDomainName_);
+    controlDict_.readEntry("MUIInterfaceName", MUIInterfaceName_);
+    controlDict_.readEntry("MUIInterfaceNumber", MUIInterfaceNumber_);
+    controlDict_.readEntry("subIterationNumber", subIterationNumber_);
+    controlDict_.readEntry("changeSubIter", changeSubIter_);
+    controlDict_.readEntry("changeSubIterTime", changeSubIterTime_);
+    controlDict_.readEntry("newSubIterationNumber", newSubIterationNumber_);
+    
+    MUIInterfaceNumber_= MUIInterfaceName_.size();
+    std::vector<std::string> ifsName;
+    if (MUIInterfaceNumber_ < 1){
+        FatalError << "Number of MUI interface assigned is " <<  MUIInterfaceNumber_
+         << ". MUIInterfaceNumber should be 1 or more" << abort(FatalError);
+    }
+
+    forAll(MUIInterfaceName_,ifsIndx){
+        ifsName.emplace_back(MUIInterfaceName_[ifsIndx]);
+    }
+    // for (int ifsIndx = 0; ifsIndx < MUIInterfaceNumber_ ; ++ifsIndx) {
+    //     ifsName.emplace_back(MUIInterfaceName_ +"_"+ std::to_string(ifsIndx));
+    // }
+    //Info << "MUI is creating Interface named " <<  MUIDomainName_ <<"/"<< MUIInterfaceName_ << endl;
+    isMUIIfsInit = true;
+
+    // for (int i = 0; i < ifsName.size(); ++i) {
+    //     std::cout << ifsName[i] << std::endl;
+    // }
+    // std::cout << "====================================" << std::endl;
+    mui_ifs=mui::create_uniface<mui::mui_config>( MUIDomainName_, ifsName );
+
+    // MUIDomainName_(controlDict_.lookup("MUIDomainName"));
+    // MUIInterfaceName_(controlDict_.lookup("MUIInterfaceName"));
+    // rSampler_(readScalar(controlDict_.lookup("rSampler")));
+    // numFetchStepsDelay_(readScalar(controlDict_.lookup("numFetchStepsDelay")));
+}
+#endif
 
 void Foam::Time::setControls()
 {
@@ -480,6 +524,7 @@ Foam::Time::Time
 
     setControls();
     setMonitoring();
+    // if (argList::cplRunControl().cplRun()){  initiatMUI(); }
 }
 
 
@@ -563,6 +608,7 @@ Foam::Time::Time
     readOpt(IOobject::MUST_READ_IF_MODIFIED);
 
     setControls();
+    if (args.cplRunControl().cplRun()){  initiatMUI(); }
 
     // '-profiling' = force profiling, ignore controlDict entry
     setMonitoring(args.found("profiling"));
@@ -644,6 +690,7 @@ Foam::Time::Time
 
     setControls();
     setMonitoring();
+    // if (args.cplRunControl().cplRun()){  initiatMUI(); }
 }
 
 

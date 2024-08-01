@@ -49,13 +49,9 @@
 
     mui::point3d rcv_point;
 
-    scalar t = mesh.time().value();
-
-    Info << "{OpenFOAM} Fetch iteration " << totalCurrentIter << nl << endl;
-    if((totalCurrentIter-0) >= 0)
+    Info << "{OpenFOAM} Fetch iteration " << runTime.totalCurrentIter() << nl << endl;
+    if((runTime.totalCurrentIter()-0) >= 0)
     {                    
-	cplAlgo_res = 0.0;
-	int count = 0;
         forAll(interfaceNames, iN)
         {
             forAll(patchIDs[iN], pI)

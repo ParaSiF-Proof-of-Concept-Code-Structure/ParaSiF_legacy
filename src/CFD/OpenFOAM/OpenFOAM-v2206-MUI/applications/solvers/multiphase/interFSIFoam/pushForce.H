@@ -61,8 +61,8 @@
     const dimensionedScalar nuForceWater(transportProperties.subDict("water").lookup("nu"));
     const dimensionedScalar nuForceAir(transportProperties.subDict("air").lookup("nu"));
 
-    Info << "rho Water: " << rhoForceWater << " nu Water: " << nuForceWater << nl << endl;
-    Info << "rho Air: " << rhoForceAir << " nu Air: " << nuForceAir << nl << endl;
+    Info << "{OpenFOMA} : rho Water: " << rhoForceWater << " nu Water: " << nuForceWater << nl << endl;
+    Info << "{OpenFOMA} : rho Air: " << rhoForceAir << " nu Air: " << nuForceAir << nl << endl;
 
 	//to avoid negative values
     const volScalarField limitedAlphaWater
@@ -76,10 +76,7 @@
 		= tdevRhoReffWater().boundaryField();
 
 	tmp<volSymmTensorField> tdevRhoReffAir = (-rhoForce*nuForceWater*dev(twoSymm(fvc::grad(UForce))));
-	const volSymmTensorField::Boundary& devRhoReffbAir
-		= tdevRhoReffAir().boundaryField();
 
-    scalar t = mesh.time().value();
 
     // Calculate the total forces on each face: Total_force = Pressure_force + Share_stress.
     // Note: incompressible solvers only.
@@ -162,14 +159,14 @@
                 }
 
                 //- Create 3D sending point at current face center
-                // ToDo: change it to map
+                // ToDo: change it to map  solution
                 send_point[0] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::X)));
                 send_point[1] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Y)));
                 send_point[2] = static_cast<double>(static_cast<float>(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Z)));
 
                 if (rankHasPatchPointsForPush)
                 {
-                    if (pushDelayIterations >= totalCurrentIter)
+                    if (pushDelay >= runTime.totalCurrentIter())
                     {
                         double tempZero = 0.0;
 
@@ -180,7 +177,7 @@
                     } else
                     {
 
-						double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*t);
+						double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*runTime.value());
 
                         double tempPushX = facePush.component(vector::X) * Foam::cos(angle2DRotationTemp) +  facePush.component(vector::Y) * Foam::sin(angle2DRotationTemp);
                         double tempPushY = facePush.component(vector::Y) * Foam::cos(angle2DRotationTemp) -  facePush.component(vector::X) * Foam::sin(angle2DRotationTemp);
@@ -246,15 +243,15 @@
         }
 
         //- Commit the pushed values to the interface at current time step
-        ifs[iN]->commit(static_cast<scalar>(totalCurrentIter));
+        ifs[iN]->commit(static_cast<double>(runTime.value()),subIter);
+        Info << "{OpenFOMA} : {OpenFOMA} : MUI interface " << interfaceNames[iN] << " Finshed commiting forces at time " << runTime.value() << 
+        " and sub iterations" << subIter <<"/"<< runTime.subIterationNumber() << nl << endl;
 
-        if ((totalCurrentIter-2) > 0)
+        if ((runTime.value()-forgetTime) > 0)
         {
-            ifs[iN]->forget(static_cast<scalar>(0), static_cast<scalar>(totalCurrentIter-2));
-            Info << "MUI interface " << iN << " forget from 0 to " << (totalCurrentIter-2) << " iterations" << nl << endl;
+            ifs[iN]->forget(static_cast<scalar>(0), static_cast<scalar>(runTime.value()-forgetTime));
+            Info << "MUI interface " << iN << " forget from time 0 to " << (runTime.value()-forgetTime)  << nl << endl;
         } 
-
-        Info << "MUI interface " << interfaceNames[iN] << " Commited on " << totalCurrentIter << " iterations" << nl << endl;
 
     }
 
@@ -294,21 +291,21 @@
 
         tractionTotal[iN] /= totalFaceNList[iN];
 
-        Info << interfaceNames[iN] << " forceX = " << forceTotal[iN].component(vector::X) << endl;
-        Info << interfaceNames[iN] << " forceY = " << forceTotal[iN].component(vector::Y) << endl;
-        Info << interfaceNames[iN] << " forceZ = " << forceTotal[iN].component(vector::Z) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceX = " << forceTotal[iN].component(vector::X) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceY = " << forceTotal[iN].component(vector::Y) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceZ = " << forceTotal[iN].component(vector::Z) << endl;
 
         if (twoDimCorrection)
         {
             reduce(force2DTotal[iN], sumOp<vector>()); 
-            Info << interfaceNames[iN] << " force2DX = " << force2DTotal[iN].component(vector::X) << endl;
-            Info << interfaceNames[iN] << " force2DY = " << force2DTotal[iN].component(vector::Y) << endl;
-            Info << interfaceNames[iN] << " force2DZ = " << force2DTotal[iN].component(vector::Z) << endl;
+            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DX = " << force2DTotal[iN].component(vector::X) << endl;
+            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DY = " << force2DTotal[iN].component(vector::Y) << endl;
+            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DZ = " << force2DTotal[iN].component(vector::Z) << endl;
         }
 
-        Info << interfaceNames[iN] << " tractionX = " << tractionTotal[iN].component(vector::X) << endl;
-        Info << interfaceNames[iN] << " tractionY = " << tractionTotal[iN].component(vector::Y) << endl;
-        Info << interfaceNames[iN] << " tractionZ = " << tractionTotal[iN].component(vector::Z) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionX = " << tractionTotal[iN].component(vector::X) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionY = " << tractionTotal[iN].component(vector::Y) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionZ = " << tractionTotal[iN].component(vector::Z) << endl;
     }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -165,13 +165,13 @@ class utility:
                                     0.0 *self.Z_direction_vector())
             self.tF_apply = self.tF_magnitude
 
-    def Traction_Assign(self, xyz_fetch, dofs_fetch_list, t_sub_it, n_steps, t):
+    def Traction_Assign(self, xyz_fetch, dofs_fetch_list,t, t_sub_it, n_steps):
         # Assign traction forces at present time step
         if self.iNonUniTraction():
             if len(xyz_fetch)!=0:
                 # Execute only when there are DoFs need to exchange data in this rank.
                 if self.iMUICoupling():
-                    self.MUI_Fetch(xyz_fetch, dofs_fetch_list, t_sub_it)
+                    self.MUI_Fetch(xyz_fetch, dofs_fetch_list,t, t_sub_it)
                 else:
                     self.Traction_DoF_Assign(xyz_fetch, dofs_fetch_list, t_sub_it, t)
             if (self.iMUIFetchValue()) and (not ((self.iContinueRun()) and (n_steps == 1))):
@@ -199,7 +199,7 @@ class utility:
             if self.rank == 0:
                 print ("Done")
 
-    def Traction_DoF_Assign(self, dofs_to_xyz, dofs_fetch_list, total_Sub_Iteration, t):
+    def Traction_DoF_Assign(self, dofs_to_xyz, dofs_fetch_list, time,Sub_Iteration, t):
         totForceX = 0.0
         totForceY = 0.0
         totForceZ = 0.0
@@ -235,6 +235,6 @@ class utility:
 
         if self.iDebug():
             print ("{FENICS**} totForce Apply: ", totForceX, "; ",totForceY, "; ",totForceZ,
-                    "; at iteration: ", total_Sub_Iteration, " at rank: ", self.rank)
+                    "; at time: ", time, " and sub iteration ",Sub_Iteration, " at rank: ", self.rank)
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%  FILE END  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#

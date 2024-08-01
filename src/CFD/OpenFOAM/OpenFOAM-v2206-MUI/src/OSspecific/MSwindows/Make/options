@@ -1,1 +1,5 @@
-EXE_INC = $(COMP_FLAGS)
+include $(GENERAL_RULES)/mpi-MUI-rules
+EXE_INC = $(COMP_FLAGS) \
+    $(PFLAGS) \
+    $(PINC) \
+    -I$(MUI_PATH)

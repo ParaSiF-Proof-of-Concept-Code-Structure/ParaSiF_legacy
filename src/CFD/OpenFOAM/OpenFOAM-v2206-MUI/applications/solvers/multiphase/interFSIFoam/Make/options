@@ -1,12 +1,9 @@
 include $(GENERAL_RULES)/mpi-MUI-rules
-
 EXE_INC = \
-    $(PFLAGS) \
     $(PINC) \
+    $(PFLAGS) \
     -DUSE_MUI \
-    -I$(LIB_SRC)/../../ThirdParty-v2206/sources/MUI/MUI_Utility/couplingFSILab \
-    -I$(LIB_SRC)/../../ThirdParty-v2206/sources/MUI \
-    -I$(LIB_SRC)/../../ThirdParty-v2206/sources/eigen-3.3.9 \
+    -I$(MUI_PATH) \
     -I../VoF \
     -I$(LIB_SRC)/phaseSystemModels/twoPhaseInter/incompressibleInterPhaseTransportModel/lnInclude \
     -I$(LIB_SRC)/phaseSystemModels/twoPhaseInter/VoFphaseIncompressibleTurbulenceModels/lnInclude \

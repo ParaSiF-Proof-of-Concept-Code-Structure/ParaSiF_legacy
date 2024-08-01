@@ -53,9 +53,13 @@ class MUICoupledFvPatchField
     // Private data
 
     // MUI inteface name
-    const word MUIDomainName_ ;
-    const word MUIInterfaceName_ ;
-    scalar rSampler_;
+    int ifsID ;
+    const word spatialSampler_;
+    const word tempSampler_;
+    scalar rSpatialSampler_;
+    scalar rTempSampler_;
+    
+    int numFetchStepsDelay_;
     const word fieldName_ ;
     const DimensionedField<Type, volMesh>& field;
 
@@ -140,11 +144,11 @@ public:
         // template<class Type>
         // 
         // Foam::Field<Type> muiFetch( vectorField& values) ;
-        void  muiFetch(scalarField& values);
-        void  muiFetch(vectorField& values);
-        void  muiFetch(tensorField& values);
-        void  muiFetch(symmTensorField& values);
-        void  muiFetch(sphericalTensorField& values);
+        void  muiFetch(scalarField& values, scalar& t);
+        void  muiFetch(vectorField& values, scalar& t);
+        void  muiFetch(tensorField& values, scalar& t);
+        void  muiFetch(symmTensorField& values, scalar& t);
+        void  muiFetch(sphericalTensorField& values, scalar& t);
 
         // Evaluation functions
 

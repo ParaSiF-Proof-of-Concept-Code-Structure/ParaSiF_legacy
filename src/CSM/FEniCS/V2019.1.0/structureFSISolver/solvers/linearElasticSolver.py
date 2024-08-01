@@ -49,7 +49,7 @@ import os
 import numpy as np
 from mpi4py import MPI
 import structureFSISolver
-
+import sympy 
 class linearElastic:
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,7 +64,8 @@ class linearElastic:
 
         t        = self.Start_Time
         t_step   = self.Time_Steps
-        i_sub_it = self.Start_Number_Sub_Iteration
+        present_num_sub_iteration = self.Start_Number_Sub_Iteration
+        i_sub_it = 0
 
         #===========================================
         #%% Solid Mesh input/generation
@@ -86,12 +87,21 @@ class linearElastic:
         alpha_rdc = Constant(self.alpha_rdc())
         beta_rdc  = Constant(self.beta_rdc())
 
+        alpha_rdc_2 = Constant(self.alpha_rdc_2())        
+        beta_rdc_2  = Constant(self.beta_rdc_2())
+
+        alpha_rdc_3 = Constant(self.alpha_rdc_3())        
+        beta_rdc_3  = Constant(self.beta_rdc_3())
+
+        # alpha_rdc = Expression("0.8-t", degree = self.deg_fun_spc(), t=0.0)
         # Generalized-alpha method parameters
         # alpha_m_gam >= alpha_f_gam >= 0.5 for a better performance
         alpha_m_gam = Constant(self.alpha_m_gam())
         alpha_f_gam = Constant(self.alpha_f_gam())
         gamma_gam   = Constant((1./2.) + alpha_m_gam - alpha_f_gam)
         beta_gam    = Constant((1./4.) * (gamma_gam + (1./2.))**2)
+        # Garvity 
+        gravity_acc = Constant(self.gravity_acc())
 
         #===========================================
         #%% Define function spaces
@@ -123,6 +133,8 @@ class linearElastic:
         u0mck  = Function(V)             # Function for velocity by MCK solving method
         a0mck  = Function(V)             # Function for acceleration by MCK solving method
 
+        u0mck_nonlinear_1  = Function(V)             # Function for velocity by MCK solving method, non-linear term 1
+        u0mck_nonlinear_2  = Function(V)             # Function for velocity by MCK solving method, non-linear term 2
         self.Load_Functions_Continue_Run_Linear(d0mck,u0mck,a0mck,dmck)
 
         if self.rank == 0: print ("Done")
@@ -181,23 +193,46 @@ class linearElastic:
         #===========================================
 
         if self.rank == 0: print ("{FENICS} Defining variational FORM functions ...   ", end="", flush=True)
+        print("done")                    
+        
         # Define the traction terms of the structure variational form
         tF = dot(chi, self.tF_apply)
 
         Form_s_Update_Acce = self.AMCK (ddmck, d0mck, u0mck, a0mck, beta_gam)
         Form_s_Update_velo = self.UMCK (Form_s_Update_Acce, u0mck, a0mck, gamma_gam)
 
+        Form_s_Update_velo_nonlinear_1 = u0mck_nonlinear_1
+        Form_s_Update_velo_nonlinear_2 = u0mck_nonlinear_2
+
         Form_s_Ga_Acce = self.Generalized_Alpha_Weights(Form_s_Update_Acce,a0mck,alpha_m_gam)
         Form_s_Ga_velo = self.Generalized_Alpha_Weights(Form_s_Update_velo,u0mck,alpha_f_gam)
         Form_s_Ga_disp = self.Generalized_Alpha_Weights(ddmck,d0mck,alpha_f_gam)
+
+        Form_s_Ga_velo_nonlinear_1 = self.Generalized_Alpha_Weights(Form_s_Update_velo_nonlinear_1,u0mck_nonlinear_1,alpha_f_gam)
+        Form_s_Ga_velo_nonlinear_2 = self.Generalized_Alpha_Weights(Form_s_Update_velo_nonlinear_2,u0mck_nonlinear_2,alpha_f_gam)
+
         Form_s_M_Matrix = self.rho_s() * inner(Form_s_Ga_Acce, chi) * dx
         Form_s_M_for_C_Matrix = self.rho_s() * inner(Form_s_Ga_velo, chi) * dx
+
+        Form_s_M_for_C_Matrix_nonlinear_1 = self.rho_s() * inner(Form_s_Ga_velo_nonlinear_1, chi) * dx
+        Form_s_M_for_C_Matrix_nonlinear_2 = self.rho_s() * inner(Form_s_Ga_velo_nonlinear_2, chi) * dx
+
         Form_s_K_Matrix = inner(self.elastic_stress(Form_s_Ga_disp,gdim), sym(grad(chi))) * dx
         Form_s_K_for_C_Matrix = inner(self.elastic_stress(Form_s_Ga_velo,gdim), sym(grad(chi))) * dx
-        Form_s_C_Matrix = alpha_rdc * Form_s_M_for_C_Matrix + beta_rdc * Form_s_K_for_C_Matrix
+
+        Form_s_K_for_C_Matrix_nonlinear_1 = inner(self.elastic_stress(Form_s_Ga_velo_nonlinear_1,gdim), sym(grad(chi))) * dx
+        Form_s_K_for_C_Matrix_nonlinear_2 = inner(self.elastic_stress(Form_s_Ga_velo_nonlinear_2,gdim), sym(grad(chi))) * dx
+        
+        Form_s_C_Matrix = alpha_rdc_2*(alpha_rdc * Form_s_M_for_C_Matrix_nonlinear_1+ beta_rdc * Form_s_K_for_C_Matrix_nonlinear_1) # no-linear damping term
+        Form_s_C_Matrix += alpha_rdc_3*(alpha_rdc * Form_s_M_for_C_Matrix_nonlinear_2+ beta_rdc * Form_s_K_for_C_Matrix_nonlinear_2)  # Linear damping term
+        # Form_s_C_Matrix += alpha_rdc * Form_s_M_for_C_Matrix + beta_rdc * Form_s_K_for_C_Matrix   # Linear damping term
+        
+
         Form_s_F_Ext = tF * ds(2)
 
-        Form_s = Form_s_M_Matrix + Form_s_C_Matrix + Form_s_K_Matrix - Form_s_F_Ext
+        Form_s_F_Int = self.rho_s() * dot(gravity_acc,chi) * dx 
+
+        Form_s = Form_s_M_Matrix + Form_s_C_Matrix + Form_s_K_Matrix - Form_s_F_Int - Form_s_F_Ext
 
         Bilinear_Form = lhs(Form_s)
         Linear_Form   = rhs(Form_s)
@@ -269,17 +304,18 @@ class linearElastic:
                 present_num_sub_iteration = self.num_sub_iteration()
 
             # Sub-iteration for coupling
-            while i_sub_it <= present_num_sub_iteration:
+            while i_sub_it < present_num_sub_iteration:
 
                 # Increment of total sub-iterations
                 t_sub_it += 1
+                i_sub_it += 1
 
                 if self.rank == 0: 
                     print ("\n")
-                    print ("{FENICS} Sub-iteration Number: ", i_sub_it, " Total sub-iterations to now: ", t_sub_it)
+                    print ("{FENICS} Time : ",t,"Sub-iteration Number: ", i_sub_it)
                 
                 # Fetch and assign traction forces at present time step
-                self.Traction_Assign(xyz_fetch, dofs_fetch_list, t_sub_it, n_steps, t)
+                self.Traction_Assign(xyz_fetch, dofs_fetch_list, t,i_sub_it, n_steps)
 
                 if (not ((self.iContinueRun()) and (n_steps == 1))):
 
@@ -297,7 +333,7 @@ class linearElastic:
                     f_Y_a = assemble(force_Y)
                     f_Z_a = assemble(force_Z)
 
-                    print ("{FENICS} Total Force_X on structure: ", f_X_a, " at self.rank ", self.rank)
+                    print ("{FENICS} Total Force_X on structure: ", f_X_a, " at self.rank ", self.rank, force_X)
                     print ("{FENICS} Total Force_Y on structure: ", f_Y_a, " at self.rank ", self.rank)
                     print ("{FENICS} Total Force_Z on structure: ", f_Z_a, " at self.rank ", self.rank)
 
@@ -310,17 +346,17 @@ class linearElastic:
                 # MUI Push internal points and commit current steps
                 if (self.iMUICoupling()):
                     if (len(xyz_push)!=0):
-                        self.MUI_Push(xyz_push, dofs_push_list, dmck, t_sub_it)
+                        self.MUI_Push(xyz_push, dofs_push_list, dmck, t,i_sub_it)
                     else:
-                        self.MUI_Commit_only(t_sub_it)
+                        self.MUI_Commit_only(t,i_sub_it)
                 else:
                     pass
 
                 # Increment of sub-iterations
-                i_sub_it += 1
+                
 
             # Mesh motion
-            #self.Move_Mesh(V, dmck, d0mck, mesh)
+            self.Move_Mesh(V, dmck, d0mck, mesh)
 
             # Data output
             if (not (self.iQuiet())):
@@ -337,8 +373,11 @@ class linearElastic:
             u0mck.vector()[:] = umck
             d0mck.vector()[:] = dmck.vector()
 
+            # Update the velocity in non-linear damping terms
+            u0mck_nonlinear_1.vector()[:] = np.sign(u0mck.vector()[:])*pow(abs(u0mck.vector()[:]),beta_rdc_2)
+            u0mck_nonlinear_2.vector()[:] = np.sign(u0mck.vector()[:])*pow(abs(u0mck.vector()[:]),beta_rdc_3)
             # Sub-iterator counter reset
-            i_sub_it = 1
+            i_sub_it = 0
             # Physical time marching
             t += self.dt()
 

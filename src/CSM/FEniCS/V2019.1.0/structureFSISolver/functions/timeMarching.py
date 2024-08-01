@@ -41,6 +41,7 @@
 #_________________________________________________________________________________________
 import math
 
+from dolfin import *
 class timeMarching:
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,7 +52,8 @@ class timeMarching:
         if self.iContinueRun():
             hdf5checkpointDataInTemp = HDF5File(self.LOCAL_COMM_WORLD, self.inputFolderPath + "/checkpointData.h5", "r")
             # Read start time [s]
-            self.Start_Time = self.dt() + hdf5checkpointDataInTemp.attributes("/ud/vector_0")["timestamp"]
+            # self.Start_Time = self.dt() + hdf5checkpointDataInTemp.attributes("/ud/vector_0")["timestamp"]
+            self.Start_Time = 0.0
             # Calculate time steps [-]
             self.Time_Steps = math.ceil((self.T() - self.Start_Time)/self.dt())
             # Close file and delete HDF5File object

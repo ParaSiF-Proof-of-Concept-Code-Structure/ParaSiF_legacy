@@ -1,6 +1,6 @@
+include $(GENERAL_RULES)/mpi-MUI-rules
 EXE_INC = \
-    -I$(LIB_SRC)/../applications/solvers/multiphase/interFoamCoupled \
-    -I$(LIB_SRC)/../../ThirdParty-v2206/sources/MUI \
+     $(PINC) \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/fileFormats/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
@@ -13,6 +13,7 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude
 
 LIB_LIBS = \
+    $(PLIBS) \
     -lfiniteVolume \
     -lmeshTools \
     -lsurfMesh \

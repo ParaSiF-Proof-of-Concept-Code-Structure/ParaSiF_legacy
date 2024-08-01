@@ -1,7 +1,12 @@
+include $(GENERAL_RULES)/mpi-MUI-rules
+
 EXE_INC = \
+    $(PFLAGS) \
+    $(PINC) \
     -I$(OBJECTS_DIR)
 
 LIB_LIBS = \
+    $(PLIBS) \
     $(FOAM_LIBBIN)/libOSspecific.o
 
 ifeq (libo,$(FOAM_LINK_DUMMY_PSTREAM))

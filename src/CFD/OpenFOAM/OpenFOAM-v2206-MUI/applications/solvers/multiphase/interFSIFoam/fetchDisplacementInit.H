@@ -43,6 +43,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 	// Debug switch for fetchDisplacementInit.H
 	bool debugFetchDisplacementInit = false;
+    mui::point3d rcv_point;
 
     // Declare MUI FSI residual output.
     fileName muiResidualFile("muiFSIResidual.txt");
@@ -186,29 +187,55 @@
 #endif
 
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
-
-    // define spatial and temporal samplers
-    mui::sampler_pseudo_n2_linear<mui::config_of> spatial_sampler(rSampler);
-    mui::temporal_sampler_exact<mui::config_of> chrono_sampler;
-
-	mui::algo_aitken<mui::config_of> aitken(static_cast<double>(initUndRelxCpl));
-	mui::algo_fixed_relaxation<mui::config_of> fr(static_cast<double>(initUndRelxCpl));
-    std::vector<muiCoupling::muiCouplingIQNILS> IQNILS;
-    IQNILS.reserve(interfaceNames.size());
-
-    // Construct an application of muiCouplingAitken
-    // muiCoupling::muiCouplingAitken AKLocal(static_cast<double>(initUndRelxCpl));
-    // Construct an application of muiCouplingFixedRelaxation
-    // muiCoupling::muiCouplingFixedRelaxation FRLocal(static_cast<double>(initUndRelxCpl));
-    // Construct an application of muiCouplingIQNILS
-    muiCoupling::muiCouplingIQNILS IQNILSLocal(static_cast<double>(initUndRelxCpl));
+    std::vector<std::pair<mui::point3d, double>> ptsVluInit;
+    int count=0;
 
     forAll(interfaceNames, iN)
     {
-        // AK.emplace_back(AKLocal);
-        // FR.emplace_back(FRLocal);
-        IQNILS.emplace_back(IQNILSLocal);
-    }
+        bool patchIDToFetch = false;
+
+        forAll(patch6DoFIDs[iN], pI)
+        {
+            forAll(patchIDs[iN], ptI)
+            {
+                if(patch6DoFIDs[iN][pI] == patchIDs[iN][ptI])
+                {
+                    patchIDToFetch = true;
+                    break;
+                }
+            }
+            // Loop over points to receive displacement values and assigned to dispVectorVals
+            //- Blocking fetch for value passed through interface from coupled solver
+            if(patchIDToFetch == true)
+            {
+                forAll(dispVectorValsList[iN][pI], pointI)
+                {
+                    rcv_point[0] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X);
+                    rcv_point[1] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Y);
+                    rcv_point[2] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z);                   
+
+                    if (rankHasPatchPointsForfetch)
+                    {
+                        ptsVluInit.push_back(std::make_pair(rcv_point,0.0));
+                        count++;
+                    }
+                }
+            }
+        }
+        }
+    // define spatial and temporal samplers
+    mui::sampler_pseudo_n2_linear<mui::mui_config> spatial_sampler(rSampler);
+    // mui::sampler_exact<mui::mui_config> spatial_sampler;
+    mui::temporal_sampler_exact<mui::mui_config> chrono_sampler;
+
+	mui::algo_aitken<mui::mui_config> aitken_x(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    mui::algo_aitken<mui::mui_config> aitken_y(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    mui::algo_aitken<mui::mui_config> aitken_z(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+
+	mui::algo_fixed_relaxation<mui::mui_config> fr_x(static_cast<double>(initUndRelxCpl),ptsVluInit);
+    mui::algo_fixed_relaxation<mui::mui_config> fr_y(static_cast<double>(initUndRelxCpl),ptsVluInit);
+    mui::algo_fixed_relaxation<mui::mui_config> fr_z(static_cast<double>(initUndRelxCpl),ptsVluInit);
+
 
     if (args.cplRunControl().cplRun())
     {
@@ -226,7 +253,6 @@
 
             if (cplMethod == "Aitken")
             {
-                // AK[iN].initialize(static_cast<int>(totPointSize));
                 Info << "{OpenFOAM} interface " << interfaceNames[iN] << " Aitken coupling method selected!" << endl;
 
                 muiResidual << "MUI CouplingLib Utility" << "\t" << "Aitken method" << endl;
@@ -238,25 +264,10 @@
 
             } else if (cplMethod == "FixedRelaxation")
             {
-                // FR[iN].initialize(static_cast<int>(totPointSize));
                 Info << "{OpenFOAM} interface " << interfaceNames[iN] << " Fixed Relaxation coupling method selected!" << endl;
 
                 muiResidual << "MUI CouplingLib Utility" << "\t" << "FixedRelaxation method" << endl;
                 muiResidual << "interfaceNames"<< "\t" << "Time" << "\t" << "Time-Step" << "\t" << "Sub-Iteration" << "\t"
-                    << "UnderRelx-Factor" << "\t" << "pointSize" << "\t"
-                    << "squareSumResidual" << "\t" << "maxResidualL-2Norm" << "\t"
-                    << "residualL2Norm" << "\t" << "forceX"
-                            << "\t" << "forceY" << "\t" << "forceZ"<< endl;
-
-            } else if (cplMethod == "IQN_ILS")
-            {
-                IQNILS[iN].initialize(static_cast<int>(totPointSize),
-                                      static_cast<double>(maxUndRelxCpl),
-                                      static_cast<int>(numAitkenIterations));
-                Info << "{OpenFOAM} interface " << interfaceNames[iN] << " IQN-ILS coupling method selected!" << endl;
-
-                muiResidual << "MUI CouplingLib Utility" << "\t" << "IQN-ILS method" << endl;
-                muiResidual << "interfaceName"<< "\t" << "Time" << "\t" << "Time-Step" << "\t" << "Sub-Iteration" << "\t"
                     << "UnderRelx-Factor" << "\t" << "pointSize" << "\t"
                     << "squareSumResidual" << "\t" << "maxResidualL-2Norm" << "\t"
                     << "residualL2Norm" << "\t" << "forceX"
@@ -267,7 +278,7 @@
                 Info << "{OpenFOAM} Loose coupling method selected!" << endl;
             } else
             {
-                FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict does not recognized!" << exit(FatalError);
+                FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict is not recognized!" << exit(FatalError);
             }
         }
 
@@ -283,7 +294,7 @@
 		}
 
         // Annouce send span
-        mui::geometry::box<mui::config_of> recv_region( {recvXMin, recvYMin, recvZMin}, {recvXMax, recvYMax, recvZMax} );
+        mui::geometry::box<mui::mui_config> recv_region( {recvXMin, recvYMin, recvZMin}, {recvXMax, recvYMax, recvZMax} );
 
         // Set the maximum time step size
         int totalTimeSteps = ceil((runTime.endTime().value() - runTime.startTime().value())/runTime.deltaT().value());
@@ -294,7 +305,7 @@
 
             // Commit ZERO step
             ifs[iN]->commit(0);
-            Info << "MUI interface " << interfaceNames[iN] << " commit zero step" << nl << endl;
+            Info << "{OpenFOMA} : MUI interface " << interfaceNames[iN] << " commit zero step" << nl << endl;
         }
     }
 

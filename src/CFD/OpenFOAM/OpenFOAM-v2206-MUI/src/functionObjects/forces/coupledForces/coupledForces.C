@@ -34,17 +34,17 @@ License
 #include "cartesianCS.H"
 #include "addToRunTimeSelectionTable.H"
 #include "mui.h"
-#include "coupledForce_config.h"
+#include "muiconfig.h"
 
 
-typedef std::unique_ptr<mui::uniface<mui::coupledForce_config>> MuiUnifacePtr3d;
+typedef std::unique_ptr<mui::uniface<mui::mui_config>> MuiUnifacePtr3d;
 std::vector<MuiUnifacePtr3d> ifs;
 
 mui::sampler_exact3d<double> spatial_sampler;
 mui::temporal_sampler_exact3d chrono_sampler;
 bool ifsInit;
 double oldTime;
-#include "couplingVarExternal.H"
+
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -806,11 +806,12 @@ bool Foam::functionObjects::coupledForces::execute()
 	std::string appName="threeDInterface0";
     interfaces.emplace_back(appName);
 
-    // auto ifs = mui::create_uniface<mui::coupledForce_config>( "OpenFoam_forces", interfaces );
+
     mui::point3d locf( 0.0, 0.0, 0.0 );
+    void updateIterCounter ();
     Info << "//////////////// Forces //////////// " << totalCurrentIter <<endl;
     if (! ifsInit){
-      ifs=mui::create_uniface<mui::coupledForce_config>( domainName, interfaces );
+      ifs=mui::create_uniface<mui::mui_config>( domainName, interfaces );
     //   interface.reset(new mui::uniface3d(interfaceName));
       
       ifsInit = true;

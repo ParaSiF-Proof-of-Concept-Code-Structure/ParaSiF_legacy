@@ -47,10 +47,8 @@
 	// Debug switch for fetchDisplacement.H
 	bool debugFetchDisplacement = false;
 
-    mui::point3d rcv_point;
-
-    Info << "{OpenFOAM} Fetch iteration " << totalCurrentIter << nl << endl;
-    if((totalCurrentIter-0) >= 0)
+    Info << "{OpenFOAM} Fetch at time  " << runTime.value()<< " and sub iteration " << subIter <<"/"<< runTime.subIterationNumber() << nl << endl;
+    if(runTime.value() >= 0)
     {
         forAll(interfaceNames, iN)
         {
@@ -80,38 +78,40 @@
 
 						if (rankHasPatchPointsForfetch)
 						{
-											double fetchTempX, fetchTempY, fetchTempZ;
+											double fetchTempX =0.0, fetchTempY = 0.0, fetchTempZ = 0.0;
 											if (cplMethod == "Aitken")
 											{
 													fetchTempX =
-															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
+															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,aitken_x);
 													fetchTempY =
-															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
+															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,aitken_y);
 													fetchTempZ =
-															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
+															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,aitken_z);
 											} else if (cplMethod == "FixedRelaxation")
 											{
 													fetchTempX =
-															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
+															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,fr_x);
 													fetchTempY =
-															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
+															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,fr_y);
 													fetchTempZ =
-															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
+															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,fr_z);
 											}  else if (cplMethod == "Loose")
 											{
 												 fetchTempX =
-														 ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
+														 ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler);
 												 fetchTempY =
-														 ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
+														 ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler);
 												 fetchTempZ =
-														 ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
+														 ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler);
 											} else
 											{
 													FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict is not recognized!" << exit(FatalError);
 											}
 
 
-							double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*t);
+
+
+							double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*runTime.value());
 
 							dispVectorValsList[iN][pI][pointI].component(vector::X) = fetchTempX * Foam::cos(angle2DRotationTemp) - fetchTempY * Foam::sin(angle2DRotationTemp);
 							dispVectorValsList[iN][pI][pointI].component(vector::Y) = fetchTempX * Foam::sin(angle2DRotationTemp) + fetchTempY * Foam::cos(angle2DRotationTemp);
@@ -189,15 +189,15 @@
 				rot_pointTemp[1] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Y);
 				rot_pointTemp[2] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z);
 
-				double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*t);
+				double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*runTime.value());
 
 				PointPointerLocal[pointI].component(vector::X) = Foam::cos(angle2DRotationTemp) * (rot_pointTemp[0] - rotation2DOriginX_) - Foam::sin(angle2DRotationTemp) * (rot_pointTemp[1] - rotation2DOriginY_) + rotation2DOriginX_ - rot_pointTemp[0];
 				PointPointerLocal[pointI].component(vector::Y) = Foam::sin(angle2DRotationTemp) * (rot_pointTemp[0] - rotation2DOriginX_) + Foam::cos(angle2DRotationTemp) * (rot_pointTemp[1] - rotation2DOriginY_) + rotation2DOriginY_ - rot_pointTemp[1];
 
 
-                PointPointerLocal[pointI].component(vector::X) += rigidMotionAmplitudeX_*Foam::sin(2*3.1416*rigidMotionFrqX_*t);
-                PointPointerLocal[pointI].component(vector::Y) += rigidMotionAmplitudeY_*Foam::sin(2*3.1416*rigidMotionFrqY_*t);
-                PointPointerLocal[pointI].component(vector::Z) = rigidMotionAmplitudeZ_*Foam::sin(2*3.1416*rigidMotionFrqZ_*t);
+                PointPointerLocal[pointI].component(vector::X) += rigidMotionAmplitudeX_*Foam::sin(2*3.1416*rigidMotionFrqX_*runTime.value());
+                PointPointerLocal[pointI].component(vector::Y) += rigidMotionAmplitudeY_*Foam::sin(2*3.1416*rigidMotionFrqY_*runTime.value());
+                PointPointerLocal[pointI].component(vector::Z) = rigidMotionAmplitudeZ_*Foam::sin(2*3.1416*rigidMotionFrqZ_*runTime.value());
 
 
 				forAll(patchIDs[iN], ptI)
@@ -258,19 +258,19 @@
 						{
 							if (cplMethod == "Aitken")
 							{
-								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t"
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << subIter << "\t"
 									// << AK[iN].undRelxCpl() << "\t" << AK[iN].pointSize() << "\t" << AK[iN].residualMagSqSum() << "\t"
 									// << AK[iN].residualL2NormMax() << "\t" << AK[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z) << endl;
 							} else if (cplMethod == "FixedRelaxation")
 							{
-								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t"
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << subIter << "\t"
 									// << FR[iN].undRelxCpl() << "\t" << FR[iN].pointSize() << "\t" << FR[iN].residualMagSqSum() << "\t"
 									// << FR[iN].residualL2NormMax() << "\t" << FR[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z) << endl;
 							} else if (cplMethod == "IQN_ILS")
 							{
-								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t"
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << subIter << "\t"
 									// << IQNILS[iN].undRelxCpl() << "\t" << IQNILS[iN].pointSize() << "\t" << IQNILS[iN].residualMagSqSum() << "\t"
 									// << IQNILS[iN].residualL2NormMax() << "\t" << IQNILS[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z)<< endl;

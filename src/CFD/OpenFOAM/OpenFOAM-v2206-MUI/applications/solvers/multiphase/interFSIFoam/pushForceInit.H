@@ -42,21 +42,12 @@
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    // Time Steps counter
-    int timeSteps = 0;
-
-    // Total iteration counter
-    int totalCurrentIter = 0;
-
-    // Define the name of MUI domain
-    word domainName;
 
     // Define the name of MUI interfaceName
     List<word> interfaceNames;
     List<List<word>> patchNames;
     List<List<word>> patch6DoFNames;
-    int subIterationNum;
-    int forgetTimeSteps;
+    double forgetTime = 1.0;
 
     word sendNameX;
     word sendNameY;
@@ -84,14 +75,8 @@
     //- Whether apply the fetched Z value or not(i.e. one-way coupling)
     bool applyFetchZ;
 
-    //- Maximum value of the under relaxation number (valid only for IQN-ILS)
-    double maxUndRelxCpl;
-
-    //- Number of Aitken iterations to at the beginning of each IQN-ILS time-steps (valid only for IQN-ILS)
-    int numAitkenIterations;
-
     //- Number of time steps that will not push forces/tractions through MUI.
-    int pushDelay;
+    double pushDelay;
 
     //- Whether it is a 2D case, i.e. whether to have a 2D force correction before push?
     //- A 2D case is the case that the front and back boundaries are empty boundary condition.
@@ -110,20 +95,11 @@
     scalar rigidMotionAmplitudeY_;
     scalar rigidMotionAmplitudeZ_;
 
-    scalar rotation2DFrq_;
-    scalar rotation2DAmplitude_;
-    scalar rotation2DOriginX_;
-    scalar rotation2DOriginY_;
-    scalar rotation2DOriginZ_;
-
-    //- Whether to change the sub-iteration number
-    bool changeSubIter;
-
-    //- When to change the sub-iteration number [s].
-    double changeSubIterTime;
-
-    //- New sub-iteration number.
-    int subIterationNumNew;
+    scalar rotation2DFrq_ = 0.0;
+    scalar rotation2DAmplitude_ = 0.0;
+    scalar rotation2DOriginX_ = 0.0;
+    scalar rotation2DOriginY_ = 0.0;
+    scalar rotation2DOriginZ_ = 0.0;
 
     string fsiFile("fsiDict");
 
@@ -142,15 +118,6 @@
     //Read fsi dictionary file if it exists
     if (fsiDict.headerOk())
     {
-
-        word domainFSIName;
-        if (!(fsiDict.readIfPresent("domainFSIName", domainFSIName)))
-        {
-            FatalIOErrorIn("", fsiDict)
-                           << "Missing domainFSIName entry" << exit(FatalIOError);
-        }
-        domainName = domainFSIName;
-
         const PtrList<entry> interfaceConfigurations
         (
             fsiDict.lookup("interfaceLists")
@@ -182,21 +149,14 @@
         }
         cplMethod = cplFSIMethod;
 
-        int subIterationNumber;
-        if (!(fsiDict.readIfPresent("subIterationNumber", subIterationNumber)))
-        {
-            FatalIOErrorIn("", fsiDict)
-                           << "Missing subIterationNumber entry" << exit(FatalIOError);
-        }
-        subIterationNum = subIterationNumber;
 
-        int forgetFSITimeSteps;
-        if (!(fsiDict.readIfPresent("forgetFSITimeSteps", forgetFSITimeSteps)))
+        double forgetFSITime;
+        if (!(fsiDict.readIfPresent("forgetFSITime", forgetFSITime)))
         {
             FatalIOErrorIn("", fsiDict)
-                           << "Missing forgetFSITimeSteps entry" << exit(FatalIOError);
+                           << "Missing forgetFSITime entry" << exit(FatalIOError);
         }
-        forgetTimeSteps = forgetFSITimeSteps;
+        forgetTime = forgetFSITime;
 
         word sendFSINameX;
         word sendFSINameY;
@@ -242,213 +202,131 @@
         fetchNameY = fetchFSINameY;
         fetchNameZ = fetchFSINameZ;
 
-        bool pushFSIForce;
-        if (!(fsiDict.readIfPresent("pushFSIForce", pushFSIForce)))
+        if (!(fsiDict.readIfPresent("pushFSIForce", pushForce)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing pushFSIForce entry" << exit(FatalIOError);
         }
-        pushForce = pushFSIForce;
 
-        bool applyFSIFetchX;
-        if (!(fsiDict.readIfPresent("applyFSIFetchX", applyFSIFetchX)))
+        if (!(fsiDict.readIfPresent("applyFSIFetchX", applyFetchX)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing applyFSIFetchX entry" << exit(FatalIOError);
         }
-        applyFetchX = applyFSIFetchX;
 
-        bool applyFSIFetchY;
-        if (!(fsiDict.readIfPresent("applyFSIFetchY", applyFSIFetchY)))
+        if (!(fsiDict.readIfPresent("applyFSIFetchY", applyFetchY)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing applyFSIFetchY entry" << exit(FatalIOError);
         }
-        applyFetchY = applyFSIFetchY;
 
-        bool applyFSIFetchZ;
-        if (!(fsiDict.readIfPresent("applyFSIFetchZ", applyFSIFetchZ)))
+        if (!(fsiDict.readIfPresent("applyFSIFetchZ", applyFetchZ)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing applyFSIFetchZ entry" << exit(FatalIOError);
         }
-        applyFetchZ = applyFSIFetchZ;
 
-        double searchAreaSampler;
-        if (!(fsiDict.readIfPresent("searchAreaSampler", searchAreaSampler)))
+        if (!(fsiDict.readIfPresent("searchAreaSampler", rSampler)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing searchAreaSampler entry" << exit(FatalIOError);
         }
-        rSampler = searchAreaSampler;
 
         if (cplMethod != "Loose")
         {
-            double initFSIUndRelxCpl;
-            if (!(fsiDict.readIfPresent("initFSIUndRelxCpl", initFSIUndRelxCpl)))
+            if (!(fsiDict.readIfPresent("initFSIUndRelxCpl", initUndRelxCpl)))
             {
                 FatalIOErrorIn("", fsiDict)
                                << "Missing initFSIUndRelxCpl entry" << exit(FatalIOError);
             }
-            initUndRelxCpl = initFSIUndRelxCpl;
         }
 
-        if (cplMethod == "IQN_ILS")
-        {
-            double maxFSIUndRelxCpl;
-            if (!(fsiDict.readIfPresent("maxFSIUndRelxCpl", maxFSIUndRelxCpl)))
-            {
-                FatalIOErrorIn("", fsiDict)
-                               << "Missing maxFSIUndRelxCpl entry" << exit(FatalIOError);
-            }
-            maxUndRelxCpl = maxFSIUndRelxCpl;
 
-            int numFSIAitkenIterations;
-            if (!(fsiDict.readIfPresent("numFSIAitkenIterations", numFSIAitkenIterations)))
-            {
-                FatalIOErrorIn("", fsiDict)
-                               << "Missing numFSIAitkenIterations entry" << exit(FatalIOError);
-            }
-            numAitkenIterations = numFSIAitkenIterations;
-        }
-
-        int pushFSIDelay;
-        if (!(fsiDict.readIfPresent("pushFSIDelay", pushFSIDelay)))
+        if (!(fsiDict.readIfPresent("pushFSIDelay", pushDelay)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing pushFSIDelay entry" << exit(FatalIOError);
         }
-        pushDelay = pushFSIDelay;
 
-        bool twoDimFSICorrection;
-        if (!(fsiDict.readIfPresent("twoDimFSICorrection", twoDimFSICorrection)))
+        if (!(fsiDict.readIfPresent("twoDimFSICorrection", twoDimCorrection)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing twoDimFSICorrection entry" << exit(FatalIOError);
         }
-        twoDimCorrection = twoDimFSICorrection;
 
         if (twoDimCorrection)
         {
-            double twoDimFSICellHeight;
-            if (!(fsiDict.readIfPresent("twoDimFSICellHeight", twoDimFSICellHeight)))
+            if (!(fsiDict.readIfPresent("twoDimFSICellHeight", twoDimCellHeight)))
             {
                 FatalIOErrorIn("", fsiDict)
                                << "Missing twoDimFSICellHeight entry" << exit(FatalIOError);
             }
-            twoDimCellHeight = twoDimFSICellHeight;
         }
 
-        double rigidMotionFrqX;
-        if (!(fsiDict.readIfPresent("rigidMotionFrqX", rigidMotionFrqX)))
+        if (!(fsiDict.readIfPresent("rigidMotionFrqX", rigidMotionFrqX_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rigidMotionFrqX entry" << exit(FatalIOError);
         }
-        rigidMotionFrqX_ = rigidMotionFrqX;
 
-        double rigidMotionFrqY;
-        if (!(fsiDict.readIfPresent("rigidMotionFrqY", rigidMotionFrqY)))
+        if (!(fsiDict.readIfPresent("rigidMotionFrqY", rigidMotionFrqY_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rigidMotionFrqY entry" << exit(FatalIOError);
         }
-        rigidMotionFrqY_ = rigidMotionFrqY;
 
-        double rigidMotionFrqZ;
-        if (!(fsiDict.readIfPresent("rigidMotionFrqZ", rigidMotionFrqZ)))
+        if (!(fsiDict.readIfPresent("rigidMotionFrqZ", rigidMotionFrqZ_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rigidMotionFrqZ entry" << exit(FatalIOError);
         }
-        rigidMotionFrqZ_ = rigidMotionFrqZ;
 
-        double rigidMotionAmplitudeX;
-        if (!(fsiDict.readIfPresent("rigidMotionAmplitudeX", rigidMotionAmplitudeX)))
+        if (!(fsiDict.readIfPresent("rigidMotionAmplitudeX", rigidMotionAmplitudeX_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rigidMotionAmplitudeX entry" << exit(FatalIOError);
         }
-        rigidMotionAmplitudeX_ = rigidMotionAmplitudeX;
 
-        double rigidMotionAmplitudeY;
-        if (!(fsiDict.readIfPresent("rigidMotionAmplitudeY", rigidMotionAmplitudeY)))
+        if (!(fsiDict.readIfPresent("rigidMotionAmplitudeY", rigidMotionAmplitudeY_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rigidMotionAmplitudeY entry" << exit(FatalIOError);
         }
-        rigidMotionAmplitudeY_ = rigidMotionAmplitudeY;
 
-        double rigidMotionAmplitudeZ;
-        if (!(fsiDict.readIfPresent("rigidMotionAmplitudeZ", rigidMotionAmplitudeZ)))
+        if (!(fsiDict.readIfPresent("rigidMotionAmplitudeZ", rigidMotionAmplitudeZ_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rigidMotionAmplitudeZ entry" << exit(FatalIOError);
         }
-        rigidMotionAmplitudeZ_ = rigidMotionAmplitudeZ;
-        double rotation2DFrq;
-        if (!(fsiDict.readIfPresent("rotation2DFrq", rotation2DFrq)))
+        if (!(fsiDict.readIfPresent("rotation2DFrq", rotation2DFrq_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rotation2DFrq entry" << exit(FatalIOError);
         }
-        rotation2DFrq_ = rotation2DFrq;
 
-        double rotation2DAmplitude;
-        if (!(fsiDict.readIfPresent("rotation2DAmplitude", rotation2DAmplitude)))
+        if (!(fsiDict.readIfPresent("rotation2DAmplitude", rotation2DAmplitude_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rotation2DAmplitude entry" << exit(FatalIOError);
         }
-        rotation2DAmplitude_ = rotation2DAmplitude;
 
-        double rotation2DOriginX;
-        if (!(fsiDict.readIfPresent("rotation2DOriginX", rotation2DOriginX)))
+        if (!(fsiDict.readIfPresent("rotation2DOriginX", rotation2DOriginX_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rotation2DOriginX entry" << exit(FatalIOError);
         }
-        rotation2DOriginX_ = rotation2DOriginX;
 
-        double rotation2DOriginY;
-        if (!(fsiDict.readIfPresent("rotation2DOriginY", rotation2DOriginY)))
+        if (!(fsiDict.readIfPresent("rotation2DOriginY", rotation2DOriginY_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rotation2DOriginY entry" << exit(FatalIOError);
         }
-        rotation2DOriginY_ = rotation2DOriginY;
 
-        double rotation2DOriginZ;
-        if (!(fsiDict.readIfPresent("rotation2DOriginZ", rotation2DOriginZ)))
+        if (!(fsiDict.readIfPresent("rotation2DOriginZ", rotation2DOriginZ_)))
         {
             FatalIOErrorIn("", fsiDict)
                            << "Missing rotation2DOriginZ entry" << exit(FatalIOError);
         }
-        rotation2DOriginZ_ = rotation2DOriginZ;
-        bool changeFSISubIter;
-        if (!(fsiDict.readIfPresent("changeFSISubIter", changeFSISubIter)))
-        {
-            FatalIOErrorIn("", fsiDict)
-                           << "Missing changeFSISubIter entry" << exit(FatalIOError);
-        }
-        changeSubIter = changeFSISubIter;
-
-        double changeFSISubIterTime;
-        if (!(fsiDict.readIfPresent("changeFSISubIterTime", changeFSISubIterTime)))
-        {
-            FatalIOErrorIn("", fsiDict)
-                           << "Missing changeFSISubIterTime entry" << exit(FatalIOError);
-        }
-        changeSubIterTime = changeFSISubIterTime;
-
-        int newFSISubIterationNum;
-        if (!(fsiDict.readIfPresent("newFSISubIterationNum", newFSISubIterationNum)))
-        {
-            FatalIOErrorIn("", fsiDict)
-                           << "Missing newFSISubIterationNum entry" << exit(FatalIOError);
-        }
-        subIterationNumNew = newFSISubIterationNum;
-
     }
     else
     {
@@ -467,12 +345,12 @@
         {
             int localPatchID = mesh.boundaryMesh().findPatchID(patchNames[iN][pN]);
 
-            Info << "PatchName = " << patchNames[iN][pN] << " has ID = " << localPatchID << endl;
+            Info << "{OpenFOMA} : PatchName = " << patchNames[iN][pN] << " has ID = " << localPatchID << endl;
 
             // Check if patch exists
             if(localPatchID == -1)
             {
-                FatalError << "PatchName " << patchNames[iN][pN] << " not found!" << exit(FatalError);
+                FatalError << "{OpenFOMA} : PatchName " << patchNames[iN][pN] << " not found!" << exit(FatalError);
             }
 
             localPatchIDs.append(localPatchID);
@@ -486,7 +364,7 @@
         {
             int local6DoFPatchID = mesh.boundaryMesh().findPatchID(patch6DoFNames[iN][pN]);
 
-            Info << "Patch6DoFName = " << patch6DoFNames[iN][pN] << " has ID = " << local6DoFPatchID << endl;
+            Info << "{OpenFOMA} : Patch6DoFName = " << patch6DoFNames[iN][pN] << " has ID = " << local6DoFPatchID << endl;
 
             // Check if patch exists
             if(local6DoFPatchID == -1)
@@ -608,18 +486,10 @@
     {
         interfaces.emplace_back(interfaceNames[iN]);
     }
-
     // Declare MUI objects using MUI configure file
-    auto ifs = mui::create_uniface<mui::config_of>( domainName, interfaces );
-    if (args.cplRunControl().cplRun())
-    {
-        //- If this is not a parallel run then need to first call MPI_Init for MUI (otherwise this is called during PStream creation)
-        if (!args.parRunControl().parRun())
-        {
-            mui::mpi_split_by_app(argc, argv);
-        }
 
-    }
+    auto& ifs = runTime.mui_ifs;
+
 
     scalar sendXMin = VGREAT;
     scalar sendYMin = VGREAT;
@@ -628,8 +498,6 @@
     scalar sendXMax = -VGREAT;
     scalar sendYMax = -VGREAT;
     scalar sendZMax = -VGREAT;
-
-    int const pushDelayIterations = pushDelay * subIterationNum;
 
 #endif
 
@@ -724,7 +592,7 @@
         Pout << "sendZMax = " << sendZMax << endl;
 
         // Annouce send span
-        mui::geometry::box<mui::config_of> send_region( {sendXMin, sendYMin, sendZMin}, {sendXMax, sendYMax, sendZMax} );
+        mui::geometry::box<mui::mui_config> send_region( {sendXMin, sendYMin, sendZMin}, {sendXMax, sendYMax, sendZMax} );
         // Set the maximum time step size
         int totalTimeSteps = ceil((runTime.endTime().value() - runTime.startTime().value())/runTime.deltaT().value());
 

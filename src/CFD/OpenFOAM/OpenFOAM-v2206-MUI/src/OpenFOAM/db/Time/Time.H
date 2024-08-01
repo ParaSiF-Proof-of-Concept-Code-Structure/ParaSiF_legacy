@@ -56,6 +56,10 @@ SourceFiles
 #include "functionObjectList.H"
 #include "sigWriteNow.H"
 #include "sigStopAtWriteNow.H"
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
+#include "mui.h"
+#include "muiconfig.h"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -126,8 +130,24 @@ public:
         //
         // \note this is public so registered info switches can modify it.
         static int printExecutionFormat_;
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
+        //- Set MUI interface 
+        std::vector<std::unique_ptr<mui::uniface<mui::mui_config>>> mui_ifs;
+        bool isMUIIfsInit = false ; // Bool to check if MUI interface is initiated
+        // MUI inteface name
+        word MUIDomainName_ ;
+        wordList MUIInterfaceName_ ;
+        int MUIInterfaceNumber_;
+        int CurrentIter;
+        int timeSteps_;
+        int subIterationNumber_ = 1;
+        bool changeSubIter_;
+        double changeSubIterTime_;
+        int newSubIterationNumber_;
 
+        void initiatMUI();
+#endif
 private:
 
     // Private Data
@@ -636,6 +656,115 @@ public:
             {
                 return functionObjects_;
             }
+            
+            // MUI access
+            wordList MUIInterfaceName() const
+            {
+                return MUIInterfaceName_;
+            }
+
+            word MUIDomainName() const
+            {
+                return MUIDomainName_;
+            }
+
+            int totalCurrentIter() const
+            {
+                return CurrentIter;
+            }
+
+            // - The value (non-const access)
+            int& totalCurrentIter() 
+            {
+                return CurrentIter;
+            }
+
+            //- The value (const access)
+            void updateCurrentIter() 
+            {
+                CurrentIter++;
+            }
+
+            void updateCurrentIter(int value)
+            {
+                CurrentIter = value;
+            }
+
+
+            int timeSteps() const
+            {
+                return timeSteps_;
+            }
+
+            // - The value (non-const access)
+            int& timeSteps() 
+            {
+                return timeSteps_;
+            }
+
+            //- The value (const access)
+            void updateTimeSteps() 
+            {
+                timeSteps_++;
+            }
+
+            void updateTimeSteps(int value)
+            {
+                timeSteps_ = value;
+            }
+
+            int subIterationNumber() const
+            {
+                return subIterationNumber_;
+            }
+
+            int& subIterationNumber()
+            {
+                return subIterationNumber_;
+            }
+
+            void updateSubIterNum(int value)
+            {
+                subIterationNumber_ = value;
+            }
+
+            int newSubIterationNumber() const
+            {
+                return newSubIterationNumber_;
+            }
+
+            int& newSubIterationNumber()
+            {
+                return newSubIterationNumber_;
+            }
+
+            bool changeSubIter() const
+            {
+                return changeSubIter_;
+            }
+
+            bool& changeSubIter() 
+            {
+                return changeSubIter_;
+            }
+
+            double changeSubIterTime() const
+            {
+                return changeSubIterTime_;
+            }
+
+            double& changeSubIterTime() 
+            {
+                return changeSubIterTime_;
+            }
+
+
+
+
+
+
+
+
 
 
     // Member operators

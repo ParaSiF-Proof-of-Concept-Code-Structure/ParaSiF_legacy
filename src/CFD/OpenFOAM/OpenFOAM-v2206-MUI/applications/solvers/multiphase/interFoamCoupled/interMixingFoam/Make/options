@@ -1,4 +1,8 @@
+include $(GENERAL_RULES)/mpi-MUI-rules
 EXE_INC = \
+    $(PINC) \
+    $(PFLAGS) \
+    -DUSE_MUI \
     -I.. \
     -I../../VoF \
     -I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \

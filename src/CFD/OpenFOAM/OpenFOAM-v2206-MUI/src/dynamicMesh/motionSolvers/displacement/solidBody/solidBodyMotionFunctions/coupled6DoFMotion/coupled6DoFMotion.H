@@ -68,6 +68,35 @@ class coupled6DoFMotion
 
         //- Center of gravity read from dictionary
         vector CofG_;
+        //- MUI stuff
+        double initUndRelxCpl;
+        std::string cplMethod;
+        int ifsID;
+
+        bool updateRF;
+
+        // mui::sampler_exact<mui::mui_config> spatial_sampler;
+        // mui::temporal_sampler_exact<mui::mui_config> chrono_sampler;
+        // // Total iteration counter
+        // int totalCurrentIter;
+        // // double initUndRelxCpl;
+        // // std::string cplMethod;
+        mui::algo_aitken<mui::mui_config> aitken1;
+        mui::algo_aitken<mui::mui_config> aitken2;
+        mui::algo_aitken<mui::mui_config> aitken3;
+        mui::algo_aitken<mui::mui_config> aitken4;
+        mui::algo_aitken<mui::mui_config> aitken5;
+        mui::algo_aitken<mui::mui_config> aitken6;
+        mui::algo_fixed_relaxation<mui::mui_config> fr1;
+        mui::algo_fixed_relaxation<mui::mui_config> fr2;
+        mui::algo_fixed_relaxation<mui::mui_config> fr3;
+        mui::algo_fixed_relaxation<mui::mui_config> fr4;
+        mui::algo_fixed_relaxation<mui::mui_config> fr5;
+        mui::algo_fixed_relaxation<mui::mui_config> fr6;
+
+        mutable int totalCurrentIter;
+
+        // Time& time_;
 
         //- Type used to read in the translation and rotation "vectors"
         typedef Vector2D<vector> translationRotationVectors;
@@ -116,7 +145,7 @@ public:
             );
         }
 
-
+    void updateIterCounter () const {++totalCurrentIter;}
     //- Destructor
     virtual ~coupled6DoFMotion() = default;
 

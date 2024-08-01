@@ -189,8 +189,6 @@ Foam::argList::initValidTables::initValidTables()
 //     );
 
     Pstream::addValidParOptions(validParOptions);
-
-
     argList::addBoolOption("coupled", "use MUI coupling");
     validCplOptions.set("coupled", "");
 }
