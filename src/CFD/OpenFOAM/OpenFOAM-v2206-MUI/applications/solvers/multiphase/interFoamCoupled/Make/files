@@ -1,3 +1,0 @@
-interFoamCoupled.C
-
-EXE = $(FOAM_APPBIN)/interFoamCoupled

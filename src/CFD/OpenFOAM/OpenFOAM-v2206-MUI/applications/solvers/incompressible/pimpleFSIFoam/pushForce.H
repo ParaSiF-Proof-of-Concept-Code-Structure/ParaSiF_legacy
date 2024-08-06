@@ -37,14 +37,24 @@
 
     It push forces and/or tractions of the structure boundary to the structure domain
 	in every time and sub-iteration loop of the fluid solver
-    Located in the src/CFD/OpenFOAM/V6/applications/solvers/pimpleFSIFoam sub-folder
+
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 	// Debug switch for pushForce.H
 	bool debugPushForce = false;
-
+    IOdictionary transportProperties
+    (
+        IOobject
+        (
+            "transportProperties",
+            runTime.constant(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    );
     // Obtain the normal vectors on the boundary faces
     const surfaceVectorField::Boundary& Sfb = mesh.Sf().boundaryField();
 
@@ -57,7 +67,6 @@
     const dimensionedScalar rhoForce(transportProperties.lookup("rho"));
     const dimensionedScalar nuForce(transportProperties.lookup("nu"));
 
-    Info << "rho: " << rhoForce << " nu: " << nuForce << nl << endl;
 
     // Calculate the total forces on each face: Total_force = Pressure_force + Share_stress.
     // Note: incompressible solvers only.
@@ -75,7 +84,8 @@
                 )
                 +
                 (
-                    Sfb[patchIDs[iN][pI]] 
+                    (Sfb[patchIDs[iN][pI]]
+                    )
                     & 
                     (-rhoForce*nuForce*dev(twoSymm(fvc::grad(UForce))))().boundaryField()[patchIDs[iN][pI]]
                 );
@@ -147,7 +157,7 @@
 
                 if (rankHasPatchPointsForPush)
                 {
-                    if (pushDelayIterations >= totalCurrentIter)
+                    if (pushDelay >= runTime.totalCurrentIter())
                     {
                         double tempZero = 0.0;
 
@@ -157,10 +167,17 @@
                         ifs[iN]->push(sendNameZ, send_point, tempZero);
                     } else
                     {
+
+						double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*runTime.value());
+
+                        double tempPushX = facePush.component(vector::X) * Foam::cos(angle2DRotationTemp) +  facePush.component(vector::Y) * Foam::sin(angle2DRotationTemp);
+                        double tempPushY = facePush.component(vector::Y) * Foam::cos(angle2DRotationTemp) -  facePush.component(vector::X) * Foam::sin(angle2DRotationTemp);
+                        double tempPushZ = facePush.component(vector::Z); 
+
                         //- Push value of three dimensional tractions with label "tractionX/tractionY/tractionZ" at each face center
-                        ifs[iN]->push(sendNameX, send_point, facePush.component(vector::X));
-                        ifs[iN]->push(sendNameY, send_point, facePush.component(vector::Y));
-                        ifs[iN]->push(sendNameZ, send_point, facePush.component(vector::Z));
+                        ifs[iN]->push(sendNameX, send_point, tempPushX);
+                        ifs[iN]->push(sendNameY, send_point, tempPushY);
+                        ifs[iN]->push(sendNameZ, send_point, tempPushZ);
                     }
                 }
 
@@ -215,28 +232,17 @@
                 }
             }
         }
-        reduce(cplAlgo_res, maxOp<double>());
-        if (cplAlgo_res <=cplAlgo_res_tolerance && subIter > 1){
-          endSubIter = 1;
-        } else
-        {endSubIter = 0;}
-        mui::point3d	tempPoint = {0,0,0};
-       ifs[iN]->push("cplAlgo_res", tempPoint , cplAlgo_res);
-       ifs[iN]->push("endSubIter", tempPoint , endSubIter);
-       if (Pstream::master())
-       {
-         printf( "Coupling Algo residual is %f, current time is %f, subIter is %d, total iter number is %d \n",cplAlgo_res, runTime.value(),subIter,totalCurrentIter);
-       }
+
         //- Commit the pushed values to the interface at current time step
-        ifs[iN]->commit(static_cast<scalar>(totalCurrentIter));
+        ifs[iN]->commit(static_cast<double>(runTime.value()),runTime.subIter());
+        Info << "{OpenFOMA} : {OpenFOMA} : MUI interface " << interfaceNames[iN] << " Finshed commiting forces at time " << runTime.value() << 
+        " and sub iterations" << runTime.subIter() <<"/"<< runTime.subIterationNumber() << nl << endl;
 
-        if ((totalCurrentIter-2) > 0)
+        if ((runTime.value()-forgetTime) > 0)
         {
-            ifs[iN]->forget(static_cast<scalar>(0), static_cast<scalar>(totalCurrentIter-2));
-            Info << "MUI interface " << iN << " forget from 0 to " << (totalCurrentIter-2) << " iterations" << nl << endl;
+            ifs[iN]->forget(static_cast<scalar>(0), static_cast<scalar>(runTime.value()-forgetTime));
+            Info << "MUI interface " << iN << " forget from time 0 to " << (runTime.value()-forgetTime)  << nl << endl;
         } 
-
-        Info << "MUI interface " << interfaceNames[iN] << " Commited on " << totalCurrentIter << " iterations" << nl << endl;
 
     }
 
@@ -276,21 +282,21 @@
 
         tractionTotal[iN] /= totalFaceNList[iN];
 
-        Info << interfaceNames[iN] << " forceX = " << forceTotal[iN].component(vector::X) << endl;
-        Info << interfaceNames[iN] << " forceY = " << forceTotal[iN].component(vector::Y) << endl;
-        Info << interfaceNames[iN] << " forceZ = " << forceTotal[iN].component(vector::Z) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceX = " << forceTotal[iN].component(vector::X) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceY = " << forceTotal[iN].component(vector::Y) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceZ = " << forceTotal[iN].component(vector::Z) << endl;
 
         if (twoDimCorrection)
         {
             reduce(force2DTotal[iN], sumOp<vector>()); 
-            Info << interfaceNames[iN] << " force2DX = " << force2DTotal[iN].component(vector::X) << endl;
-            Info << interfaceNames[iN] << " force2DY = " << force2DTotal[iN].component(vector::Y) << endl;
-            Info << interfaceNames[iN] << " force2DZ = " << force2DTotal[iN].component(vector::Z) << endl;
+            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DX = " << force2DTotal[iN].component(vector::X) << endl;
+            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DY = " << force2DTotal[iN].component(vector::Y) << endl;
+            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DZ = " << force2DTotal[iN].component(vector::Z) << endl;
         }
 
-        Info << interfaceNames[iN] << " tractionX = " << tractionTotal[iN].component(vector::X) << endl;
-        Info << interfaceNames[iN] << " tractionY = " << tractionTotal[iN].component(vector::Y) << endl;
-        Info << interfaceNames[iN] << " tractionZ = " << tractionTotal[iN].component(vector::Z) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionX = " << tractionTotal[iN].component(vector::X) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionY = " << tractionTotal[iN].component(vector::Y) << endl;
+        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionZ = " << tractionTotal[iN].component(vector::Z) << endl;
     }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

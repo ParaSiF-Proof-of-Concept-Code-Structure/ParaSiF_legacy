@@ -36,6 +36,7 @@ SourceFiles
 #define MUICoupledFvPatchField_H
 #include "fixedValueFvPatchFields.H"
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam

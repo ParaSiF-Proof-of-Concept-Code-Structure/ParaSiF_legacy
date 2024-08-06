@@ -70,7 +70,7 @@ class coupled6DoFMotion
         vector CofG_;
         //- MUI stuff
         double initUndRelxCpl;
-        std::string cplMethod;
+        word cplMethod;
         int ifsID;
 
         bool updateRF;
@@ -121,6 +121,7 @@ public:
 
     //- Runtime type information
     TypeName("coupled6DoFMotion");
+
 
 
     // Constructors

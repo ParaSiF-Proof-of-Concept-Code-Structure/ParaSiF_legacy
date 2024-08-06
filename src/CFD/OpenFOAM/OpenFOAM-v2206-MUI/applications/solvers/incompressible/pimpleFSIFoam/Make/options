@@ -13,10 +13,12 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
     -I$(LIB_SRC)/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/dynamicFvMesh/lnInclude \
-    -I$(LIB_SRC)/regionFaModels\lnInclude
+    -I$(LIB_SRC)/regionFaModels\lnInclude \
+    -I$(LIB_SRC)/functionObjects/forces/lnInclude
 
 EXE_LIBS = \
     $(PLIBS) \
+    -lforces \
     -lfiniteVolume \
     -lfvOptions \
     -lmeshTools \

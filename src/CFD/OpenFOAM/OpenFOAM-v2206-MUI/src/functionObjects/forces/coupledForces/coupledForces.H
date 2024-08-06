@@ -264,7 +264,8 @@ protected:
             //- Flag of initialisation (internal)
             bool initialised_;
             // MUI staff
-            mutable int totalCurrentIter;
+
+            int ifsID;
     // Protected Member Functions
 
         //- Set the co-ordinate system from dictionary and axes names
@@ -286,7 +287,6 @@ protected:
 
         //- Reset containers and fields
         void reset();
-        void updateIterCounter () const {++totalCurrentIter;}
 
     // Evaluation
 

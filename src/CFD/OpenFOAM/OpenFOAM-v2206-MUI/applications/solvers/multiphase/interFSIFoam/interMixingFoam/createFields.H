@@ -1,6 +1,6 @@
 #include "createRDeltaT.H"
 
-Info<< "Reading field p_rgh\n" << endl;
+Info<< "{OpenFOMA} : Reading field p_rgh\n" << endl;
 volScalarField p_rgh
 (
     IOobject
@@ -14,7 +14,7 @@ volScalarField p_rgh
     mesh
 );
 
-Info<< "Reading field U\n" << endl;
+Info<< "{OpenFOMA} : Reading field U\n" << endl;
 volVectorField U
 (
     IOobject

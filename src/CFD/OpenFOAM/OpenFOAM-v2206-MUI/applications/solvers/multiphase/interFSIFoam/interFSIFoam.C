@@ -56,6 +56,7 @@ Description
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
+#include "coupledForces.H"
 #include "mui.h"
 #include "muiconfig.h"
 #endif
@@ -84,8 +85,23 @@ int main(int argc, char *argv[])
     #include "initCorrectPhi.H"
     #include "createUfIfPresent.H"
 
+    #include "couplingVar.H"
+    Foam::functionObjects::coupledForces* forces = nullptr;
+    Info << "=====================================================" <<endl;
+    if (couplingMode=="singlePoint"){
+        Info << "Coupling Force mode is  singlePoint" <<endl;
+        forces = new Foam::functionObjects::coupledForces(fsiForceName, runTime, fsiForceDict, true);
+    }else if(couplingMode=="boundaryPatch"){
+        Info << "Coupling Force mode is  boundaryPatch" <<endl;
     #include "pushForceInit.H"
     #include "fetchDisplacementInit.H"
+    } else {
+        FatalIOErrorIn("", fsiDict)
+          << "The selected couplingMode entry is invalid. The valid options are singlePoint and boundaryPatch" << exit(FatalIOError);
+    }
+    Info << "=====================================================" <<endl;
+
+            
 
     if (!LTS)
     {
@@ -118,9 +134,7 @@ int main(int argc, char *argv[])
         }
         ++runTime;
 
-        #ifdef USE_MUI
         runTime.updateTimeSteps();
-
         if (runTime.changeSubIter())
         {
             scalar tTemp=runTime.value();
@@ -129,17 +143,22 @@ int main(int argc, char *argv[])
                 runTime.updateSubIterNum(runTime.newSubIterationNumber());
             }
         }
-
-        for(int subIter = 1; subIter <= runTime.subIterationNumber(); ++subIter)
+        runTime.updateSubIter(0);
+        while (runTime.subIter()<runTime.subIterationNumber())
         {
+            runTime.updateSubIter();
             runTime.updateCurrentIter();
             Info << "{OpenFOMA} : Time = " << runTime.timeName() << ", and sub-Iteration = " 
-                 << subIter <<"/" << runTime.subIterationNumber() << nl << endl;
+                 << runTime.subIter() <<"/" << runTime.subIterationNumber() << nl << endl;
             Info << "{OpenFOMA} : Time Steps = " << runTime.timeSteps() << nl << endl;        
             Info << "{OpenFOMA} : Total current iteration = " << runTime.totalCurrentIter() << nl << endl;
-
+#ifdef USE_MUI
+        if (couplingMode=="singlePoint"){
+            forces->execute();
+        }else if(couplingMode=="boundaryPatch"){
             #include "pushForce.H"
             #include "fetchDisplacement.H"
+        }                   
             #endif
             // --- Pressure-velocity PIMPLE corrector loop
             while (pimple.loop())

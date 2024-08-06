@@ -130,10 +130,9 @@ public:
         //
         // \note this is public so registered info switches can modify it.
         static int printExecutionFormat_;
-#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
         //- Set MUI interface 
-        std::vector<std::unique_ptr<mui::uniface<mui::mui_config>>> mui_ifs;
+        
         bool isMUIIfsInit = false ; // Bool to check if MUI interface is initiated
         // MUI inteface name
         word MUIDomainName_ ;
@@ -142,10 +141,13 @@ public:
         int CurrentIter;
         int timeSteps_;
         int subIterationNumber_ = 1;
-        bool changeSubIter_;
+        bool changeSubIter_ = false;
         double changeSubIterTime_;
         int newSubIterationNumber_;
+        int subIter_ = 1;
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
+        std::vector<std::unique_ptr<mui::uniface<mui::mui_config>>> mui_ifs;
         void initiatMUI();
 #endif
 private:
@@ -689,6 +691,30 @@ public:
             {
                 CurrentIter = value;
             }
+
+            ///////////////////////////////////////////////
+            int subIter() const
+            {
+                return subIter_;
+            }
+
+            // - The value (non-const access)
+            int& subIter() 
+            {
+                return subIter_;
+            }
+
+            //- The value (const access)
+            void updateSubIter() 
+            {
+                subIter_++;
+            }
+
+            void updateSubIter(int value)
+            {
+                subIter_ = value;
+            }
+            ////////////////////////////////////
 
 
             int timeSteps() const

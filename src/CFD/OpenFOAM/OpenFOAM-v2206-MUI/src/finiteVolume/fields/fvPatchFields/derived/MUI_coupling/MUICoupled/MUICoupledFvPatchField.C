@@ -108,6 +108,7 @@ Foam::MUICoupledFvPatchField<Type>::MUICoupledFvPatchField
     {
         fvPatchField<Type>::operator=(this->patchInternalField());
         //evaluate(Pstream::commsTypes::blocking);
+        
     }
     // this->evaluate();
 }

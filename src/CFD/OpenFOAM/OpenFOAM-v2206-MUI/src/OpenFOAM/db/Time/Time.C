@@ -524,7 +524,10 @@ Foam::Time::Time
 
     setControls();
     setMonitoring();
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
     // if (argList::cplRunControl().cplRun()){  initiatMUI(); }
+#endif
+
 }
 
 
@@ -608,7 +611,18 @@ Foam::Time::Time
     readOpt(IOobject::MUST_READ_IF_MODIFIED);
 
     setControls();
-    if (args.cplRunControl().cplRun()){  initiatMUI(); }
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
+    if (args.cplRunControl().cplRun()){  
+        Info << " ==================================================" << endl;
+        Info << " ================= initiat  MUI ====================" << endl;
+        Info << " ==================================================" << endl;
+        initiatMUI();
+        Info << " ==================================================" << endl;
+        Info << " ============== initiat  MUI Done =================" << endl;
+        Info << " ==================================================" << endl;
+
+         }
+#endif
 
     // '-profiling' = force profiling, ignore controlDict entry
     setMonitoring(args.found("profiling"));
@@ -690,7 +704,10 @@ Foam::Time::Time
 
     setControls();
     setMonitoring();
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
     // if (args.cplRunControl().cplRun()){  initiatMUI(); }
+#endif
+
 }
 
 

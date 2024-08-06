@@ -32,22 +32,14 @@ License
 #include "IFstream.H"
 #include "interpolateSplineXY.H"
 #include "unitConversion.H"
+#include "fvMesh.H"
 // #include "Time.H"
 #include "mui.h"
-#include <algorithm>
 #include "muiconfig.h"
-
 
 
 mui::sampler_exact<mui::mui_config> spatial_sampler;
 mui::temporal_sampler_exact<mui::mui_config> chrono_sampler;
-
-int oldTime;
-
-// Total iteration counter
-
-// double initUndRelxCpl;
-// std::string cplMethod;
 
 
     
@@ -79,19 +71,41 @@ Foam::solidBodyMotionFunctions::coupled6DoFMotion::coupled6DoFMotion
     solidBodyMotionFunction(SBMFCoeffs, runTime)
 {
     read(SBMFCoeffs);
-    fr1.setUnderRelaxationFactor(initUndRelxCpl);
-    fr2.setUnderRelaxationFactor(initUndRelxCpl);
-    fr3.setUnderRelaxationFactor(initUndRelxCpl);
-    fr4.setUnderRelaxationFactor(initUndRelxCpl);
-    fr5.setUnderRelaxationFactor(initUndRelxCpl);
-    fr6.setUnderRelaxationFactor(initUndRelxCpl);
-    aitken1.setUnderRelaxationFactor(initUndRelxCpl);
-    aitken2.setUnderRelaxationFactor(initUndRelxCpl);
-    aitken3.setUnderRelaxationFactor(initUndRelxCpl);
-    aitken4.setUnderRelaxationFactor(initUndRelxCpl);
-    aitken5.setUnderRelaxationFactor(initUndRelxCpl);
-    aitken6.setUnderRelaxationFactor(initUndRelxCpl);
-    totalCurrentIter = 0;
+
+    mui::point3d rcv_point(0,0,0);
+    std::vector<std::pair<mui::point3d, double>> ptsVluInit;
+    ptsVluInit.push_back(std::make_pair(rcv_point,0.0));
+    if (cplMethod == "Loose")
+	{
+        
+    } else if (cplMethod == "FixedRelaxation") {
+        fr1.initialise(initUndRelxCpl,ptsVluInit);
+        fr2.initialise(initUndRelxCpl,ptsVluInit);
+        fr3.initialise(initUndRelxCpl,ptsVluInit);
+        fr4.initialise(initUndRelxCpl,ptsVluInit);
+        fr5.initialise(initUndRelxCpl,ptsVluInit);
+        fr6.initialise(initUndRelxCpl,ptsVluInit);
+
+    } else if (cplMethod == "Aitken") {
+        aitken1.initialise(initUndRelxCpl,1.0,ptsVluInit);
+        aitken2.initialise(initUndRelxCpl,1.0,ptsVluInit);
+        aitken3.initialise(initUndRelxCpl,1.0,ptsVluInit);
+        aitken4.initialise(initUndRelxCpl,1.0,ptsVluInit);
+        aitken5.initialise(initUndRelxCpl,1.0,ptsVluInit);
+        aitken6.initialise(initUndRelxCpl,1.0,ptsVluInit);
+    } else 
+    {
+        FatalError << "cplMethod: " << cplMethod << " in fsiDict is not recognized!" << exit(FatalError);
+
+    }
+    Info << "==========================================================" <<endl;
+    Info << "{OpenFOAM} : Using MUI coupling algorithm " << cplMethod <<endl;
+    Info << "==========================================================" <<endl;
+    
+
+    
+    
+
 }
 
 
@@ -100,65 +114,54 @@ Foam::solidBodyMotionFunctions::coupled6DoFMotion::coupled6DoFMotion
 Foam::septernion
 Foam::solidBodyMotionFunctions::coupled6DoFMotion::transformation() const
 {
-
-  std::vector<std::string> interfaces;
-	std::string domainName="OpenFoam_6DoF";
-	std::string appName="threeDInterface0";
-    interfaces.emplace_back(appName);
-    auto& ifs = this->time_.db().time().mui_ifs[ifsID];
+    auto& runTime = this->time_.db().time();
+    auto& ifs = runTime.mui_ifs[ifsID];
     mui::point3d locf( 0.0, 0.0, 0.0 );
     
     
-        
-
-    auto t=totalCurrentIter;
-
-    //
-    Info << "OpenFoam: 6DoF is fetching discplacement values at time " << t << endl;
     translationRotationVectors TRV;
     double smllVal=10e-16;
+        
+    // fsiDict.readIfPresent("cplMethod", cplMethod);
+    Info << "==========================================================" <<endl;
+    Info << "{OpenFOMA} : 6DoF is fetching values at Time = " << runTime.timeName() << 
+        ", and sub-Iteration = "  << runTime.subIter() <<"/" << runTime.subIterationNumber() << endl;
+
     if (cplMethod == "Loose")
 
 	{
-        TRV[0][0] = ifs->fetch( "dispX", locf, t, spatial_sampler, chrono_sampler )+smllVal;
-        TRV[0][1] = ifs->fetch( "dispY", locf, t, spatial_sampler, chrono_sampler )+smllVal;
-        TRV[0][2] = ifs->fetch( "dispZ", locf, t, spatial_sampler, chrono_sampler )+smllVal;
+        TRV[0][0] = ifs->fetch( "dispX", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler )+smllVal;
+        TRV[0][1] = ifs->fetch( "dispY", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler )+smllVal;
+        TRV[0][2] = ifs->fetch( "dispZ", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler )+smllVal;
 
-        TRV[1][0] = ifs->fetch( "angleX", locf, t, spatial_sampler, chrono_sampler );
-        TRV[1][1] = ifs->fetch( "angleY", locf, t, spatial_sampler, chrono_sampler );
-        TRV[1][2] = ifs->fetch( "angleZ", locf, t, spatial_sampler, chrono_sampler );
+        TRV[1][0] = ifs->fetch( "angleX", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler );
+        TRV[1][1] = ifs->fetch( "angleY", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler );
+        TRV[1][2] = ifs->fetch( "angleZ", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler );
     } else if (cplMethod == "Aitken")
 	{
-        TRV[0][0] = ifs->fetch( "dispX", locf, t, spatial_sampler, chrono_sampler,aitken1 )+smllVal;
-        TRV[0][1] = ifs->fetch( "dispY", locf, t, spatial_sampler, chrono_sampler,aitken2 )+smllVal;
-        TRV[0][2] = ifs->fetch( "dispZ", locf, t, spatial_sampler, chrono_sampler,aitken3 )+smllVal;
+        TRV[0][0] = ifs->fetch( "dispX", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,aitken1 )+smllVal;
+        TRV[0][1] = ifs->fetch( "dispY", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,aitken2 )+smllVal;
+        TRV[0][2] = ifs->fetch( "dispZ", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,aitken3 )+smllVal;
 
-        TRV[1][0] = ifs->fetch( "angleX", locf, t, spatial_sampler, chrono_sampler,aitken4 );
-        TRV[1][1] = ifs->fetch( "angleY", locf, t, spatial_sampler, chrono_sampler,aitken5 );
-        TRV[1][2] = ifs->fetch( "angleZ", locf, t, spatial_sampler, chrono_sampler,aitken6 );
+        TRV[1][0] = ifs->fetch( "angleX", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,aitken4 );
+        TRV[1][1] = ifs->fetch( "angleY", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,aitken5 );
+        TRV[1][2] = ifs->fetch( "angleZ", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,aitken6 );
     } else if (cplMethod == "FixedRelaxation")
     {
-        TRV[0][0] = ifs->fetch( "dispX", locf, t, spatial_sampler, chrono_sampler,fr1 )+smllVal;
-        TRV[0][1] = ifs->fetch( "dispY", locf, t, spatial_sampler, chrono_sampler,fr2 )+smllVal;
-        TRV[0][2] = ifs->fetch( "dispZ", locf, t, spatial_sampler, chrono_sampler,fr3 )+smllVal;
+        TRV[0][0] = ifs->fetch( "dispX", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,fr1 )+smllVal;
+        TRV[0][1] = ifs->fetch( "dispY", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,fr2 )+smllVal;
+        TRV[0][2] = ifs->fetch( "dispZ", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,fr3 )+smllVal;
 
-        TRV[1][0] = ifs->fetch( "angleX", locf, t, spatial_sampler, chrono_sampler,fr4 );
-        TRV[1][1] = ifs->fetch( "angleY", locf, t, spatial_sampler, chrono_sampler,fr5 );
-        TRV[1][2] = ifs->fetch( "angleZ", locf, t, spatial_sampler, chrono_sampler,fr6 );
+        TRV[1][0] = ifs->fetch( "angleX", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,fr4 );
+        TRV[1][1] = ifs->fetch( "angleY", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,fr5 );
+        TRV[1][2] = ifs->fetch( "angleZ", locf, runTime.value(),runTime.subIter(), spatial_sampler, chrono_sampler,fr6 );
     }
-    oldTime = t; // To be corrected and send the time value independant of the time and space
-    Info << "OpenFoam: 6DoF usinf cupling method " << cplMethod << " with under relaxation of " << initUndRelxCpl<<endl;
-    Info << "OpenFoam: 6DoF is fetched discplacement values at totalCurrentIter = "<< totalCurrentIter <<"  are  " << TRV << endl;
-    // Info << "Aitken :::: RF" << fr3.get_under_relaxation_factor(t) <<endl;
-    // Info << "Aitken :::: Res" << fr3.get_residual_L2_Norm(t) <<endl;
 
-    // Convert the rotational motion from deg to rad
-    // TRV[1] *= degToRad();
-
+    Info << "{OpenFOMA} : 6DoF using cupling method " << cplMethod << " with under relaxation of " << initUndRelxCpl<<endl;
+    Info << "{OpenFOMA} : 6DoF is fetched discplacement values  "<< TRV << endl;
+    Info << "==========================================================" <<endl;
     quaternion R(quaternion::XYZ, TRV[1]);
     septernion TR(septernion(-CofG_ + -TRV[0])*R*septernion(CofG_));
-
-    DebugInFunction << "Time = " << t << " transformation: " << TR << endl;
     updateIterCounter();
     return TR;
 }
@@ -179,8 +182,36 @@ bool Foam::solidBodyMotionFunctions::coupled6DoFMotion::read
     );
 
     SBMFCoeffs_.readEntry("CofG", CofG_);
-    SBMFCoeffs_.readEntry("initUndRelxCpl", initUndRelxCpl);
-    SBMFCoeffs_.readEntry("ifsID", ifsID);
+    
+
+
+    Foam::IOdictionary fsiDict(
+        Foam::IOobject(
+            "fsiDict",                    // Name of the dictionary file
+            this->time_.system(),
+            this->time_,       // Read the constant directory
+            Foam::IOobject::MUST_READ, // Read the file if it has been modified
+            Foam::IOobject::NO_WRITE      // Do not write the dictionary
+        )
+    );
+
+    cplMethod = static_cast<word>(fsiDict.lookup("cplMethod"));
+    initUndRelxCpl = fsiDict.get<scalar>("initUndRelxCpl");
+    ifsID = fsiDict.get<int>("ifsID");
+
+    Info << "==========================================" <<endl;
+    Info << "======= " << cplMethod << " ================ "<<endl;
+    Info << "======= " << initUndRelxCpl << " ================ "<<endl;
+    Info << "======= " << ifsID << " ================ "<<endl;
+    Info << "==========================================" <<endl;
+
+
+
+    // SBMFCoeffs_.readEntry("ifsID", initUndRelxCpl);
+    // SBMFCoeffs_.readEntry("ifsID", ifsID);
+
+    // cplMethod = temp;
+
 
     return true;
 }

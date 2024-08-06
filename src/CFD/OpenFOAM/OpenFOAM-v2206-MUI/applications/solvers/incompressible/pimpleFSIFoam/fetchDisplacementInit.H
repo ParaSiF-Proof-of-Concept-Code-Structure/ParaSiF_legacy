@@ -37,28 +37,18 @@
 
     It is to initialise the function of fetch displacement of the structure boundary
     from the structure domain before the time loop of the fluid solver
-    Located in the src/CFD/OpenFOAM/V6/applications/solvers/pimpleFSIFoam sub-folder
+
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 	// Debug switch for fetchDisplacementInit.H
 	bool debugFetchDisplacementInit = false;
-
-    // Declare MUI FSI residual output.
-    fileName muiResidualFile("muiFSIResidual.txt");
-    OFstream muiResidual(runTime.system()/muiResidualFile);
-
     pointVectorField& pointDisplacement =
         const_cast<pointVectorField&>
         (
             mesh.lookupObject<pointVectorField>("pointDisplacement")
         );
 
-    List<List<vectorField>> dispVectorValsList;
-    List<List<vectorField>> dispVectorOldValsList;
-    List<List<vectorField>> oriCoordFetchPointsVectorValsList;
-
-    bool rankHasPatchPointsForfetch = false;
 
     forAll(interfaceNames, iN)
     {
@@ -68,19 +58,19 @@
         List<vectorField> oriCoordFetchPointsVectorValsListLocal;
 
 
-        forAll(patchIDs[iN], pI)
+        forAll(patch6DoFIDs[iN], pI)
         {
 
-            if(pointDisplacement.boundaryFieldRef()[patchIDs[iN][pI]].size() != 0)
+            if(pointDisplacement.boundaryFieldRef()[patch6DoFIDs[iN][pI]].size() != 0)
             {
                 rankHasPatchPointsForfetch = true;
             }
 
             // Declare a vectorField to store the fetched displacements.
-            vectorField dispVectorValsLocal(pointDisplacement.boundaryFieldRef()[patchIDs[iN][pI]].size());
-            vectorField dispVectorOldValsLocal(pointDisplacement.boundaryFieldRef()[patchIDs[iN][pI]].size());
+            vectorField dispVectorValsLocal(pointDisplacement.boundaryFieldRef()[patch6DoFIDs[iN][pI]].size());
+            vectorField dispVectorOldValsLocal(pointDisplacement.boundaryFieldRef()[patch6DoFIDs[iN][pI]].size());
             // Declare a vectorField to store the original point coordinates.
-            vectorField oriCoordFetchPointsVectorValsLocal(pointDisplacement.boundaryFieldRef()[patchIDs[iN][pI]].size());
+            vectorField oriCoordFetchPointsVectorValsLocal(pointDisplacement.boundaryFieldRef()[patch6DoFIDs[iN][pI]].size());
 
             dispVectorValsListLocal.append(dispVectorValsLocal);
             dispVectorOldValsListLocal.append(dispVectorOldValsLocal);
@@ -106,17 +96,17 @@
     forAll(interfaceNames, iN)
     {
 
-        forAll(patchIDs[iN], pI)
+        forAll(patch6DoFIDs[iN], pI)
         {
             // Loop over points to Store the original point coordinates
             forAll(dispVectorValsList[iN][pI], pointI)
             {
                 oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X) =
-                    mesh.boundaryMesh()[patchIDs[iN][pI]].localPoints()[pointI].component(vector::X);
+                    mesh.boundaryMesh()[patch6DoFIDs[iN][pI]].localPoints()[pointI].component(vector::X);
                 oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Y) =
-                    mesh.boundaryMesh()[patchIDs[iN][pI]].localPoints()[pointI].component(vector::Y);
+                    mesh.boundaryMesh()[patch6DoFIDs[iN][pI]].localPoints()[pointI].component(vector::Y);
                 oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z) =
-                    mesh.boundaryMesh()[patchIDs[iN][pI]].localPoints()[pointI].component(vector::Z);
+                    mesh.boundaryMesh()[patch6DoFIDs[iN][pI]].localPoints()[pointI].component(vector::Z);
 
                 dispVectorValsList[iN][pI][pointI].component(vector::X) = 0.0;
                 dispVectorValsList[iN][pI][pointI].component(vector::Y) = 0.0;
@@ -142,7 +132,7 @@
             forAll(interfaceNames, iN)
             {
 
-                forAll(patchIDs[iN], pI)
+                forAll(patch6DoFIDs[iN], pI)
                 {
                     forAll(oriCoordFetchPointsVectorValsList[iN][pI], pointI)
                     {
@@ -186,23 +176,52 @@
 #endif
 
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
-
-    // define spatial and temporal samplers
-    mui::sampler_pseudo_n2_linear<mui::config_of> spatial_sampler(rSampler);
-    mui::temporal_sampler_exact<mui::config_of> chrono_sampler;
-		mui::algo_aitken<mui::config_of> aitken(static_cast<double>(initUndRelxCpl));
-		mui::algo_fixed_relaxation<mui::config_of> fr(static_cast<double>(initUndRelxCpl));
-
-    std::vector<muiCoupling::muiCouplingIQNILS> IQNILS;
-    IQNILS.reserve(interfaceNames.size());
-
-    // Construct an application of muiCouplingIQNILS
-    muiCoupling::muiCouplingIQNILS IQNILSLocal(static_cast<double>(initUndRelxCpl));
+    std::vector<std::pair<mui::point3d, double>> ptsVluInit;
+    mui::point3d rcv_point;
+    int count=0;
 
     forAll(interfaceNames, iN)
     {
-        IQNILS.emplace_back(IQNILSLocal);
+        bool patchIDToFetch = false;
+
+        forAll(patch6DoFIDs[iN], pI)
+        {
+            forAll(patchIDs[iN], ptI)
+            {
+                if(patch6DoFIDs[iN][pI] == patchIDs[iN][ptI])
+                {
+                    patchIDToFetch = true;
+                    break;
+                }
+            }
+            // Loop over points to receive displacement values and assigned to dispVectorVals
+            //- Blocking fetch for value passed through interface from coupled solver
+            if(patchIDToFetch == true)
+            {
+                forAll(dispVectorValsList[iN][pI], pointI)
+                {
+                    rcv_point[0] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X);
+                    rcv_point[1] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Y);
+                    rcv_point[2] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z);                   
+
+                    if (rankHasPatchPointsForfetch)
+    {
+                        ptsVluInit.push_back(std::make_pair(rcv_point,0.0));
+                        count++;
     }
+                }
+            }
+        }
+        }
+
+
+    aitken_x = new mui::algo_aitken<mui::mui_config>(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    aitken_y = new mui::algo_aitken<mui::mui_config>(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    aitken_z = new mui::algo_aitken<mui::mui_config>(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    fr_x     = new mui::algo_fixed_relaxation<mui::mui_config>(static_cast<double>(initUndRelxCpl),ptsVluInit);
+    fr_y     = new mui::algo_fixed_relaxation<mui::mui_config>(static_cast<double>(initUndRelxCpl),ptsVluInit);
+    fr_z     = new mui::algo_fixed_relaxation<mui::mui_config>(static_cast<double>(initUndRelxCpl),ptsVluInit);
+
 
     if (args.cplRunControl().cplRun())
     {
@@ -212,10 +231,10 @@
         forAll(interfaceNames, iN)
         {
 
-            forAll(patchIDs[iN], pI)
+            forAll(patch6DoFIDs[iN], pI)
             {
 
-                totPointSize += pointDisplacement.boundaryFieldRef()[patchIDs[iN][pI]].size();
+                totPointSize += pointDisplacement.boundaryFieldRef()[patch6DoFIDs[iN][pI]].size();
             }
 
             if (cplMethod == "Aitken")
@@ -235,20 +254,6 @@
 
                 muiResidual << "MUI CouplingLib Utility" << "\t" << "FixedRelaxation method" << endl;
                 muiResidual << "interfaceNames"<< "\t" << "Time" << "\t" << "Time-Step" << "\t" << "Sub-Iteration" << "\t"
-                    << "UnderRelx-Factor" << "\t" << "pointSize" << "\t"
-                    << "squareSumResidual" << "\t" << "maxResidualL-2Norm" << "\t"
-                    << "residualL2Norm" << "\t" << "forceX"
-                            << "\t" << "forceY" << "\t" << "forceZ"<< endl;
-
-            } else if (cplMethod == "IQN_ILS")
-            {
-                IQNILS[iN].initialize(static_cast<int>(totPointSize),
-                                      static_cast<double>(maxUndRelxCpl),
-                                      static_cast<int>(numAitkenIterations));
-                Info << "{OpenFOAM} interface " << interfaceNames[iN] << " IQN-ILS coupling method selected!" << endl;
-
-                muiResidual << "MUI CouplingLib Utility" << "\t" << "IQN-ILS method" << endl;
-                muiResidual << "interfaceName"<< "\t" << "Time" << "\t" << "Time-Step" << "\t" << "Sub-Iteration" << "\t"
                     << "UnderRelx-Factor" << "\t" << "pointSize" << "\t"
                     << "squareSumResidual" << "\t" << "maxResidualL-2Norm" << "\t"
                     << "residualL2Norm" << "\t" << "forceX"
@@ -275,18 +280,14 @@
 		}
 
         // Annouce send span
-        mui::geometry::box<mui::config_of> recv_region( {recvXMin, recvYMin, recvZMin}, {recvXMax, recvYMax, recvZMax} );
-
-        // Set the maximum time step size
-        int totalTimeSteps = ceil((runTime.endTime().value() - runTime.startTime().value())/runTime.deltaT().value());
-
+        mui::geometry::box<mui::mui_config> recv_region( {recvXMin, recvYMin, recvZMin}, {recvXMax, recvYMax, recvZMax} );
         forAll(interfaceNames, iN)
         {
-            ifs[iN]->announce_recv_span( 0, totalTimeSteps, recv_region );
+            ifs[iN]->announce_recv_span( runTime.startTime().value(), runTime.endTime().value(), recv_region );
 
             // Commit ZERO step
-            ifs[iN]->commit(0);
-            Info << "MUI interface " << interfaceNames[iN] << " commit zero step" << nl << endl;
+            ifs[iN]->commit(runTime.startTime().value(),0);
+            Info << "{OpenFOMA} : MUI interface " << interfaceNames[iN] << " commit zero step" << nl << endl;
         }
     }
 

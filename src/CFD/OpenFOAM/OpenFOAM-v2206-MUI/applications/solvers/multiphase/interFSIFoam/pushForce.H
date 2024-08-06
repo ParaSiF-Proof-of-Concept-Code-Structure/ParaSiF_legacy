@@ -44,6 +44,17 @@
 
 	// Debug switch for pushForce.H
 	bool debugPushForce = false;
+    IOdictionary transportProperties
+    (
+        IOobject
+        (
+            "transportProperties",
+            runTime.constant(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    );
 
     // Obtain the normal vectors on the boundary faces
     const surfaceVectorField::Boundary& Sfb = mesh.Sf().boundaryField();
@@ -61,8 +72,8 @@
     const dimensionedScalar nuForceWater(transportProperties.subDict("water").lookup("nu"));
     const dimensionedScalar nuForceAir(transportProperties.subDict("air").lookup("nu"));
 
-    Info << "{OpenFOMA} : rho Water: " << rhoForceWater << " nu Water: " << nuForceWater << nl << endl;
-    Info << "{OpenFOMA} : rho Air: " << rhoForceAir << " nu Air: " << nuForceAir << nl << endl;
+    Info << "{OpenFOAM} : rho Water: " << rhoForceWater << " nu Water: " << nuForceWater << nl << endl;
+    Info << "{OpenFOAM} : rho Air: " << rhoForceAir << " nu Air: " << nuForceAir << nl << endl;
 
 	//to avoid negative values
     const volScalarField limitedAlphaWater
@@ -243,9 +254,9 @@
         }
 
         //- Commit the pushed values to the interface at current time step
-        ifs[iN]->commit(static_cast<double>(runTime.value()),subIter);
-        Info << "{OpenFOMA} : {OpenFOMA} : MUI interface " << interfaceNames[iN] << " Finshed commiting forces at time " << runTime.value() << 
-        " and sub iterations" << subIter <<"/"<< runTime.subIterationNumber() << nl << endl;
+        ifs[iN]->commit(static_cast<double>(runTime.value()),runTime.subIter());
+        Info << "{OpenFOAM} : MUI interface " << interfaceNames[iN] << " Finshed commiting forces at time " << runTime.value() << 
+        " and sub iterations" << runTime.subIter() <<"/"<< runTime.subIterationNumber() << nl << endl;
 
         if ((runTime.value()-forgetTime) > 0)
         {
@@ -291,21 +302,21 @@
 
         tractionTotal[iN] /= totalFaceNList[iN];
 
-        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceX = " << forceTotal[iN].component(vector::X) << endl;
-        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceY = " << forceTotal[iN].component(vector::Y) << endl;
-        Info << "{OpenFOMA} : " << interfaceNames[iN] << " forceZ = " << forceTotal[iN].component(vector::Z) << endl;
+        Info << "{OpenFOAM} : " << interfaceNames[iN] << " forceX = " << forceTotal[iN].component(vector::X) << endl;
+        Info << "{OpenFOAM} : " << interfaceNames[iN] << " forceY = " << forceTotal[iN].component(vector::Y) << endl;
+        Info << "{OpenFOAM} : " << interfaceNames[iN] << " forceZ = " << forceTotal[iN].component(vector::Z) << endl;
 
         if (twoDimCorrection)
         {
             reduce(force2DTotal[iN], sumOp<vector>()); 
-            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DX = " << force2DTotal[iN].component(vector::X) << endl;
-            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DY = " << force2DTotal[iN].component(vector::Y) << endl;
-            Info << "{OpenFOMA} : " << interfaceNames[iN] << " force2DZ = " << force2DTotal[iN].component(vector::Z) << endl;
+            Info << "{OpenFOAM} : " << interfaceNames[iN] << " force2DX = " << force2DTotal[iN].component(vector::X) << endl;
+            Info << "{OpenFOAM} : " << interfaceNames[iN] << " force2DY = " << force2DTotal[iN].component(vector::Y) << endl;
+            Info << "{OpenFOAM} : " << interfaceNames[iN] << " force2DZ = " << force2DTotal[iN].component(vector::Z) << endl;
         }
 
-        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionX = " << tractionTotal[iN].component(vector::X) << endl;
-        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionY = " << tractionTotal[iN].component(vector::Y) << endl;
-        Info << "{OpenFOMA} : " << interfaceNames[iN] << " tractionZ = " << tractionTotal[iN].component(vector::Z) << endl;
+        Info << "{OpenFOAM} : " << interfaceNames[iN] << " tractionX = " << tractionTotal[iN].component(vector::X) << endl;
+        Info << "{OpenFOAM} : " << interfaceNames[iN] << " tractionY = " << tractionTotal[iN].component(vector::Y) << endl;
+        Info << "{OpenFOAM} : " << interfaceNames[iN] << " tractionZ = " << tractionTotal[iN].component(vector::Z) << endl;
     }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

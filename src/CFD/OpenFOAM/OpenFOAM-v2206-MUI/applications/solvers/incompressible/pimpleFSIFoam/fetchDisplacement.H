@@ -32,12 +32,12 @@
     lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6 
     two-way coupling.
 
-    Incompressible Navier-Stokes equations for fluid domain in OpenFOAM
-    Structure dynamics equations for structure domain in FEniCS.
+    Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain
+	in OpenFOAM and Structure dynamics equations for structure domain in FEniCS.
 
     It is to fetch displacement of the structure boundary from the structure domain 
     in every time and sub-iteration loop of the fluid solver
-    Located in the src/CFD/OpenFOAM/V6/applications/solvers/pimpleFSIFoam sub-folder
+
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -45,20 +45,37 @@
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
 	// Debug switch for fetchDisplacement.H
+	pointVectorField& pointDisplacement =
+        const_cast<pointVectorField&>
+        (
+            mesh.lookupObject<pointVectorField>("pointDisplacement")
+        );
 	bool debugFetchDisplacement = false;
-
+	double res_x = 0.0,res_y = 0.0,res_z = 0.0;
     mui::point3d rcv_point;
 
-    Info << "{OpenFOAM} Fetch iteration " << runTime.totalCurrentIter() << nl << endl;
-    if((runTime.totalCurrentIter()-0) >= 0)
+    Info << "{OpenFOAM} Fetch at time  " << runTime.value()<< " and sub iteration " << runTime.subIter() <<"/"<< runTime.subIterationNumber() << nl << endl;
+    if(runTime.value() >= 0)
     {                    
         forAll(interfaceNames, iN)
         {
-            forAll(patchIDs[iN], pI)
+
+			bool patchIDToFetch = false;
+
+            forAll(patch6DoFIDs[iN], pI)
             {
+				forAll(patchIDs[iN], ptI)
+				{
+					if(patch6DoFIDs[iN][pI] == patchIDs[iN][ptI])
+					{
+						patchIDToFetch = true;
+						break;
+					}
+				}
                 // Loop over points to receive displacement values and assigned to dispVectorVals
                 //- Blocking fetch for value passed through interface from coupled solver  
-
+				if(patchIDToFetch == true)
+				{
                 forAll(dispVectorValsList[iN][pI], pointI)
                 {
                     rcv_point[0] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X);
@@ -67,43 +84,61 @@
 
                     if (rankHasPatchPointsForfetch)
                     {
+											double fetchTempX =0.0, fetchTempY = 0.0, fetchTempZ = 0.0;
 												if (cplMethod == "Aitken")
 												{
-                        dispVectorValsList[iN][pI][pointI].component(vector::X) = 
-		                            ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
-                        dispVectorValsList[iN][pI][pointI].component(vector::Y) = 
-		                            ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
-                        dispVectorValsList[iN][pI][pointI].component(vector::Z) = 
-		                            ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,aitken);
-																cplAlgo_res = max (cplAlgo_res, aitken.get_residual_L2_Norm(static_cast<double>(totalCurrentIter-0)));
-																count++;
+													fetchTempX =
+															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*aitken_x);
+													fetchTempY =
+															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*aitken_y);
+													fetchTempZ =
+															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*aitken_z);
 												} else if (cplMethod == "FixedRelaxation")
                     {
-														dispVectorValsList[iN][pI][pointI].component(vector::X) =
-																ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
-														dispVectorValsList[iN][pI][pointI].component(vector::Y) =
-																ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
-														dispVectorValsList[iN][pI][pointI].component(vector::Z) =
-																ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler,fr);
-
+													fetchTempX =
+															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*fr_x);
+													fetchTempY =
+															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*fr_y);
+													fetchTempZ =
+															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*fr_z);
 												}  else if (cplMethod == "Loose")
                     {
-													 dispVectorValsList[iN][pI][pointI].component(vector::X) =
-															 ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
-													 dispVectorValsList[iN][pI][pointI].component(vector::Y) =
-															 ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
-													 dispVectorValsList[iN][pI][pointI].component(vector::Z) =
-															 ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(totalCurrentIter-0), spatial_sampler, chrono_sampler);
+												 fetchTempX =
+														 ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler);
+												 fetchTempY =
+														 ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler);
+												 fetchTempZ =
+														 ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler);
                     } else
                     {
 		                        FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict is not recognized!" << exit(FatalError);
                     } 
+										
+							double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*runTime.value());
+
+							dispVectorValsList[iN][pI][pointI].component(vector::X) = fetchTempX * Foam::cos(angle2DRotationTemp) - fetchTempY * Foam::sin(angle2DRotationTemp);
+							dispVectorValsList[iN][pI][pointI].component(vector::Y) = fetchTempX * Foam::sin(angle2DRotationTemp) + fetchTempY * Foam::cos(angle2DRotationTemp);
+							dispVectorValsList[iN][pI][pointI].component(vector::Z) = fetchTempZ;
                 }
 
+						if((dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
+						{
+							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::X): " << dispVectorValsList[iN][pI][pointI].component(vector::X) << nl << endl;
                 }
+						if((dispVectorValsList[iN][pI][pointI].component(vector::Y) != 0.0) && (debugFetchDisplacement == true))
+						{
+							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Y): " << dispVectorValsList[iN][pI][pointI].component(vector::Y) << nl << endl;
+						}
+						if((dispVectorValsList[iN][pI][pointI].component(vector::Z) != 0.0) && (debugFetchDisplacement == true))
+						{
+							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Z): " << dispVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
+						}
+
 
             }
-						reduce(cplAlgo_res, maxOp<double>());
+				}
+				patchIDToFetch = false;
+            }
         }
 
     }
@@ -111,7 +146,7 @@
     {
         forAll(interfaceNames, iN)
         {
-            forAll(patchIDs[iN], pI)
+            forAll(patch6DoFIDs[iN], pI)
             {
                 // Loop over points to receive displacement values and assigned to dispVectorVals
                 //- Blocking fetch for value passed through interface from coupled solver  
@@ -122,9 +157,7 @@
                     rcv_point[2] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z);
 
                     dispVectorValsList[iN][pI][pointI].component(vector::X) = 0.0; 
-
                     dispVectorValsList[iN][pI][pointI].component(vector::Y) = 0.0;
-
                     dispVectorValsList[iN][pI][pointI].component(vector::Z) = 0.0;
 
                     if((dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
@@ -146,21 +179,49 @@
 
     forAll(interfaceNames, iN)
     {
-        forAll(patchIDs[iN], pI)
+		bool patchIDToFetch = false;
+
+        forAll(patch6DoFIDs[iN], pI)
         {
 
             fixedValuePointPatchVectorField& PointPointerLocal = 
                 refCast<fixedValuePointPatchVectorField>
                 (
-                    pointDisplacement.boundaryFieldRef()[patchIDs[iN][pI]]
+                    pointDisplacement.boundaryFieldRef()[patch6DoFIDs[iN][pI]]
                 );
 
             // Loop over points to assign dispVectorVals to cellDisplacement boundaryFieldRef, i.e. move the nodes
             forAll(dispVectorValsList[iN][pI], pointI)
             {
-                PointPointerLocal[pointI].component(vector::X) = rigidMotionAmplitudeX_*Foam::sin(2*3.1416*rigidMotionFrqX_*t);
-                PointPointerLocal[pointI].component(vector::Y) = rigidMotionAmplitudeY_*Foam::sin(2*3.1416*rigidMotionFrqY_*t);
-                PointPointerLocal[pointI].component(vector::Z) = rigidMotionAmplitudeZ_*Foam::sin(2*3.1416*rigidMotionFrqZ_*t);
+
+				mui::point3d rot_pointTemp;
+
+				rot_pointTemp[0] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X);
+				rot_pointTemp[1] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Y);
+				rot_pointTemp[2] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z);
+
+				double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*runTime.value());
+
+				PointPointerLocal[pointI].component(vector::X) = Foam::cos(angle2DRotationTemp) * (rot_pointTemp[0] - rotation2DOriginX_) - Foam::sin(angle2DRotationTemp) * (rot_pointTemp[1] - rotation2DOriginY_) + rotation2DOriginX_ - rot_pointTemp[0];
+				PointPointerLocal[pointI].component(vector::Y) = Foam::sin(angle2DRotationTemp) * (rot_pointTemp[0] - rotation2DOriginX_) + Foam::cos(angle2DRotationTemp) * (rot_pointTemp[1] - rotation2DOriginY_) + rotation2DOriginY_ - rot_pointTemp[1];
+
+
+                PointPointerLocal[pointI].component(vector::X) += rigidMotionAmplitudeX_*Foam::sin(2*3.1416*rigidMotionFrqX_*runTime.value());
+                PointPointerLocal[pointI].component(vector::Y) += rigidMotionAmplitudeY_*Foam::sin(2*3.1416*rigidMotionFrqY_*runTime.value());
+                PointPointerLocal[pointI].component(vector::Z) = rigidMotionAmplitudeZ_*Foam::sin(2*3.1416*rigidMotionFrqZ_*runTime.value());
+
+
+				forAll(patchIDs[iN], ptI)
+				{
+					if(patch6DoFIDs[iN][pI] == patchIDs[iN][ptI])
+					{
+						patchIDToFetch = true;
+						break;
+					}
+				}
+
+				if(patchIDToFetch == true)
+				{
 
                     if (applyFetchX)
                     {
@@ -174,8 +235,6 @@
                     {                       
                     PointPointerLocal[pointI].component(vector::Z) += dispVectorValsList[iN][pI][pointI].component(vector::Z);
                     }
-
-
 
 								if((dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
                     {
@@ -203,38 +262,41 @@
                     Pout << "PointPointerLocal[pointI].component(vector::Z): " << PointPointerLocal[pointI].component(vector::Z) << nl << endl;
                 }
 
-            }
+
             if(Pstream::master())
             {
                 if (applyFetchX || applyFetchY || applyFetchZ)
                 {
                     if (cplMethod == "Aitken")
                     {
-                        muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t" 
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << runTime.subIter() << "\t"
                             // << AK[iN].undRelxCpl() << "\t" << AK[iN].pointSize() << "\t" << AK[iN].residualMagSqSum() << "\t"
                             // << AK[iN].residualL2NormMax() << "\t" << AK[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
                             << "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z) << endl;
                     } else if (cplMethod == "FixedRelaxation")
                     {
-                        muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t" 
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << runTime.subIter() << "\t"
                             // << FR[iN].undRelxCpl() << "\t" << FR[iN].pointSize() << "\t" << FR[iN].residualMagSqSum() << "\t"
                             // << FR[iN].residualL2NormMax() << "\t" << FR[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
                             << "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z) << endl;
                     } else if (cplMethod == "IQN_ILS")
                     {
-                        muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << timeSteps << "\t" << subIter << "\t" 
-                            << IQNILS[iN].undRelxCpl() << "\t" << IQNILS[iN].pointSize() << "\t" << IQNILS[iN].residualMagSqSum() << "\t"
-                            << IQNILS[iN].residualL2NormMax() << "\t" << IQNILS[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X) 
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << runTime.subIter() << "\t"
+									// << IQNILS[iN].undRelxCpl() << "\t" << IQNILS[iN].pointSize() << "\t" << IQNILS[iN].residualMagSqSum() << "\t"
+									// << IQNILS[iN].residualL2NormMax() << "\t" << IQNILS[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
                             << "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z)<< endl;
                     } else if (cplMethod == "Loose")
                     {
                         // Do nothing for Loose coupling method
                     } else
                     {
-                        FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict is not recognized!" << exit(FatalError);
+								FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict does not recognized!" << exit(FatalError);
                     }  
                 }
             }
+				}
+			}
+			patchIDToFetch = false;
         }
     }
 
@@ -242,12 +304,12 @@
 
     forAll(interfaceNames, iN)
     {
-        forAll(patchIDs[iN], pI)
+        forAll(patch6DoFIDs[iN], pI)
         {
             fixedValuePointPatchVectorField& PointPointerLocal = 
                 refCast<fixedValuePointPatchVectorField>
                 (
-                    pointDisplacement.boundaryFieldRef()[patchIDs[iN][pI]]
+                    pointDisplacement.boundaryFieldRef()[patch6DoFIDs[iN][pI]]
                 );
 
             PointPointerLocal[pointI].component(vector::X) = rigidMotionAmplitudeX_*Foam::sin(2*3.1416*rigidMotionFrqX_*t);

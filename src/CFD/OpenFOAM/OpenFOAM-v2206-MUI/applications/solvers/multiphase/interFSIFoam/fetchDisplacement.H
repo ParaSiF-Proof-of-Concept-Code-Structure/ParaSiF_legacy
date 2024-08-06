@@ -43,11 +43,16 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
-
 	// Debug switch for fetchDisplacement.H
+	pointVectorField& pointDisplacement =
+        const_cast<pointVectorField&>
+        (
+            mesh.lookupObject<pointVectorField>("pointDisplacement")
+        );
 	bool debugFetchDisplacement = false;
-
-    Info << "{OpenFOAM} Fetch at time  " << runTime.value()<< " and sub iteration " << subIter <<"/"<< runTime.subIterationNumber() << nl << endl;
+	double res_x = 0.0,res_y = 0.0,res_z = 0.0;
+	mui::point3d rcv_point;
+    Info << "{OpenFOAM} Fetch at time  " << runTime.value()<< " and sub iteration " << runTime.subIter() <<"/"<< runTime.subIterationNumber() << nl << endl;
     if(runTime.value() >= 0)
     {
         forAll(interfaceNames, iN)
@@ -82,27 +87,36 @@
 											if (cplMethod == "Aitken")
 											{
 													fetchTempX =
-															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,aitken_x);
+															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*aitken_x);
 													fetchTempY =
-															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,aitken_y);
+															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*aitken_y);
 													fetchTempZ =
-															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,aitken_z);
+															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*aitken_z);
+													res_x = aitken_x->get_residual_L2_Norm(static_cast<double>(runTime.value()),runTime.subIter());
+													res_y = aitken_y->get_residual_L2_Norm(static_cast<double>(runTime.value()),runTime.subIter());
+													res_z = aitken_z->get_residual_L2_Norm(static_cast<double>(runTime.value()),runTime.subIter());
+
 											} else if (cplMethod == "FixedRelaxation")
 											{
 													fetchTempX =
-															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,fr_x);
+															ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*fr_x);
 													fetchTempY =
-															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,fr_y);
+															ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*fr_y);
 													fetchTempZ =
-															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler,fr_z);
+															ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler,*fr_z);
+
+													res_x = fr_x->get_residual_L2_Norm(static_cast<double>(runTime.value()),runTime.subIter());
+													res_y = fr_y->get_residual_L2_Norm(static_cast<double>(runTime.value()),runTime.subIter());
+													res_z = fr_z->get_residual_L2_Norm(static_cast<double>(runTime.value()),runTime.subIter());
+															
 											}  else if (cplMethod == "Loose")
 											{
 												 fetchTempX =
-														 ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler);
+														 ifs[iN]->fetch(fetchNameX, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler);
 												 fetchTempY =
-														 ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler);
+														 ifs[iN]->fetch(fetchNameY, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler);
 												 fetchTempZ =
-														 ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),subIter, spatial_sampler, chrono_sampler);
+														 ifs[iN]->fetch(fetchNameZ, rcv_point, static_cast<double>(runTime.value()),runTime.subIter(), spatial_sampler, chrono_sampler);
 											} else
 											{
 													FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict is not recognized!" << exit(FatalError);
@@ -116,6 +130,9 @@
 							dispVectorValsList[iN][pI][pointI].component(vector::X) = fetchTempX * Foam::cos(angle2DRotationTemp) - fetchTempY * Foam::sin(angle2DRotationTemp);
 							dispVectorValsList[iN][pI][pointI].component(vector::Y) = fetchTempX * Foam::sin(angle2DRotationTemp) + fetchTempY * Foam::cos(angle2DRotationTemp);
 							dispVectorValsList[iN][pI][pointI].component(vector::Z) = fetchTempZ;
+							// 		fetchTempX * Foam::sin(angle2DRotationTemp) + fetchTempY * Foam::cos(angle2DRotationTemp) << " "
+							// 		<<  fetchTempZ << " "<<endl; 
+
 
 						}
 
@@ -140,6 +157,8 @@
 				patchIDToFetch = false;
             }
         }
+		Info << "{OpenFOAM} : Coupling Relaxation Residuals at time  "<<runTime.value() << " and sub iter " << runTime.subIter() <<"/" <<runTime.subIterationNumber() << " is " 
+                << res_x << "  "<< res_y << "  "<< res_z  <<endl;
 
     }
     else
@@ -258,19 +277,19 @@
 						{
 							if (cplMethod == "Aitken")
 							{
-								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << subIter << "\t"
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << runTime.subIter() << "\t"
 									// << AK[iN].undRelxCpl() << "\t" << AK[iN].pointSize() << "\t" << AK[iN].residualMagSqSum() << "\t"
 									// << AK[iN].residualL2NormMax() << "\t" << AK[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z) << endl;
 							} else if (cplMethod == "FixedRelaxation")
 							{
-								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << subIter << "\t"
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << runTime.subIter() << "\t"
 									// << FR[iN].undRelxCpl() << "\t" << FR[iN].pointSize() << "\t" << FR[iN].residualMagSqSum() << "\t"
 									// << FR[iN].residualL2NormMax() << "\t" << FR[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z) << endl;
 							} else if (cplMethod == "IQN_ILS")
 							{
-								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << subIter << "\t"
+								muiResidual << interfaceNames[iN] << "\t" << runTime.timeName() << "\t" << runTime.timeSteps() << "\t" << runTime.subIter() << "\t"
 									// << IQNILS[iN].undRelxCpl() << "\t" << IQNILS[iN].pointSize() << "\t" << IQNILS[iN].residualMagSqSum() << "\t"
 									// << IQNILS[iN].residualL2NormMax() << "\t" << IQNILS[iN].residualL2Norm() << "\t" << forceTotal[0].component(vector::X)
 									<< "\t" << forceTotal[0].component(vector::Y) << "\t" << forceTotal[0].component(vector::Z)<< endl;

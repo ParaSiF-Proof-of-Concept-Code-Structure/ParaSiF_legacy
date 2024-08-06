@@ -37,14 +37,10 @@ License
 #include "muiconfig.h"
 
 
-typedef std::unique_ptr<mui::uniface<mui::mui_config>> MuiUnifacePtr3d;
-std::vector<MuiUnifacePtr3d> ifs;
-
 mui::sampler_exact3d<double> spatial_sampler;
 mui::temporal_sampler_exact3d chrono_sampler;
 bool ifsInit;
-double oldTime;
-
+// #include "couplingVarExternal.H"
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -69,6 +65,8 @@ void Foam::functionObjects::coupledForces::setCoordinateSystem
     coordSysPtr_.clear();
 
     point origin(Zero);
+    if (!dict.readIfPresent<int>("ifsID", ifsID)) ifsID = 0;
+
     if (dict.readIfPresent<point>("CofR", origin))
     {
         const vector e3 = e3Name == word::null ?
@@ -541,8 +539,6 @@ Foam::functionObjects::coupledForces::coupledForces
     writeFields_(false),
     initialised_(false)
 {
-    Info << "I am here 11111111111111111111111111111111111111111" << endl;
-    Info << "name " << name << "  runTime " << "  dict "  <<endl;
     if (readFields)
     {
         read(dict);
@@ -801,31 +797,26 @@ bool Foam::functionObjects::coupledForces::execute()
 {
     // string interfaceName="mpi://OpenFoam_forces/threeDInterface0";
     // Info << "{OpenFOAM}  started cteating interface " << interfaceName << endl; 
-    std::vector<std::string> interfaces;
-	std::string domainName="OpenFoam_forces";
-	std::string appName="threeDInterface0";
-    interfaces.emplace_back(appName);
 
-
+    // auto ifs = mui::create_uniface<mui::mui_config>( "OpenFoam_forces", interfaces );
+    auto& runTime = time_;
+    auto& ifs = runTime.mui_ifs[ifsID];
     mui::point3d locf( 0.0, 0.0, 0.0 );
-    void updateIterCounter ();
-    Info << "//////////////// Forces //////////// " << totalCurrentIter <<endl;
-    if (! ifsInit){
-      ifs=mui::create_uniface<mui::mui_config>( domainName, interfaces );
-    //   interface.reset(new mui::uniface3d(interfaceName));
+    // if (! ifsInit){
+    //   ifs=mui::create_uniface<mui::mui_config>( domainName, interfaces );
+    // //   interface.reset(new mui::uniface3d(interfaceName));
       
-      ifsInit = true;
-      oldTime=0;
-    }
+    //   ifsInit = true;
+    //   oldTime=0;
+    // }
     // Info << "{OpenFOAM}  created interface " << interfaceName << endl; 
-    scalar t = time_.value();    
+    // scalar t = time_.value();    
     // if (t != oldTime)  {   // To be corrected and send the time value independant of the time and space
     //   ifs[0]->push( "crrntTime_", locf, t );
     //   ifs[0]->commit( oldTime );
     // }
     calcForcesMoments();
 
-    Log << type() << " " << name() << " write time : " << t << nl;
 
     const auto& coordSys = coordSysPtr_();
 
@@ -850,39 +841,39 @@ bool Foam::functionObjects::coupledForces::execute()
     setResult("internalMoment", localMi);
 
     
+    Info << "{OpenFOAM } Pushing forces at Time = " << runTime.timeName() << 
+        ", and sub-Iteration = "  << runTime.subIter() <<"/" << runTime.subIterationNumber() << nl << endl;
     Info << "{OpenFOAM } CofR  " << coordSys.origin() <<endl;
-    Info << "{OpenFOAM } Pusing forces at time  " << t <<endl;
-    ifs[0]->push( "CofRX", locf, coordSys.origin()[0] );
-    ifs[0]->push( "CofRY", locf, coordSys.origin()[1] );
-    ifs[0]->push( "CofRZ", locf, coordSys.origin()[2] );
+    ifs->push( "CofRX", locf, coordSys.origin()[0] );
+    ifs->push( "CofRY", locf, coordSys.origin()[1] );
+    ifs->push( "CofRZ", locf, coordSys.origin()[2] );
 
-    ifs[0]->push( "pForceX", locf, localFp[0] );
-    ifs[0]->push( "pForceY", locf, localFp[1] );
-    ifs[0]->push( "pForceZ", locf, localFp[2] );
+    ifs->push( "pForceX", locf, localFp[0] );
+    ifs->push( "pForceY", locf, localFp[1] );
+    ifs->push( "pForceZ", locf, localFp[2] );
 
-    ifs[0]->push( "vForceX", locf, localFv[0] );
-    ifs[0]->push( "vForceY", locf, localFv[1] );
-    ifs[0]->push( "vForceZ", locf, localFv[2] );
+    ifs->push( "vForceX", locf, localFv[0] );
+    ifs->push( "vForceY", locf, localFv[1] );
+    ifs->push( "vForceZ", locf, localFv[2] );
     // total forces
-    ifs[0]->push( "forceX", locf, localFp[0]+localFv[0] +localFi[0] );
-    ifs[0]->push( "forceY", locf, localFp[1]+localFv[1] +localFi[0] );
-    ifs[0]->push( "forceZ", locf, localFp[2]+localFv[2] +localFi[0] );
+    ifs->push( "forceX", locf, localFp[0]+localFv[0] +localFi[0] );
+    ifs->push( "forceY", locf, localFp[1]+localFv[1] +localFi[0] );
+    ifs->push( "forceZ", locf, localFp[2]+localFv[2] +localFi[0] );
    
 
-    ifs[0]->push( "pMomentX", locf, localMp[0] );
-    ifs[0]->push( "pMomentY", locf, localMp[1] );
-    ifs[0]->push( "pMomentZ", locf, localMp[2] );
+    ifs->push( "pMomentX", locf, localMp[0] );
+    ifs->push( "pMomentY", locf, localMp[1] );
+    ifs->push( "pMomentZ", locf, localMp[2] );
 
-    ifs[0]->push( "vMomentX", locf, localMv[0] );
-    ifs[0]->push( "vMomentY", locf, localMv[1] );
-    ifs[0]->push( "vMomentZ", locf, localMv[2] );
+    ifs->push( "vMomentX", locf, localMv[0] );
+    ifs->push( "vMomentY", locf, localMv[1] );
+    ifs->push( "vMomentZ", locf, localMv[2] );
     // Total moments
-    ifs[0]->push( "momentX", locf, localMp[0]+localMv[0] +localMi[0] );
-    ifs[0]->push( "momentY", locf, localMp[1]+localMv[1] +localMi[0] );
-    ifs[0]->push( "momentZ", locf, localMp[2]+localMv[2] +localMi[0] );
+    ifs->push( "momentX", locf, localMp[0]+localMv[0] +localMi[0] );
+    ifs->push( "momentY", locf, localMp[1]+localMv[1] +localMi[0] );
+    ifs->push( "momentZ", locf, localMp[2]+localMv[2] +localMi[0] );
 
-    ifs[0]->commit( totalCurrentIter );
-    oldTime = t; // To be corrected and send the time value independant of the time and space
+    ifs->commit( runTime.value(),runTime.subIter() );
 
     return true;
 }

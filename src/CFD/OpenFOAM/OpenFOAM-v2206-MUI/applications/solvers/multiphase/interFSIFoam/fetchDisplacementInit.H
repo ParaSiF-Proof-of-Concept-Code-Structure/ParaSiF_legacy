@@ -43,23 +43,12 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 	// Debug switch for fetchDisplacementInit.H
 	bool debugFetchDisplacementInit = false;
-    mui::point3d rcv_point;
-
-    // Declare MUI FSI residual output.
-    fileName muiResidualFile("muiFSIResidual.txt");
-    OFstream muiResidual(runTime.system()/muiResidualFile);
-
     pointVectorField& pointDisplacement =
         const_cast<pointVectorField&>
         (
             mesh.lookupObject<pointVectorField>("pointDisplacement")
         );
 
-    List<List<vectorField>> dispVectorValsList;
-    List<List<vectorField>> dispVectorOldValsList;
-    List<List<vectorField>> oriCoordFetchPointsVectorValsList;
-
-    bool rankHasPatchPointsForfetch = false;
 
     forAll(interfaceNames, iN)
     {
@@ -188,6 +177,7 @@
 
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
     std::vector<std::pair<mui::point3d, double>> ptsVluInit;
+    mui::point3d rcv_point;
     int count=0;
 
     forAll(interfaceNames, iN)
@@ -223,18 +213,14 @@
             }
         }
         }
-    // define spatial and temporal samplers
-    mui::sampler_pseudo_n2_linear<mui::mui_config> spatial_sampler(rSampler);
-    // mui::sampler_exact<mui::mui_config> spatial_sampler;
-    mui::temporal_sampler_exact<mui::mui_config> chrono_sampler;
 
-	mui::algo_aitken<mui::mui_config> aitken_x(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
-    mui::algo_aitken<mui::mui_config> aitken_y(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
-    mui::algo_aitken<mui::mui_config> aitken_z(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    aitken_x = new mui::algo_aitken<mui::mui_config>(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    aitken_y = new mui::algo_aitken<mui::mui_config>(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    aitken_z = new mui::algo_aitken<mui::mui_config>(static_cast<double>(initUndRelxCpl),1.0,ptsVluInit);
+    fr_x     = new mui::algo_fixed_relaxation<mui::mui_config>(static_cast<double>(initUndRelxCpl),ptsVluInit);
+    fr_y     = new mui::algo_fixed_relaxation<mui::mui_config>(static_cast<double>(initUndRelxCpl),ptsVluInit);
+    fr_z     = new mui::algo_fixed_relaxation<mui::mui_config>(static_cast<double>(initUndRelxCpl),ptsVluInit);
 
-	mui::algo_fixed_relaxation<mui::mui_config> fr_x(static_cast<double>(initUndRelxCpl),ptsVluInit);
-    mui::algo_fixed_relaxation<mui::mui_config> fr_y(static_cast<double>(initUndRelxCpl),ptsVluInit);
-    mui::algo_fixed_relaxation<mui::mui_config> fr_z(static_cast<double>(initUndRelxCpl),ptsVluInit);
 
 
     if (args.cplRunControl().cplRun())
@@ -295,16 +281,12 @@
 
         // Annouce send span
         mui::geometry::box<mui::mui_config> recv_region( {recvXMin, recvYMin, recvZMin}, {recvXMax, recvYMax, recvZMax} );
-
-        // Set the maximum time step size
-        int totalTimeSteps = ceil((runTime.endTime().value() - runTime.startTime().value())/runTime.deltaT().value());
-
         forAll(interfaceNames, iN)
         {
-            ifs[iN]->announce_recv_span( 0, totalTimeSteps, recv_region );
+            ifs[iN]->announce_recv_span( runTime.startTime().value(), runTime.endTime().value(), recv_region );
 
             // Commit ZERO step
-            ifs[iN]->commit(0);
+            ifs[iN]->commit(runTime.startTime().value(),0);
             Info << "{OpenFOMA} : MUI interface " << interfaceNames[iN] << " commit zero step" << nl << endl;
         }
     }

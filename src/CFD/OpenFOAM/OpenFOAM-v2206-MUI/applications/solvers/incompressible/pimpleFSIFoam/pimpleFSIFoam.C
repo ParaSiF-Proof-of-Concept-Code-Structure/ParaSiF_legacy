@@ -88,24 +88,10 @@ Note
 #include "fixedValuePointPatchFields.H"
 
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
-
-// The main MUI header
-// This will only work if the mpi-MUI wmake rule is included in the application Make options file
+#include "coupledForces.H"
 #include "mui.h"
-#include <algorithm>
-#include "muiConfigOF.H"
-#include "iqnils_inl.H"
+#include "muiconfig.h"
 #endif
-// Create DynamicLists (mui2dInterfaces / mui3dInterfaces / muiTemplatedInterfaces),
-// these must be created after "mui.h" and before "createCouplingMUI.H", a list is only needed if
-// interfaces are defined in the corresponding "couplingDict" dictionary file
-// These should be declared as extern if the MUI interface is to be used beyond the top-level main() function call.
-//extern DynamicList<mui::uniface<mui::config_2d>*> mui2dInterfaces;
-//extern DynamicList<mui::uniface<mui::config_3d>*> mui3dInterfaces;
-//extern DynamicList<mui::uniface<mui::config_of>*> muiTemplatedInterfaces;
-DynamicList<mui::uniface<mui::config_2d>*> mui2dInterfaces;
-DynamicList<mui::uniface<mui::config_3d>*> mui3dInterfaces;
-DynamicList<mui::uniface<mui::config_of>*> muiTemplatedInterfaces;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -132,13 +118,23 @@ int main(int argc, char *argv[])
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
 
-    // Reads coupling dictionary and populates DynamicLists (mui2dInterfaces / mui3dInterfaces / muiTemplatedInterfaces)
-    // These are created by the corresponding header file "createCouplingData.H"
-    #include "createCouplingMUI.H"
-
-    turbulence->validate();
+    #include "couplingVar.H"
+    Foam::functionObjects::coupledForces* forces = nullptr;
+    Info << "=====================================================" <<endl;
+    if (couplingMode=="singlePoint"){
+        Info << "Coupling Force mode is  singlePoint" <<endl;
+        forces = new Foam::functionObjects::coupledForces(fsiForceName, runTime, fsiForceDict, true);
+    }else if(couplingMode=="boundaryPatch"){
+        Info << "Coupling Force mode is  boundaryPatch" <<endl;
     #include "pushForceInit.H"
     #include "fetchDisplacementInit.H"
+    } else {
+        FatalIOErrorIn("", fsiDict)
+          << "The selected couplingMode entry is invalid. The valid options are singlePoint and boundaryPatch" << exit(FatalIOError);
+    }
+    Info << "=====================================================" <<endl;
+
+    turbulence->validate();
 
     if (!LTS)
     {
@@ -148,10 +144,12 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    Info<< "\nStarting time loop\n" << endl;
+    Info<< "\n {OpenFOMA} :Starting time loop\n" << endl;
     Info<< "ExecutionStartTime = " << runTime.elapsedCpuTime() << " s"
         << "  StartClockTime = " << runTime.elapsedClockTime() << " s"
         << nl << endl;
+    runTime.updateCurrentIter(0);
+    runTime.updateTimeSteps(0);
     while (runTime.run())
     {
         #include "readDyMControls.H"
@@ -167,36 +165,35 @@ int main(int argc, char *argv[])
         }
 
         ++runTime;
-        timeSteps++;
 
-        Info<< "Time = " << runTime.timeName() << nl << endl;
-        Info<< "Time Steps = " << timeSteps << nl << endl;
-
-        if (changeSubIter)
+        runTime.updateTimeSteps();
+        if (runTime.changeSubIter())
         {
             scalar tTemp=runTime.value();
-
-            if (tTemp >= changeSubIterTime)
+            if (tTemp >= runTime.changeSubIterTime())
             {
-                subIterationNum = subIterationNumNew;
+                runTime.updateSubIterNum(runTime.newSubIterationNumber());
             }
         }
 
-        // for(int subIter = 1; subIter <= subIterationNum; ++subIter)
-        // {
-        subIter =0;
-        endSubIter =0;
-        while (subIter <=subIterationNum && int(endSubIter)==0 )
-        {   ++subIter;
-
-            Info<< "sub-Iteration = " << subIter << nl << endl;
-
-            totalCurrentIter++;
-
-            Info << "total current iteration = " << totalCurrentIter << nl << endl;
-
+        runTime.updateSubIter(0);
+        while (runTime.subIter()<runTime.subIterationNumber())
+        {
+            runTime.updateSubIter();
+            runTime.updateCurrentIter();
+            Info << "========================================================" << endl;
+            Info << "{OpenFOMA} : Time = " << runTime.timeName() << ", and sub-Iteration = " 
+                 << runTime.subIter() <<"/" << runTime.subIterationNumber() << endl;
+            Info << "{OpenFOMA} : Time Steps = " << runTime.timeSteps() << endl;        
+            Info << "{OpenFOMA} : Total current iteration = " << runTime.totalCurrentIter() << endl;
+#ifdef USE_MUI
+            if (couplingMode=="singlePoint"){
+            forces->execute();
+            }else if(couplingMode=="boundaryPatch"){
             #include "pushForce.H"
             #include "fetchDisplacement.H"
+            }
+#endif            
         // --- Pressure-velocity PIMPLE corrector loop
             while (pimple.loop())
             {
