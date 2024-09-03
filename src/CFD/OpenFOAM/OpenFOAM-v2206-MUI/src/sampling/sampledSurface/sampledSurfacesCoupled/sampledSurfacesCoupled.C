@@ -36,9 +36,12 @@ License
 #include "Time.H"
 #include "IndirectList.H"
 #include "addToRunTimeSelectionTable.H"
+
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 #include "mui.h"
-#include <algorithm>
-#include "coupled6DoF_config.h"
+#include "muiconfig.h"
+#endif
+
 
 //*************************  MUI interface ***********************************//
 
@@ -114,13 +117,7 @@ Foam::sampledSurfacesCoupled::sampledSurfacesCoupled
     read(dict);
 
 
-    std::vector<std::string> ifsName;
-    ifsName.emplace_back(MUIInterfaceName_);
-    //Info << "MUI is creating Interface named " <<  MUIDomainName_ <<"/"<< MUIInterfaceName_ << endl;
-    ifsInit_surfaceSend = true;
-    ifs=mui::create_uniface<mui::coupled6DoF_config>( MUIDomainName_, ifsName );
-   // Info << "Done : MUI is created Interface named " <<  MUIDomainName_ <<"/"<< MUIInterfaceName_ << endl;
-}
+    }
 
 
 Foam::sampledSurfacesCoupled::sampledSurfacesCoupled
@@ -197,7 +194,7 @@ bool Foam::sampledSurfacesCoupled::performAction(unsigned request)  //  1- Calle
     {
         // No surface with an applicable action or with faces to sample
         Info << "============================ MUI coupling ============================" <<endl;
-        Info << "Warniung: No surface with an applicable action or with faces to sample" << endl;
+        Info <<"Warniung: OpenFoam,  Domain "<< time_.MUIDomainName() <<" :No surface with an applicable action or with faces to sample" << endl;
         Info << "======================================================================" <<endl;
         return true;
     }
@@ -251,17 +248,30 @@ bool Foam::sampledSurfacesCoupled::performAction(unsigned request)  //  1- Calle
 
         }
     }
-
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
     // Sample fields
+    int isMPIInitialized;
+    PMPI_Initialized(&isMPIInitialized);
+    if (time_.isMUIIfsInit && isMPIInitialized)
+    { 
     performAction<volScalarField>(objects, request);
     performAction<volVectorField>(objects, request);
     // performAction<volSphericalTensorField>(objects, request);
     // performAction<volSymmTensorField>(objects, request);
     // performAction<volTensorField>(objects, request);
-    ifs[0]->commit( time_.time().timeOutputValue() );
-    //ifs[0]->forget(???);
-    std::cout << "Foam::Commited at time "<< time_.time().timeOutputValue() << std::endl; 
-   
+
+
+        // time_.mui_ifs[0]->commit( time_.time().timeOutputValue() );
+        time_.mui_ifs[0]->commit( time_.value(), time_.subIter() );
+        //time_.mui_ifs[0]->forget(???);
+        Info << "{OpenFoam} : Domain "<< time_.MUIDomainName()<<" Commited surface sampler at time "<< time_.value() 
+        << " and sub iter " << time_.subIter() <<"/" << time_.subIterationNumber() << endl;
+    } else{
+        FatalError << "MUICoupledSurface smapling: MUI is not initialised "<< endl;
+    }
+
+    
+#endif
 
     return true;
 }
@@ -282,7 +292,6 @@ void Foam::sampledSurfacesCoupled::updateMesh(const mapPolyMesh& mpm)
 
     // pointMesh and interpolation will have been reset in mesh.update
 }
-
 
 // ************************************************************************* //
 
@@ -311,7 +320,6 @@ void Foam::sampledSurfacesCoupled::performAction
         
     }
 }
-
 
 // **********************************************************************************************
 
@@ -410,6 +418,7 @@ template<class Type> void Foam::sampledSurfacesCoupled::muiPush
 
   
 
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
 
     mui::point3d cellCenter;
@@ -419,11 +428,11 @@ template<class Type> void Foam::sampledSurfacesCoupled::muiPush
         cellCenter[0] = points[indx][0];
         cellCenter[1] = points[indx][1];
         cellCenter[2] = points[indx][2];
-        ifs[0]->push(fieldName+"_x", cellCenter, values[indx][0]);
-        ifs[0]->push(fieldName+"_y", cellCenter, values[indx][1]);
-        ifs[0]->push(fieldName+"_z", cellCenter, values[indx][2]);
+        time_.mui_ifs[0]->push(fieldName+"_x", cellCenter, values[indx][0]);
+        time_.mui_ifs[0]->push(fieldName+"_y", cellCenter, values[indx][1]);
+        time_.mui_ifs[0]->push(fieldName+"_z", cellCenter, values[indx][2]);
     }
-
+#endif
     
     if (writeIterfaceSurfaceFile_){
         fileName outputName = writer.write(fieldName, values);
@@ -447,15 +456,17 @@ template<class Type> void Foam::sampledSurfacesCoupled::muiPush
 )
 {
 
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
+
     mui::point3d cellCenter;
     forAll(points, indx)
     {
         cellCenter[0] = points[indx][0];
         cellCenter[1] = points[indx][1];
         cellCenter[2] = points[indx][2];
-        ifs[0]->push(fieldName, cellCenter, values[indx]);
+        time_.mui_ifs[0]->push(fieldName, cellCenter, values[indx]);
     }
-
+#endif
     if (writeIterfaceSurfaceFile_){
         fileName outputName = writer.write(fieldName, values);
         dictionary propsDict;

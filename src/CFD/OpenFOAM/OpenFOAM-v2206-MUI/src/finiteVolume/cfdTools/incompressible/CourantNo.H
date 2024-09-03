@@ -46,7 +46,7 @@ scalar meanCoNum = 0.0;
         0.5*(gSum(sumPhi)/gSum(mesh.V().field()))*runTime.deltaTValue();
 }
 
-Info<< "Courant Number mean: " << meanCoNum
+Info<< runTime.MUIDomainName()<<" :Courant Number mean: " << meanCoNum
     << " max: " << CoNum << endl;
 
 // ************************************************************************* //

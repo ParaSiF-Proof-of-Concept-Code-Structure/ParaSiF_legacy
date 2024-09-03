@@ -35,7 +35,7 @@ SourceFiles
 #ifndef MUICoupledFvPatchField_H
 #define MUICoupledFvPatchField_H
 #include "fixedValueFvPatchFields.H"
-
+#include "Function1.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,18 +52,18 @@ class MUICoupledFvPatchField
     public fixedValueFvPatchField<Type>
 {
     // Private data
-
+    
     // MUI inteface name
     int ifsID ;
     const word spatialSampler_;
     const word tempSampler_;
     scalar rSpatialSampler_;
     scalar rTempSampler_;
+    scalar MUIForgetTime_;
     
     int numFetchStepsDelay_;
     const word fieldName_ ;
-    const DimensionedField<Type, volMesh>& field;
-
+ 
 
 public:
 
@@ -142,19 +142,16 @@ public:
 
 
     // Member functions
-        // template<class Type>
-        // 
-        // Foam::Field<Type> muiFetch( vectorField& values) ;
-        void  muiFetch(scalarField& values, scalar& t);
-        void  muiFetch(vectorField& values, scalar& t);
-        void  muiFetch(tensorField& values, scalar& t);
-        void  muiFetch(symmTensorField& values, scalar& t);
-        void  muiFetch(sphericalTensorField& values, scalar& t);
+        void  muiFetch(scalarField& values);
+        void  muiFetch(vectorField& values);
+        void  muiFetch(tensorField& values);
+        void  muiFetch(symmTensorField& values);
+        void  muiFetch(sphericalTensorField& values);
 
         // Evaluation functions
 
-        //- Update the coefficients associated with the patch field
-        virtual void updateCoeffs();
+            //- Update the coefficients associated with the patch field
+            virtual void updateCoeffs();
 
         //- Write
         virtual void write(Ostream&) const;

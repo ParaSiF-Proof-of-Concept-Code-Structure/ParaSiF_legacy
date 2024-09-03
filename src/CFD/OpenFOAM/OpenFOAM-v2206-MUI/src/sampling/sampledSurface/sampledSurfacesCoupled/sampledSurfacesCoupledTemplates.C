@@ -287,10 +287,10 @@ bool Foam::sampledSurfacesCoupled::read(const dictionary& dict)
     sampleNodeScheme_ =
         dict.getOrDefault<word>("interpolationScheme", "cellPoint");
     
-    MUIDomainName_ = dict.getOrDefault<word>("MUIDomainName", "OpenFOAM");
-    MUIInterfaceName_ = dict.getOrDefault<word>("MUIInterfaceName", "outputPlane");
+    // MUIDomainName_ = dict.getOrDefault<word>("MUIDomainName", "OpenFOAM");
+    MUIIfsID_ = dict.getOrDefault<int>("MUIInterfaceID", 0);
     writeIterfaceSurfaceFile_ = dict.getOrDefault<bool>("writeIterfaceSurfaceFile", false);
-    const entry* eptr = dict.findEntry("surfaces");
+    const entry* eptr = dict.findEntry("MUICoupledSurfaces");
 
     // Surface writer type and format options
     const word writerType =

@@ -133,9 +133,10 @@ SourceFiles
 #include "volFieldsFwd.H"
 #include "surfaceFieldsFwd.H"
 #include "IOobjectList.H"
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 #include "mui.h"
-#include <algorithm>
-#include "coupled6DoF_config.h"
+#include "muiconfig.h"
+#endif
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -207,11 +208,14 @@ class sampledSurfacesCoupled
         labelList nFaces_;
 
     // MUI coupling 
-       // typedef std::unique_ptr<mui::uniface<mui::coupled6DoF_config>> MuiUnifacePtr3d;
-        std::vector<std::unique_ptr<mui::uniface<mui::coupled6DoF_config>>> ifs;
-        word MUIDomainName_;
-        word MUIInterfaceName_;
-        bool ifsInit_surfaceSend ; // Bool to check if MUI interface is initiated
+       // typedef std::unique_ptr<mui::uniface<mui::mui_config>> MuiUnifacePtr3d;
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
+
+        // std::vector<std::unique_ptr<mui::uniface<mui::mui_config>>> ifs;
+#endif
+        // word MUIDomainName_;
+        int MUIIfsID_ ; 
+        // bool ifsInit_surfaceSend ; // Bool to check if MUI interface is initiated
         bool writeIterfaceSurfaceFile_ ; 
 
     // Private Member Functions
@@ -340,7 +344,7 @@ class sampledSurfacesCoupled
 public:
 
     //- Runtime type information
-    TypeName("surfaces");
+    TypeName("MUICoupledSurfaces");
 
 
     // Constructors

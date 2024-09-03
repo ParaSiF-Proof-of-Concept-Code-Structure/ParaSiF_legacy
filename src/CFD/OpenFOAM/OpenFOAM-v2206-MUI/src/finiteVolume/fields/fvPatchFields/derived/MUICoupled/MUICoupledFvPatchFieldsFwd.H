@@ -39,7 +39,7 @@ namespace Foam
 
 template<class Type> class MUICoupledFvPatchField;
 
-makePatchTypeFieldTypedefs(fixedValue);
+makePatchTypeFieldTypedefs(MUICoupled);
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

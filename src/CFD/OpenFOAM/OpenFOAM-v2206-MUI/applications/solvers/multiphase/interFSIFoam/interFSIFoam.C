@@ -116,8 +116,6 @@ int main(int argc, char *argv[])
     // These are created by the corresponding header file "createCouplingData.H"
     // #include "createCouplingMUI.H" 
     // #endif
-    runTime.updateCurrentIter(0);
-    runTime.updateTimeSteps(0);
     while (runTime.run())
     {
         #include "readDyMControls.H"
@@ -134,7 +132,6 @@ int main(int argc, char *argv[])
         }
         ++runTime;
 
-        runTime.updateTimeSteps();
         if (runTime.changeSubIter())
         {
             scalar tTemp=runTime.value();
@@ -147,7 +144,6 @@ int main(int argc, char *argv[])
         while (runTime.subIter()<runTime.subIterationNumber())
         {
             runTime.updateSubIter();
-            runTime.updateCurrentIter();
             Info << "{OpenFOMA} : Time = " << runTime.timeName() << ", and sub-Iteration = " 
                  << runTime.subIter() <<"/" << runTime.subIterationNumber() << nl << endl;
             Info << "{OpenFOMA} : Time Steps = " << runTime.timeSteps() << nl << endl;        

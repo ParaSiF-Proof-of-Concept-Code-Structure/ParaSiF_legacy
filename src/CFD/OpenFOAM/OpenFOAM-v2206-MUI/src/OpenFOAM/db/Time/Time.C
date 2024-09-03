@@ -1219,6 +1219,8 @@ Foam::Time& Foam::Time::operator++()
     // Increment time
     setTime(value() + deltaT_, timeIndex_ + 1);
 
+    updateTimeSteps();
+
     if (!subCycling_)
     {
         // If the time is very close to zero reset to zero

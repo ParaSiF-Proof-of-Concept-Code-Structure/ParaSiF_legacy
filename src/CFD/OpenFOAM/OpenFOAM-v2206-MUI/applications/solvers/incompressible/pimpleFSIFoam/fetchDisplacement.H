@@ -78,9 +78,11 @@
 				{
                 forAll(dispVectorValsList[iN][pI], pointI)
                 {
+
                     rcv_point[0] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X);
                     rcv_point[1] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Y);
                     rcv_point[2] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z);
+
 
                     if (rankHasPatchPointsForfetch)
                     {
@@ -114,6 +116,9 @@
 		                        FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict is not recognized!" << exit(FatalError);
                     } 
 										
+											
+
+
 							double angle2DRotationTemp = rotation2DAmplitude_*Foam::sin(2*3.1416*rotation2DFrq_*runTime.value());
 
 							dispVectorValsList[iN][pI][pointI].component(vector::X) = fetchTempX * Foam::cos(angle2DRotationTemp) - fetchTempY * Foam::sin(angle2DRotationTemp);

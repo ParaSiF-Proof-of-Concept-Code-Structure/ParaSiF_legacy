@@ -138,8 +138,8 @@ public:
         word MUIDomainName_ ;
         wordList MUIInterfaceName_ ;
         int MUIInterfaceNumber_;
-        int CurrentIter;
-        int timeSteps_;
+        int CurrentIter = 0;
+        int timeSteps_ = 0;
         int subIterationNumber_ = 1;
         bool changeSubIter_ = false;
         double changeSubIterTime_;
@@ -708,6 +708,7 @@ public:
             void updateSubIter() 
             {
                 subIter_++;
+                updateCurrentIter();
             }
 
             void updateSubIter(int value)

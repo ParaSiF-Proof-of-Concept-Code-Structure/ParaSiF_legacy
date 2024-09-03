@@ -2,6 +2,7 @@ include $(GENERAL_RULES)/mpi-MUI-rules
 EXE_INC = \
     $(PFLAGS) \
     $(PINC) \
+    -DUSE_MUI \
     -I$(LIB_SRC)/fileFormats/lnInclude \
     -I$(LIB_SRC)/surfMesh/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude 

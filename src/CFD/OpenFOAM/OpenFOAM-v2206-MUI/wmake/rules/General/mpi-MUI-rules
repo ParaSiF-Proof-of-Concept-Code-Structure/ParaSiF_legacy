@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # MPI rules
 
-PFLAGS  =
+PFLAGS  = -DUSE_MUI 
 PINC    =
 PLIBS   =
 
@@ -37,6 +37,15 @@ ifeq (,$(FOAM_MPI_LIBBIN))
 endif
 
 # Add MUI library path from ThirdParty directory
-PINC += -I$(WM_THIRD_PARTY_DIR)/sources/MUI
+MUI_PATH = /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/OpenFOAM-v2206-org/ThirdParty-v2206/sources/MUI/src
+PINC += -I$(MUI_PATH) \
+    -I$(MUI_PATH) \
+    -I$(MUI_PATH)/linear_algebra \
+    -I$(MUI_PATH)/storage \
+    -I$(MUI_PATH)/general \
+    -I$(MUI_PATH)/samplers \
+    -I$(MUI_PATH)/samplers/spatial \
+    -I$(MUI_PATH)/communication \
+    -I$(MUI_PATH)/communication/message
 
 #------------------------------------------------------------------------------

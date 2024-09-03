@@ -133,9 +133,23 @@ int main(int argc, char *argv[])
             #include "setDeltaT.H"
         }
 
-        ++runTime;
 
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        ++runTime;
+        if (runTime.changeSubIter())
+        {
+            scalar tTemp=runTime.value();
+            if (tTemp >= runTime.changeSubIterTime())
+            {
+                runTime.updateSubIterNum(runTime.newSubIterationNumber());
+            }
+        }
+        runTime.updateSubIter(0);
+        while (runTime.subIter()<runTime.subIterationNumber())
+        {
+            runTime.updateSubIter();
+            Info << "========================================================" << endl;
+            Info << "{OpenFOMA} : Time = " << runTime.timeName() << ", and sub-Iteration = " 
+                 << runTime.subIter() <<"/" << runTime.subIterationNumber() << endl;
 
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
@@ -182,7 +196,9 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
         }
+            runTime.functionObjects().execute();
 
+        }
         runTime.write();
 
         runTime.printExecutionTime(Info);
