@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Run from this directory
+cd ${0%/*} || exit 1
+make
+domainFluid=${PWD}
+domainStructure=${PWD}
+
+# Ranks set to each domain
+numProcsFluid=2
+numProcsStructure=1
+
+# Source OpenFOAM run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Get application name for fluid domain
+# cd runData/fluidDomain
+solverFluid=$(getApplication)
+echo application is ${solverFluid}
+# cd ../../
+
+# Pre-processing
+
+foamListTimes -rm ;rm -rf 0  par* pos*
+cp -a 0.orig/ 0
+blockMesh
+decomposePar -force
+
+echo -n "ParaSiF running..."
+echo
+mpirun  -np ${numProcsFluid} ${solverFluid} -parallel # -coupled : -np 1  pingpong 
+
+echo "Done"
+
+# Post-processing
+#./runCtrl/postProcess
+
+# ----------------------------------------------------------------- end-of-file

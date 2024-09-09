@@ -58,22 +58,18 @@ Description
 #include "fvOptions.H"
 #include "simpleControl.H"
 
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
+
 // The main MUI header
 // This will only work if the mpi-MUI wmake rule is included in the application Make options file
 #include "mui.h"
 // This is only needed if creating templated MUI interfaces
 #include "muiConfigOF.H"
 
-// Create DynamicLists (mui2dInterfaces / mui3dInterfaces / muiTemplatedInterfaces),
-// these must be created after "mui.h" and before "createCouplingMUI.H", a list is only needed if
-// interfaces are defined in the corresponding "couplingDict" dictionary file
-// These should be declared as extern if the MUI interface is to be used beyond the top-level main() function call.
-//extern DynamicList<mui::uniface<mui::config_2d>*> mui2dInterfaces;
-//extern DynamicList<mui::uniface<mui::config_3d>*> mui3dInterfaces;
-//extern DynamicList<mui::uniface<mui::config_of>*> muiTemplatedInterfaces;
 DynamicList<mui::uniface<mui::config_2d>*> mui2dInterfaces;
 DynamicList<mui::uniface<mui::config_3d>*> mui3dInterfaces;
 DynamicList<mui::uniface<mui::config_of>*> muiTemplatedInterfaces;
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -102,6 +98,7 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nCalculating temperature distribution\n" << endl;
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
     // Create 2D/3D/Templated MUI spatial sampler objects to use during fetch operations
     // Alternative sampler types can be found or added in the /spatial_samplers folder of the MUI library
@@ -123,6 +120,7 @@ int main(int argc, char *argv[])
     List<mui::config_2d::REAL> muiFetchValues2d(mui2dInterfaces.size());
     List<mui::config_3d::REAL> muiFetchValues3d(mui3dInterfaces.size());
     List<mui::config_of::REAL> muiFetchValuesT(muiTemplatedInterfaces.size());
+#endif
 
     // Local iteration count to use in MUI push and fetch functions.
     //
@@ -141,6 +139,8 @@ int main(int argc, char *argv[])
     while (simple.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
+
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
         // For all defined 2D interfaces, push a value and commit (send) to the corresponding domain
         for(label i = 0; i < mui2dInterfaces.size(); i++)
@@ -193,6 +193,8 @@ int main(int argc, char *argv[])
                  << " value committed: " << muiPushValueT << " at Iteration = " << iterationCount << endl;
         }
 
+#endif
+
         while (simple.correctNonOrthogonal())
         {
             fvScalarMatrix TEqn
@@ -208,6 +210,9 @@ int main(int argc, char *argv[])
         }
 
         #include "write.H"
+
+
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
         // For all defined 2D interfaces, fetch a value from the corresponding domain, this is a blocking operation
         for(label i = 0; i < mui2dInterfaces.size(); i++)
@@ -244,6 +249,7 @@ int main(int argc, char *argv[])
             Info << "MUI interface " << muiTemplatedInterfaces[i]->uri_host() << "/" << muiTemplatedInterfaces[i]->uri_path()
                  << " value fetched: " << muiFetchValuesT[i] << " at Iteration = " << iterationCount << endl;
         }
+#endif
 
         runTime.printExecutionTime(Info);
 

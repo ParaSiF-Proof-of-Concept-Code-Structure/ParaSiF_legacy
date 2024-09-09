@@ -34,13 +34,14 @@ License
 #include "unitConversion.H"
 #include "fvMesh.H"
 // #include "Time.H"
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 #include "mui.h"
 #include "muiconfig.h"
-
 
 mui::sampler_exact<mui::mui_config> spatial_sampler;
 mui::temporal_sampler_exact<mui::mui_config> chrono_sampler;
 
+#endif
 
     
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //

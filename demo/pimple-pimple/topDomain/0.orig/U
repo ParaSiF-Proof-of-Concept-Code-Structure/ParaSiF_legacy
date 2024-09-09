@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        n               (1 0 0);
+        y               (0 1 0);
+        axis            (1 0 0);
+        origin          (0.7 0 0);
+        
+        maxValue        1;
+        value           uniform (1 0 0);  //DummyforparaFoam
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    upperWall
+    {
+        type            noSlip;
+    }
+
+    lowerWall
+    {
+         type            fixedValue;
+        // value           uniform (1 0 0); 
+        // type            noSlip;
+        
+        
+        type            MUICoupled;
+        // MUIDomainName        topDomain ;
+        MUIInterfaceID     0 ;
+        spatialSampler       gauss;
+        tempSampler          exact;
+        rSpatialSampler            1.0;
+        rTempSampler               1.0;
+        numFetchStepsDelay 0;
+        forgetTime 		  1.0 ;
+        value           uniform (1 0 0);  //DummyforparaFoam
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+
+// ************************************************************************* //

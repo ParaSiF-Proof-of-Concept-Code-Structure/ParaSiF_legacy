@@ -1,0 +1,107 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application       pimpleFSIFoam;
+startFrom         latestTime;
+startTime         0.;
+stopAt            endTime;
+endTime           10.0;
+deltaT            0.01; 
+writeControl      timeStep;
+writeInterval     1; 		
+purgeWrite        0; 	
+writeFormat       binary;
+writePrecision    18;
+writeCompression  uncompressed;
+timeFormat        general;
+timePrecision     18;
+graphFormat 	  gnuplot;
+runTimeModifiable yes;
+adjustTimeStep    no;
+maxCo             0.2;
+maxDeltaT         1.0E-00;
+libs
+(
+
+);
+
+//###########################################################################//
+MUIDomainName bottomDomain;
+MUIInterfaceName (threeDInterface0);
+MUIInterfaceNumber 1;
+
+subIterationNumber	    5;
+
+changeSubIter        no;
+changeSubIterTime    0.0;
+newSubIterationNumber	1;
+
+functions 
+{
+  
+	beamForces
+	{
+	    type                forces;
+	    libs  ("libforces.so");
+	    enabled             true;
+	    writeControl       timeStep;
+	    writeInterval      1;
+        timeStart           0.;
+        timeEnd             1.E+10;
+     
+	    patches             ( "interface" ); 
+	    directForceDensity  no;
+	    p               p;
+	    U               U;
+	    rho             rhoInf;
+	    log                 true;           // Dump to file
+
+	    CofR                (0. 0. 0.);     
+	
+	    rhoInf              1000;
+	}
+
+	beamForceCoeffs
+	{	
+	    type                forceCoeffs;
+	    libs  ( "libforces.so" );
+	    enabled             true;
+	    writeControl       timeStep;
+	    writeInterval      1;
+        timeStart           0.;
+        timeEnd             1.E+10;
+ 
+	    patches             ( "interface" );
+	    directForceDensity  no;
+	    p               p;
+	    U               U;
+	    rho             rhoInf;
+	    log                 true;    
+	     
+	    liftDir             (0. 1. 0.);
+	    dragDir             (1. 0. 0.);
+	    CofR                (0. 0. 0.);
+	    pitchAxis           (0. 0. 1.);
+	     
+	    magUInf             0.3;
+	    rhoInf              1000;
+	    lRef                1.0;
+	    Aref                1.0;	
+	}
+}
+
+// ************************************************************************* //

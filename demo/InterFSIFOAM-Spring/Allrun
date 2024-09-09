@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# Run from this directory
+cd ${0%/*} || exit 1
+make
+domainFluid=${PWD}
+domainStructure=${PWD}
+
+# Ranks set to each domain
+numProcsFluid=5
+numProcsStructure=1
+
+# Source OpenFOAM run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Get application name for fluid domain
+# cd runData/fluidDomain
+solverFluid=$(getApplication)
+echo application is ${solverFluid}
+# cd ../../
+
+# Pre-processing
+
+foamListTimes -rm ;rm -rf 0  pro* pos*
+cp -a 0.orig/ 0
+setFields
+decomposePar -force
+
+echo -n "ParaSiF running..."
+echo
+
+#valGrind="valgrind --leak-check=full "
+mpirun  -np ${numProcsFluid} ${valGrind} ${solverFluid} -parallel -coupled  : -np 1  springDamping 
+
+#mpirun  -np ${numProcsFluid} ${solverFluid} -parallel 
+
+#mpirun  -np 4 ${solverFluid} -parallel
+# mpirun -np 1  ReadFile : -np 1  pong
+
+# ParaSiF case with OpenFOAM_MUI(C++)_MUI(python)_FEniCS parallel run
+# mpirun -np ${numProcsFluid}  ${solverFluid} -case ${domainFluid} -parallel -coupled : \
+#       -np ${numProcsStructure} -wdir ${domainStructure} python3.8 -m mpi4py ${solverStructure} \
+      # > runData/logFiles/log.foamRun 2>&1 | tail -f runData/logFiles/log.foamRun
+# :\
+#        -np ${numProcsStructure} -wdir ${domainStructure} python3 -m mpi4py ${solverStructure}\
+#         > runData/logFiles/log.foamRun 2>&1 | tail -f runData/logFiles/log.foamRun
+
+echo "Done"
+
+# Post-processing
+#./runCtrl/postProcess
+
+# ----------------------------------------------------------------- end-of-file

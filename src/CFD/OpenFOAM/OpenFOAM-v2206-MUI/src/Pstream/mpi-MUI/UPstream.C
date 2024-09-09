@@ -39,9 +39,9 @@ License
 #include <cstring>
 #include <cstdlib>
 #include <csignal>
-
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 #include "mui.h"
-
+#endif
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 // The min value and default for MPI buffers length

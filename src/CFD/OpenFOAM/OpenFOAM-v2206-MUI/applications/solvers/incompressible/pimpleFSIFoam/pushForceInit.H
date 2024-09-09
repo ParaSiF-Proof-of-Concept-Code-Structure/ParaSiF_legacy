@@ -32,8 +32,8 @@
     lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6
     two-way coupling.
 
-    Incompressible Navier-Stokes equations for fluid domain in OpenFOAM
-    Structure dynamics equations for structure domain in FEniCS.
+    Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain
+	  in OpenFOAM and Structure dynamics equations for structure domain in FEniCS.
 
     It initialises the function of push forces and/or tractions of the structure boundary
     to the structure domain before the time loop of the fluid solver

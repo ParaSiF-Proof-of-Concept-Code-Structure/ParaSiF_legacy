@@ -1,0 +1,198 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2206                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      binary;
+    arch        "LSB;label=32;scalar=64";
+    class       polyBoundaryMesh;
+    location    "constant/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+25
+(
+    Bottom_Wall_1
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          308;
+        startFace       130906;
+    }
+    Bottom_Wall_2
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          308;
+        startFace       131214;
+    }
+    Bottom_Wall_3
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       131522;
+    }
+    Bottom_Wall_4
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       132194;
+    }
+    Bottom_Wall_5
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       132866;
+    }
+    Bottom_Wall_6
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       133538;
+    }
+    Bottom_Wall_7
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       134210;
+    }
+    Bottom_Wall_8
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       134882;
+    }
+    Channel_Wall
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          28;
+        startFace       135554;
+    }
+    Side_Wall_1
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          779;
+        startFace       135582;
+    }
+    Side_Wall_2
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          778;
+        startFace       136361;
+    }
+    Side_Wall_3
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          1038;
+        startFace       137139;
+    }
+    Side_Wall_4
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          1038;
+        startFace       138177;
+    }
+    Side_Wall_5
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          1038;
+        startFace       139215;
+    }
+    Side_Wall_6
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          1038;
+        startFace       140253;
+    }
+    Side_Wall_7
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          1038;
+        startFace       141291;
+    }
+    Side_Wall_8
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          1039;
+        startFace       142329;
+    }
+    Top_Wall_1
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          308;
+        startFace       143368;
+    }
+    Top_Wall_2
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          308;
+        startFace       143676;
+    }
+    Top_Wall_3
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       143984;
+    }
+    Top_Wall_4
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       144656;
+    }
+    Top_Wall_5
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       145328;
+    }
+    Top_Wall_6
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       146000;
+    }
+    Top_Wall_7
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       146672;
+    }
+    Top_Wall_8
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          672;
+        startFace       147344;
+    }
+)
+
+// ************************************************************************* //

@@ -1,4 +1,7 @@
+include $(GENERAL_RULES)/mpi-MUI-rules
 EXE_INC = \
+    $(PFLAGS) \
+    $(PINC) \
     -I$(LIB_SRC)/finiteArea/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/fileFormats/lnInclude \

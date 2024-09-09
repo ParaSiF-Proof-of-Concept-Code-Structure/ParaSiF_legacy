@@ -24,6 +24,7 @@ echo ========================================
 wmakeLnInclude -u OpenFOAM
 wmakeLnInclude -u OSspecific/"${WM_OSTYPE:-POSIX}"
 
+ln -s -f ${MUI_DIR}/src/* $WM_PROJECT_DIR/src/OpenFOAM/lnInclude/
 # Update version info (as required)
 OpenFOAM/Alltouch -check 2>/dev/null
 
@@ -133,6 +134,7 @@ wmake $targetType optimisation/adjointOptimisation/adjoint
 
 # interfaceTracking libs
 dynamicFaMesh/Allwmake $targetType $*
+
 
 #------------------------------------------------------------------------------
 

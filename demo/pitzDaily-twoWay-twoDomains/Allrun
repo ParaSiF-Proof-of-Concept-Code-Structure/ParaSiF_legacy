@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# Run from this directory
+cd ${0%/*} || exit 1
+#make
+leftDomainDir=${PWD}/topDomain
+rightDomainDir=${PWD}/bottomDomain
+
+# Ranks set to each domain
+numProcsLeft=4
+numProcsRight=2
+
+# Source OpenFOAM run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+# ============ clean the left doamin solver =================
+cd ${leftDomainDir}
+leftDomainSolver=$(getApplication)
+foamListTimes -rm ;rm -rf 0  pr* pos*
+cp -a 0.orig/ 0
+blockMesh
+decomposePar -force
+cd .. 
+# ============ clean the right doamin solver =================
+cd ${rightDomainDir}
+rightDomainSolver=$(getApplication)
+foamListTimes -rm ;rm -rf 0  pr* pos*
+cp -a 0.orig/ 0
+blockMesh
+decomposePar -force
+cd .. 
+
+
+echo -n "ParaSiF running..."
+echo
+
+
+mpirun  -np ${numProcsLeft} -wdir ${leftDomainDir}  ${leftDomainSolver} -parallel -coupled  : \
+        -np ${numProcsRight} -wdir ${rightDomainDir}  ${rightDomainSolver} -parallel -coupled 
+
+echo "Done"
+
+
+# ----------------------------------------------------------------- end-of-file

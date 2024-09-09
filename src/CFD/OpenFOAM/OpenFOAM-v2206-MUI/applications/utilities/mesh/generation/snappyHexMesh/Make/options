@@ -2,7 +2,9 @@
    -g -DFULLDEBUG -O0
  */
 
+include $(GENERAL_RULES)/mpi-MUI-rules
 EXE_INC = \
+     $(PINC) $(PFLAGS) \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/fileFormats/lnInclude \
     -I$(LIB_SRC)/surfMesh/lnInclude \

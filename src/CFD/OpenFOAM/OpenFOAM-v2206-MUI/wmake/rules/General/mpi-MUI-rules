@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # MPI rules
 
-PFLAGS  = -DUSE_MUI 
+PFLAGS  =  
 PINC    =
 PLIBS   =
 
@@ -38,6 +38,7 @@ endif
 
 # Add MUI library path from ThirdParty directory
 MUI_PATH = /home/omar/WORK/OpenFOAM/OpenFOAM-v2206/OpenFOAM-v2206-org/ThirdParty-v2206/sources/MUI/src
+PFLAGS  += -DUSE_MUI
 PINC += -I$(MUI_PATH) \
     -I$(MUI_PATH) \
     -I$(MUI_PATH)/linear_algebra \

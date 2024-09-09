@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "include/initialConditions"
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform $flowVelocity;
+
+boundaryField
+{
+    eastBC
+    {
+        type            inletOutlet;
+        inletValue      uniform (0 0 0);
+        value           $internalField;
+    }
+
+    westBC
+    {
+        type            MUICoupled;
+        MUIInterfaceID     0 ;
+        spatialSampler       gauss;
+        tempSampler          exact;
+        rSpatialSampler            1000.0;
+        rTempSampler               1.0;
+        numFetchStepsDelay 0;
+        forgetTime 		  1.0 ;
+        value           uniform (1 0 0);  //DummyforparaFoam
+    }
+
+    terrain
+    {
+        type            uniformFixedValue;
+        value           uniform (0 0 0);
+        uniformValue    (0 0 0);
+    }
+
+    ground
+    {
+        type            uniformFixedValue;
+        value           uniform (0 0 0);
+        uniformValue    constant (0 0 0);
+    }
+    
+    southBC
+    {
+       type            MUICoupled;
+        MUIInterfaceID     0 ;
+        spatialSampler       gauss;
+        tempSampler          exact;
+        rSpatialSampler            1000.0;
+        rTempSampler               1.0;
+        numFetchStepsDelay 0;
+        forgetTime 		  1.0 ;
+        value           uniform (1 0 0);  //DummyforparaFoam
+    }
+
+    northBC
+    {
+        type            inletOutlet;
+        inletValue      uniform (0 0 0);
+        value           $internalField;
+    }
+
+    #include "include/sideAndTopPatches"
+}
+
+
+// ************************************************************************* //

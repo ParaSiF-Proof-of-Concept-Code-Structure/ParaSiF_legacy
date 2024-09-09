@@ -33,12 +33,12 @@ License
 #include "turbulentFluidThermoModel.H"
 #include "cartesianCS.H"
 #include "addToRunTimeSelectionTable.H"
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 #include "mui.h"
 #include "muiconfig.h"
-
-
 mui::sampler_exact3d<double> spatial_sampler;
 mui::temporal_sampler_exact3d chrono_sampler;
+#endif
 bool ifsInit;
 // #include "couplingVarExternal.H"
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //

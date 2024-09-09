@@ -1,0 +1,104 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     interFSIFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          0.001;
+
+writeControl    timeStep ; //timeStep;
+
+writeInterval   5;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  no;
+
+maxCo           0.5;
+maxAlphaCo      0.5;
+
+maxDeltaT       1;
+
+//###########################################################################//
+MUIDomainName fluidDomain;
+MUIInterfaceName (threeDInterface0);
+MUIInterfaceNumber 1;
+
+subIterationNumber	    5;
+
+changeSubIter        no;
+changeSubIterTime    0.0;
+newSubIterationNumber	1;
+//###########################################################################//
+functions
+{
+
+
+
+    forceCoeffsCyl
+    {
+
+        type                forces;
+        libs ("libforces.so");
+        patches            (".*Wall.*");
+        CofR            (0.6862 -1.5668  0.2138);
+        //// Dump to file
+        log true;
+        writeControl timeStep;
+        writeInterval 1;
+    }
+
+}
+
+OptimisationSwitches
+{
+   
+
+    //- Parallel IO file handler
+    // uncollated (default), collated or masterUncollated
+    fileHandler collated;
+
+    //- collated: thread buffer size for queued file writes.
+    // If set to 0 or not sufficient for the file size threading is not used.
+    // Default: 2e9
+ //  maxThreadFileBufferSize 2e9;
+//
+    //- masterUncollated: non-blocking buffer size.
+    // If the file exceeds this buffer size scheduled transfer is used.
+    // Default: 2e9
+  //  maxMasterFileBufferSize 2e9;
+}
+// ************************************************************************* //

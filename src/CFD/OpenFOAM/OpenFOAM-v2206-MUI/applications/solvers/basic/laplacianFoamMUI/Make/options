@@ -3,6 +3,7 @@ include $(GENERAL_RULES)/mpi-MUI-rules
 EXE_INC = \
     $(PFLAGS) \
     $(PINC) \
+     -DUSE_MUI \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude
 

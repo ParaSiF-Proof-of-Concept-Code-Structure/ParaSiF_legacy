@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# Run from this directory
+cd ${0%/*} || exit 1
+#make
+outerDomain=${PWD}/outerDomain
+innerDomain=${PWD}/innerDomain
+
+# Ranks set to each domain
+numProcsOuter=2
+numProcsInner=4
+
+# Source OpenFOAM run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+# ============ preprocess the outer doamin solver =================
+echo "preprocessing the outerdomain"
+cd ${outerDomain}
+outerDomainSolver=$(getApplication)
+./clean
+./preprocess
+cd .. 
+# ============ preprocess the Inner doamin solver =================
+echo "preprocessing the innerDomain"
+cd ${innerDomain}
+innerDomainSolver=$(getApplication)
+./clean
+./preprocess
+cd .. 
+
+
+echo -n "Solvers are running..."
+echo
+
+
+mpirun  -np ${numProcsOuter} -wdir ${outerDomain}  ${outerDomainSolver} -parallel -coupled  : \
+        -np ${numProcsInner} -wdir ${innerDomain}  ${innerDomainSolver} -parallel -coupled 
+
+
+
+echo "Solvers finished. Start postprocess"
+
+# ============ preprocess the outer doamin solver =================
+echo "postprocessing the outerdomain"
+cd ${outerDomain}
+./postprocess
+cd .. 
+# ============ preprocess the Inner doamin solver =================
+echo "postprocessing the outerdomain"
+cd ${innerDomain}
+./postprocess
+cd .. 
+
+
+
+# ----------------------------------------------------------------- end-of-file

@@ -172,10 +172,7 @@ foamOldDirs="$WM_PROJECT_DIR $WM_THIRD_PARTY_DIR \
 export WM_PROJECT_DIR="$projectDir"
 
 # [WM_PROJECT_USER_DIR] - Location of user files
-#export WM_PROJECT_USER_DIR="$HOME/$WM_PROJECT/${USER:-user}-$WM_PROJECT_VERSION"
-userProjectDir="${BASH_SOURCE:-${ZSH_NAME:+$0}}";
-[ -n "$userProjectDir" ] && userProjectDir="$(\cd $(dirname $userProjectDir)/../.. && \pwd -L)"
-export WM_PROJECT_USER_DIR="$userProjectDir/${USER:-user}-$WM_PROJECT_VERSION"
+export WM_PROJECT_USER_DIR="$HOME/$WM_PROJECT/${USER:-user}-$WM_PROJECT_VERSION"
 
 # [WM_PROJECT_SITE] - Location of site-specific (group) files
 # Default (unset) implies WM_PROJECT_DIR/site

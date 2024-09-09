@@ -31,8 +31,9 @@ Description
 #include "../../../src/coupling/couplingMUI2d/couplingMUI2d.H"
 #include "../../../src/coupling/couplingMUI3d/couplingMUI3d.H"
 #include "OSspecific.H"
-
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 #include "mui.h"
+#endif
 
 
 using namespace Foam;
@@ -44,8 +45,9 @@ int main(int argc, char *argv[])
 {
     couplingInterface2d twoDInterfaces;
     couplingInterface3d threeDInterfaces;
-
+#ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
     #include createCoupling.H
+#endif
 
     return 0;
 }

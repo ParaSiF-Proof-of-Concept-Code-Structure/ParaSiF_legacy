@@ -165,7 +165,6 @@ bool Foam::sampledSurfacesCoupled::performAction(unsigned request)  //  1- Calle
 {
     // Update surfaces and store
     bool ok = false;
-
     forAll(*this, surfi)
     {
         sampledSurface& s = (*this)[surfi];
