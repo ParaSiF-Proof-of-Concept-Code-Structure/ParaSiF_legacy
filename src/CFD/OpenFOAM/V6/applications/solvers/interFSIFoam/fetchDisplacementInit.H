@@ -29,7 +29,7 @@
     @author W. Liu
     
     @brief This is a part of the Parallel Partitioned Multi-physical Simu-
-    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6 
+    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.2 <-> OpenFOAM v6 
     two-way coupling.
 
     Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain 
@@ -41,8 +41,7 @@
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-	// Debug switch for fetchDisplacementInit.H
-	bool debugFetchDisplacementInit = false;
+
 
     // Declare MUI FSI residual output.
     fileName muiResidualFile("muiFSIResidual.txt");
@@ -276,17 +275,14 @@
             }
         }
 
-        if (debugFetchDisplacementInit == true)
-        {
-			Pout << "recvXMin = " << recvXMin << endl;
-			Pout << "recvYMin = " << recvYMin << endl;
-			Pout << "recvZMin = " << recvZMin << endl;
+        Pout << "recvXMin = " << recvXMin << endl;
+        Pout << "recvYMin = " << recvYMin << endl;
+        Pout << "recvZMin = " << recvZMin << endl;
 
-			Pout << "recvXMax = " << recvXMax << endl;
-			Pout << "recvYMax = " << recvYMax << endl;
-			Pout << "recvZMax = " << recvZMax << endl;
-		}
-		
+        Pout << "recvXMax = " << recvXMax << endl;
+        Pout << "recvYMax = " << recvYMax << endl;
+        Pout << "recvZMax = " << recvZMax << endl;
+
         // Annouce send span
         mui::geometry::box3d recv_region( {recvXMin, recvYMin, recvZMin}, {recvXMax, recvYMax, recvZMax} );
 

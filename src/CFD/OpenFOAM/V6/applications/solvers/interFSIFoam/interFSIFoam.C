@@ -32,7 +32,6 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-
 /*---------------------------------------------------------------------------*\
     Parallel Partitioned Multi-physical Simulation Framework (parMupSiF)
 
@@ -64,7 +63,7 @@ Description
     @author W. Liu
     
     @brief This is a part of the Parallel Partitioned Multi-physical Simu-
-    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6 
+    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.2 <-> OpenFOAM v6 
     two-way coupling.
 
     Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain 
@@ -117,6 +116,7 @@ const dimensionedScalar gunits("gunits", dimensionSet(0,1,-2,0,0,0,0), 9.81);
     #include "createDyMControls.H"
     #include "createFields.H"
     #include "createAlphaFluxes.H"
+    #include "createDummyFields.H"
     #include "initCorrectPhi.H"
     #include "createUfIfPresent.H"
 
@@ -156,9 +156,21 @@ const dimensionedScalar gunits("gunits", dimensionSet(0,1,-2,0,0,0,0), 9.81);
 
         runTime++;
         timeSteps++;
+/* 
+        if (runTime.value() <= 0.32)
+        {
+            g=gunits*Foam::sin(0.0698132*1.3*runTime.value())*vector(1,0,0)-gunits*Foam::cos(0.0698132*1.3*runTime.value())*vector(0,1,0);
+        } else if ((runTime.value() > 0.32) && (runTime.value() < 0.47))
+        {
+            g=gunits*Foam::sin(0.0698132*13*runTime.value()*runTime.value()*runTime.value())*vector(1,0,0)-gunits*Foam::cos(0.0698132*13*runTime.value()*runTime.value()*runTime.value())*vector(0,1,0);
+        }else
+        {
+            g=gunits*Foam::sin(0.0698132*Foam::sin((runTime.value()-0.38)*pi*2*0.61))*vector(1,0,0)-gunits*Foam::cos(0.0698132*Foam::sin((runTime.value()-0.38)*pi*2*0.61))*vector(0,1,0);
+        } */
         
         g=(gunits)*Foam::sin(0.0698132*Foam::sin(runTime.value()*pi*2*0.83))*vector(1,0,0)-gunits*Foam::cos(0.0698132*Foam::sin(runTime.value()*pi*2*0.83))*vector(0,1,0);
  
+        
         Info<< "Time = " << runTime.timeName() << nl << endl;
         Info<< "Time Steps = " << timeSteps << nl << endl;
 
@@ -175,11 +187,15 @@ const dimensionedScalar gunits("gunits", dimensionSet(0,1,-2,0,0,0,0), 9.81);
         for(int subIter = 1; subIter <= subIterationNum; ++subIter)
         {
 
+ //           #include "resetFields.H"
+
             Info<< "sub-Iteration = " << subIter << nl << endl;
 
             totalCurrentIter++;
 
             Info << "total current iteration = " << totalCurrentIter << nl << endl;
+
+ //           #include "rigidMeshMotion.H"
 
            #include "pushForce.H"
            #include "fetchDisplacement.H"
@@ -227,12 +243,14 @@ const dimensionedScalar gunits("gunits", dimensionSet(0,1,-2,0,0,0,0), 9.81);
 						}
 					}
 				}
-
+            //if (subIter == 1)
+            //{
 				#include "alphaControls.H"
 				#include "alphaEqnSubCycle.H"
 
 				mixture.correct();
-
+            //}
+            
 				#include "UEqn.H"
 
 				// --- Pressure corrector loop
@@ -247,7 +265,7 @@ const dimensionedScalar gunits("gunits", dimensionSet(0,1,-2,0,0,0,0), 9.81);
 				}
 			}
 		}
-
+		
         runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"

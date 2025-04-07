@@ -29,7 +29,7 @@
     @author W. Liu
     
     @brief This is a part of the Parallel Partitioned Multi-physical Simu-
-    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6 
+    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.2 <-> OpenFOAM v6 
     two-way coupling.
 
     Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain 
@@ -41,9 +41,6 @@
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-	// Debug switch for pushForce.H
-	bool debugPushForce = false;
 
     // Obtain the normal vectors on the boundary faces
     const surfaceVectorField::Boundary& Sfb = mesh.Sf().boundaryField();
@@ -71,15 +68,37 @@
         min(max(alphaWater, scalar(0)), scalar(1))
     );
 	
+//	tmp<volSymmTensorField> tdevRhoReffWater = nuForceWater*rhoForceWater*(-dev(twoSymm(fvc::grad(UForce))));
 	tmp<volSymmTensorField> tdevRhoReffWater = (-rhoForce*nuForceWater*dev(twoSymm(fvc::grad(UForce))));
 	const volSymmTensorField::Boundary& devRhoReffbWater
 		= tdevRhoReffWater().boundaryField();
 
+//	tmp<volSymmTensorField> tdevRhoReffAir = nuForceAir*rhoForceAir*(-dev(twoSymm(fvc::grad(UForce))));
 	tmp<volSymmTensorField> tdevRhoReffAir = (-rhoForce*nuForceWater*dev(twoSymm(fvc::grad(UForce))));
 	const volSymmTensorField::Boundary& devRhoReffbAir
 		= tdevRhoReffAir().boundaryField();
 
     scalar t = mesh.time().value();
+//    vector mg((7.62272e-06 * 1100. * g.component(vector::X)),(7.62272e-06 * 1100. * g.component(vector::Y)),(7.62272e-06 * 1100. * g.component(vector::Z)));
+/*         vector mg(0.0,0.0,0.0);
+        vector mgp(0.0,0.0,0.0);
+        if (runTime.value() <= 0.32)
+        {
+            mg=(7.62272e-06 * 1100. * (9.81*Foam::sin(0.0698132*1.3*runTime.value())*vector(1,0,0)-9.81*Foam::cos(0.0698132*1.3*runTime.value())*vector(0,1,0)));
+            mgp=(mg/(2*((0.0574*0.004)+(0.004*0.0332)+(0.0574*0.0332))));
+        } else if ((runTime.value() > 0.32) && (runTime.value() < 0.47))
+        {
+            mg=(7.62272e-06 * 1100. * (9.81*Foam::sin(0.0698132*13*runTime.value()*runTime.value()*runTime.value())*vector(1,0,0)-9.81*Foam::cos(0.0698132*13*runTime.value()*runTime.value()*runTime.value())*vector(0,1,0)));
+            mgp=(mg/(2*((0.0574*0.004)+(0.004*0.0332)+(0.0574*0.0332))));
+        }else
+        {
+            mg=(7.62272e-06 * 1100. * (9.81*Foam::sin(0.0698132*Foam::sin((runTime.value()-0.38)*pi*2*0.61))*vector(1,0,0)-9.81*Foam::cos(0.0698132*Foam::sin((runTime.value()-0.38)*pi*2*0.61))*vector(0,1,0)));
+            mgp=(mg/(2*((0.0574*0.004)+(0.004*0.0332)+(0.0574*0.0332))));
+        } */
+
+//        vector mg=(7.62272e-06 * 1100. * ((10.0)*Foam::sin(0.0698132*Foam::sin(runTime.value()*pi*2*0.61))*vector(1,0,0)-9.81*Foam::cos(0.0698132*Foam::sin(runTime.value()*pi*2*0.61))*vector(0,1,0)));
+        vector mg=(1.524544e-05 * 1100. * ((9.81)*Foam::sin(0.0698132*Foam::sin(runTime.value()*pi*2*0.83))*vector(1,0,0)-9.81*Foam::cos(0.0698132*Foam::sin(runTime.value()*pi*2*0.83))*vector(0,1,0)));
+        vector mgp=(mg/(2*((0.0574*0.0332))));
 
     // Calculate the total forces on each face: Total_force = Pressure_force + Share_stress.
     // Note: incompressible solvers only.
@@ -92,14 +111,44 @@
                     Sfb[patchIDs[iN][pI]] 
                     * 
                     pForce.boundaryField()[patchIDs[iN][pI]]
-
+//                    *
+//					limitedAlphaWater.boundaryField()[patchIDs[iN][pI]]
+//					*					
+//                    rhoForceWater.value()
                 )
+//                +
+//                (
+//                    Sfb[patchIDs[iN][pI]] 
+//                    *
+//                    pForce.boundaryField()[patchIDs[iN][pI]]
+//                    *
+//					(scalar(1)-limitedAlphaWater.boundaryField()[patchIDs[iN][pI]])
+//					*					
+//                    rhoForceAir.value()
+//                )
                 +
                 (
                     (Sfb[patchIDs[iN][pI]]
+//                    *
+//                    limitedAlphaWater.boundaryField()[patchIDs[iN][pI]]
                     )
                     & 
                     devRhoReffbWater[patchIDs[iN][pI]]
+//				)
+//				+
+//                (
+//                    (Sfb[patchIDs[iN][pI]]
+//                    *
+//                    (scalar(1)-limitedAlphaWater.boundaryField()[patchIDs[iN][pI]])
+//                    )
+//                    & 
+//                    devRhoReffbAir[patchIDs[iN][pI]]
+//                )
+//                +
+//                (
+//                    mgp
+//                    *
+//                    magSfb[patchIDs[iN][pI]]
                 );
 
             // Calculate the total traction on each face: Total_traction = Total_force / Face_area_magnitude.
@@ -141,6 +190,8 @@
 
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
+//    int totalCurrentIterForget = ((timeSteps - forgetTimeSteps - 1) * subIterationNum) + subIter;
+
     mui::point3d send_point;
 
     // Loop over all the interfaces
@@ -162,11 +213,11 @@
                 }
 
                 //- Create 3D sending point at current face center
-                // ToDo: change it to map
+                // ToDo: change it to map find solution
                 send_point[0] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::X)));
                 send_point[1] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Y)));
                 send_point[2] = (double)((float)(oriCoordPushPointsVectorValsList[iN][pI][faceI].component(vector::Z)));
-
+/* *+ */
                 if (rankHasPatchPointsForPush)
                 {
                     if (pushDelayIterations >= totalCurrentIter)
@@ -192,13 +243,12 @@
                         ifs[iN]->push(sendNameZ, send_point, tempPushZ);
                     }
                 }
-
-                if (((facePush.component(vector::X) != 0.0) ||
+// *+ */
+                if ((facePush.component(vector::X) != 0.0) ||
                     (facePush.component(vector::Y) != 0.0) || 
-                    (facePush.component(vector::Z) != 0.0)) &&
-                    (debugPushForce == true))
+                    (facePush.component(vector::Z) != 0.0))
                 {
-                    Pout << "send_point[0]= " << send_point[0] << nl <<endl;
+        /*             Pout << "send_point[0]= " << send_point[0] << nl <<endl;
                     Pout << "send_point[1]= " << send_point[1] << nl <<endl;
                     Pout << "send_point[2]= " << send_point[2] << nl <<endl;
                     if(pushForce)
@@ -212,7 +262,7 @@
                         Pout << "tractionX= " << facePush.component(vector::X) << nl << endl;
                         Pout << "tractionY= " << facePush.component(vector::Y) << nl << endl;
                         Pout << "tractionZ= " << facePush.component(vector::Z) << nl << endl;
-                    }
+                    } */
                 }
 
                 if (twoDimCorrection)
@@ -244,7 +294,7 @@
                 }
             }
         }
-
+/* *+ */
         //- Commit the pushed values to the interface at current time step
         ifs[iN]->commit(static_cast<scalar>(totalCurrentIter));
 
@@ -254,8 +304,14 @@
             Info << "MUI interface " << iN << " forget from 0 to " << (totalCurrentIter-2) << " iterations" << nl << endl;
         } 
 
+/* *+        if (totalCurrentIterForget > 0)
+        {
+            ifs[iN]->forget((double)(totalCurrentIterForget));
+            Info << "MUI interface " << iN << " forget from 0 to " << totalCurrentIterForget << " iterations" << nl << endl;
+        } 
+*+ */
         Info << "MUI interface " << interfaceNames[iN] << " Commited on " << totalCurrentIter << " iterations" << nl << endl;
-
+// *+ */
     }
 
 #else

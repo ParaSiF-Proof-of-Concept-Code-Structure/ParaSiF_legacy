@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
     Parallel Partitioned Multi-physical Simulation Framework (ParaSiF)
 
-    Copyright (C) 2021 Engineering and Environment Group, Scientific 
-    Computing Department, Science and Technology Facilities Council, 
+    Copyright (C) 2021 Engineering and Environment Group, Scientific
+    Computing Department, Science and Technology Facilities Council,
     UK Research and Innovation. All rights reserved.
 
     This code is licensed under the GNU General Public License version 3
@@ -21,21 +21,21 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     *********************************************************************
-    
+
     @file fetchDisplacement.H
-    
+
     @author W. Liu
-    
+
     @brief This is a part of the Parallel Partitioned Multi-physical Simu-
-    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6 
+    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.2 <-> OpenFOAM v6
     two-way coupling.
 
-    Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain 
+    Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain
 	in OpenFOAM and Structure dynamics equations for structure domain in FEniCS.
 
-    It is to fetch displacement of the structure boundary from the structure domain 
+    It is to fetch displacement of the structure boundary from the structure domain
     in every time and sub-iteration loop of the fluid solver
     Located in the src/CFD/OpenFOAM/V6/applications/solvers/interFSIFoam sub-folder
 \*---------------------------------------------------------------------------*/
@@ -44,10 +44,9 @@
 
 #ifdef USE_MUI // included if the switch -DUSE_MUI included during compilation.
 
-	// Debug switch for fetchDisplacement.H
-	bool debugFetchDisplacement = false;
-
     mui::point3d rcv_point;
+
+ //   scalar t = mesh.time().value();
 
     Info << "{OpenFOAM} Fetch iteration " << totalCurrentIter << nl << endl;
     if((totalCurrentIter-0) >= 0)
@@ -79,7 +78,7 @@
 						rcv_point[0] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X);
 						rcv_point[1] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Y);
 						rcv_point[2] = oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z);
-
+	/* *+ */
 						if (rankHasPatchPointsForfetch)
 						{
 
@@ -99,19 +98,19 @@
 
 						}
 
-						if((dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
+						if(dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0)
 						{
-							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::X): " << dispVectorValsList[iN][pI][pointI].component(vector::X) << nl << endl;
+						//	Pout << "dispVectorValsList[iN][pI][pointI].component(vector::X): " << dispVectorValsList[iN][pI][pointI].component(vector::X) << nl << endl;
 						}
-						if((dispVectorValsList[iN][pI][pointI].component(vector::Y) != 0.0) && (debugFetchDisplacement == true))
+						if(dispVectorValsList[iN][pI][pointI].component(vector::Y) != 0.0)
 						{
-							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Y): " << dispVectorValsList[iN][pI][pointI].component(vector::Y) << nl << endl;
+						//	Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Y): " << dispVectorValsList[iN][pI][pointI].component(vector::Y) << nl << endl;
 						}
-						if((dispVectorValsList[iN][pI][pointI].component(vector::Z) != 0.0) && (debugFetchDisplacement == true))
+						if(dispVectorValsList[iN][pI][pointI].component(vector::Z) != 0.0)
 						{
-							Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Z): " << dispVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
+						//	Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Z): " << dispVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
 						}
-
+	//        *+ */
 						if (cplMethod == "Aitken")
 						{
 							AK[iN].collectResidual( dispVectorValsList[iN][pI][pointI].component(vector::X),
@@ -190,17 +189,17 @@
 
                     dispVectorValsList[iN][pI][pointI].component(vector::Z) = 0.0;
 
-                    if((dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
+                    if(dispVectorValsList[iN][pI][pointI].component(vector::X) != 0.0)
                     {
-                        Pout << "dispVectorValsList[iN][pI][pointI].component(vector::X): " << dispVectorValsList[iN][pI][pointI].component(vector::X) << nl << endl;
+                        // Pout << "dispVectorValsList[iN][pI][pointI].component(vector::X): " << dispVectorValsList[iN][pI][pointI].component(vector::X) << nl << endl;
                     }
-                    if((dispVectorValsList[iN][pI][pointI].component(vector::Y) != 0.0) && (debugFetchDisplacement == true))
+                    if(dispVectorValsList[iN][pI][pointI].component(vector::Y) != 0.0)
                     {
-                        Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Y): " << dispVectorValsList[iN][pI][pointI].component(vector::Y) << nl << endl;
+                        // Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Y): " << dispVectorValsList[iN][pI][pointI].component(vector::Y) << nl << endl;
                     }
-                    if((dispVectorValsList[iN][pI][pointI].component(vector::Z) != 0.0) && (debugFetchDisplacement == true))
+                    if(dispVectorValsList[iN][pI][pointI].component(vector::Z) != 0.0)
                     {
-                        Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Z): " << dispVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
+                        // Pout << "dispVectorValsList[iN][pI][pointI].component(vector::Z): " << dispVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
                     }
                 }
             }
@@ -221,7 +220,25 @@
                 (
                     pointDisplacement->boundaryFieldRef()[patch6DoFIDs[iN][pI]]
                 );
+/*             //*****************************->
+            forAll(dispVectorValsList[iN][pI], pointI)
+            {
+                dispVectorValsList[iN][pI][pointI].component(vector::X) = 0.0;
+                    double amp_local = 0.001;
+				if (oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z) == 0.0)
+				{
+					dispVectorValsList[iN][pI][pointI].component(vector::Y) = 0.0;
+					Pout << " Z0: oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z): " << oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
+				} else
+				{
+					dispVectorValsList[iN][pI][pointI].component(vector::Y) = 
+						amp_local*((oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::X)/0.1))*Foam::sin(2.0*3.14*8333.333* (runTime.value()));
+					Pout << " ZN0: oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z): " << oriCoordFetchPointsVectorValsList[iN][pI][pointI].component(vector::Z) << nl << endl;
+                }
 
+				dispVectorValsList[iN][pI][pointI].component(vector::Z) = 0.0;
+            }
+            //*****************************<- */
             // Loop over points to assign dispVectorVals to cellDisplacement boundaryFieldRef, i.e. move the nodes
             forAll(dispVectorValsList[iN][pI], pointI)
             {
@@ -322,17 +339,17 @@
 						FatalError << "cplFSIMethod: " << cplMethod << " in fsiDict does not recognized!" << exit(FatalError);
 					}         
 
-					if((PointPointerLocal[pointI].component(vector::X) != 0.0) && (debugFetchDisplacement == true))
+					if(PointPointerLocal[pointI].component(vector::X) != 0.0)
 					{
-						Pout << "PointPointerLocal[pointI].component(vector::X): " << PointPointerLocal[pointI].component(vector::X) << nl << endl;
+						//Pout << "PointPointerLocal[pointI].component(vector::X): " << PointPointerLocal[pointI].component(vector::X) << nl << endl;
 					}
-					if((PointPointerLocal[pointI].component(vector::Y) != 0.0) && (debugFetchDisplacement == true))
+					if(PointPointerLocal[pointI].component(vector::Y) != 0.0)
 					{
-						Pout << "PointPointerLocal[pointI].component(vector::Y): " << PointPointerLocal[pointI].component(vector::Y) << nl << endl;
+						//Pout << "PointPointerLocal[pointI].component(vector::Y): " << PointPointerLocal[pointI].component(vector::Y) << nl << endl;
 					}
-					if((PointPointerLocal[pointI].component(vector::Z) != 0.0) && (debugFetchDisplacement == true))
+					if(PointPointerLocal[pointI].component(vector::Z) != 0.0)
 					{
-						Pout << "PointPointerLocal[pointI].component(vector::Z): " << PointPointerLocal[pointI].component(vector::Z) << nl << endl;
+						//Pout << "PointPointerLocal[pointI].component(vector::Z): " << PointPointerLocal[pointI].component(vector::Z) << nl << endl;
 					}
 
 
@@ -385,9 +402,9 @@
                     pointDisplacement->boundaryFieldRef()[patch6DoFIDs[iN][pI]]
                 );
 
-            PointPointerLocal[pointI].component(vector::X) = rigidMotionAmplitudeX_*Foam::sin(2*3.1416*rigidMotionFrqX_*t);
-            PointPointerLocal[pointI].component(vector::Y) = rigidMotionAmplitudeY_*Foam::sin(2*3.1416*rigidMotionFrqY_*t);
-            PointPointerLocal[pointI].component(vector::Z) = rigidMotionAmplitudeZ_*Foam::sin(2*3.1416*rigidMotionFrqZ_*t);
+        PointPointerLocal[pointI].component(vector::X) = rigidMotionAmplitudeX_*Foam::sin(2*3.1416*rigidMotionFrqX_*t);
+        PointPointerLocal[pointI].component(vector::Y) = rigidMotionAmplitudeY_*Foam::sin(2*3.1416*rigidMotionFrqY_*t);
+        PointPointerLocal[pointI].component(vector::Z) = rigidMotionAmplitudeZ_*Foam::sin(2*3.1416*rigidMotionFrqZ_*t);
 
             // Loop over points to receive displacement values and assigned to dispVectorVals
             forAll(dispVectorValsList[iN][pI], pointI)

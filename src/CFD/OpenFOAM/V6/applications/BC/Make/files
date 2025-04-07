@@ -1,0 +1,4 @@
+parabolicInletVelocity/parabolicInletVelocityFvPatchVectorField.C
+parabolicInletVelocityTwoD/parabolicInletVelocityTwoDFvPatchVectorField.C
+
+LIB = $(FOAM_USER_LIBBIN)/libParasifBoundaryCondition

@@ -7,7 +7,7 @@ domainFluid=${PWD}/runData/fluidDomain
 domainStructure=${PWD}/runData/structureDomain
 
 # Ranks set to each domain
-numProcsFluid=6
+numProcsFluid=3
 numProcsStructure=1
 
 # Source OpenFOAM run functions

@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
-    Parallel Partitioned Multi-physical Simulation Framework (parMupSiF)
+    Parallel Partitioned Multi-physical Simulation Framework (ParaSiF)
 
-    Copyright (C) 2021 Engineering and Environment Group, Scientific 
-    Computing Department, Science and Technology Facilities Council, 
+    Copyright (C) 2021 Engineering and Environment Group, Scientific
+    Computing Department, Science and Technology Facilities Council,
     UK Research and Innovation. All rights reserved.
 
     This code is licensed under the GNU General Public License version 3
@@ -21,23 +21,24 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     *********************************************************************
-    
+
     @file createDynamicFvMeshOri.H
-    
+
     @author W. Liu
-    
+
     @brief This is a part of the Parallel Partitioned Multi-physical Simu-
-    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6 
+    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.2 <-> OpenFOAM v6
     two-way coupling.
 
-    Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain 
+    Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain
 	in OpenFOAM and Structure dynamics equations for structure domain in FEniCS.
 
-    It creates and store the stationary/original dynamicFvMesh for the CFD solver
     Located in the src/CFD/OpenFOAM/V6/applications/solvers/interFSIFoam sub-folder
 \*---------------------------------------------------------------------------*/
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 Info<< "Create meshOri for time = "
     << runTime.timeName() << nl << endl;

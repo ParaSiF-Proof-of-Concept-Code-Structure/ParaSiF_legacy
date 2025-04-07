@@ -29,7 +29,7 @@
     @author W. Liu
     
     @brief This is a part of the Parallel Partitioned Multi-physical Simu-
-    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6 
+    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.2 <-> OpenFOAM v6 
     two-way coupling.
 
     Incompressible Navier-Stokes equations with two fluid by VOF for fluid domain 
@@ -39,6 +39,9 @@
     to the structure domain before the time loop of the fluid solver
     Located in the src/CFD/OpenFOAM/V6/applications/solvers/interFSIFoam sub-folder
 \*---------------------------------------------------------------------------*/
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 
     // Time Steps counter
     int timeSteps = 0;

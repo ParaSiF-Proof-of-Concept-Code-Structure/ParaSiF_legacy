@@ -67,7 +67,7 @@
     @author W. Liu
     
     @brief This is a part of the Parallel Partitioned Multi-physical Simu-
-    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.0 <-> OpenFOAM v6 
+    lation Framework provides FEniCS v2019.1.0 <-> MUI v1.2 <-> OpenFOAM v6 
     two-way coupling.
 
     Incompressible Navier-Stokes equations for fluid domain in OpenFOAM
@@ -87,23 +87,23 @@
 namespace mui {
 
 struct mui_config {
-
+	using EXCEPTION = exception_segv;
+	/// Switch of debug mode
+	static const bool DEBUG = false;
     /// Define the dimension of the interface
 	static const int D = 3;
+    /// Switch of fixed points/dynamic points
+	static const bool FIXEDPOINTS = false;
+	static const bool QUIET = false;		//- If the library is quiet then it will only issue critical warning messages
 
     /// MUI type define
 	using REAL = double;
 	using INT  = int32_t;
+
 	using point_type = point<REAL,D>;
 	using time_type  = REAL; // INT-typed time stamp might be an alternative
-	using data_types = type_list<int32_t,int64_t,double>;
+	using data_types = type_list<int32_t,int64_t,double,float>;
 
-    /// Switch of debug mode
-	static const bool DEBUG = false;
-	using EXCEPTION = exception_segv;
-
-    /// Switch of fixed points/dynamic points
-	static const bool FIXEDPOINTS = true;
 };
 }
 
